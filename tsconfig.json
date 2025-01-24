@@ -18,6 +18,8 @@
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "incremental": true,
     "jsx": "preserve",
     "module": "esnext",
