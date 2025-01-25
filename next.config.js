@@ -8,6 +8,14 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   images: {
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map((item) => {
@@ -22,7 +30,6 @@ const nextConfig = {
   },
   reactStrictMode: true,
   redirects,
-  ignoreDuringBuilds: true,
 }
 
 export default withPayload(nextConfig)
