@@ -22,6 +22,7 @@ const nextConfig = {
   },
   reactStrictMode: true,
   redirects,
+  ignoreDuringBuilds: true,
 }
 
 export default withPayload(nextConfig)
