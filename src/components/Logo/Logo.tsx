@@ -18,7 +18,7 @@ export const Logo = (props: Props) => {
     <img
       alt="Roofing & Siding Hub Logo"
       width={300}
-      height={50}
+      height={80}
       loading={loading}
       fetchPriority={priority}
       decoding="async"

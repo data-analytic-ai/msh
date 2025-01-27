@@ -70,6 +70,10 @@ export default buildConfig({
     ...plugins,
     // storage-adapter-placeholder
   ],
+  // routes:{
+  //   admin: '/',
+
+  // },
   secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {

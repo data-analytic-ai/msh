@@ -16,7 +16,7 @@ export const hero: Field = {
     {
       name: 'type',
       type: 'select',
-      defaultValue: 'lowImpact',
+      defaultValue: 'rfsdhubHeroSection',
       label: 'Type',
       options: [
         {
@@ -35,6 +35,10 @@ export const hero: Field = {
           label: 'Low Impact',
           value: 'lowImpact',
         },
+        {
+          label: 'RFSDHUB Hero Section',
+          value: 'rfsdhubHeroSection',
+        }
       ],
       required: true,
     },
