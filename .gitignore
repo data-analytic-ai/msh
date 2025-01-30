@@ -14,3 +14,7 @@ public/sitemap*.xml
 
 # Ignore Docker files
 Dockerfile
+
+# local env files
+.env*.qa
+.env

@@ -39,7 +39,7 @@ export const HeroSection: React.FC<HeroSectionType> = ({ children, richText, med
   };
 
   useEffect(() => {
-    console.log('HeroSection mounted'); // Si necesitas algún efecto secundario
+    console.log('HeroSection mounted'); // efecto secundario
   }, []);
 
   return (
