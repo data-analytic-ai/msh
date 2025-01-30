@@ -17,4 +17,4 @@ Dockerfile
 
 # local env files
 .env*.qa
-.env
+.env.qa
