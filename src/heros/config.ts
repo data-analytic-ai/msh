@@ -8,7 +8,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 
 import { linkGroup } from '@/fields/linkGroup'
-
+import { FormBlock } from '@/blocks/Form/config'
 export const hero: Field = {
   name: 'hero',
   type: 'group',
@@ -71,6 +71,25 @@ export const hero: Field = {
       relationTo: 'media',
       required: true,
     },
+    /* {                  
+      name: 'Form layout',
+      type: 'blocks',
+      blocks: [FormBlock],
+      admin: {
+        initCollapsed: true,
+        condition: (_, { type } = {}) => type === 'rfsdhubHeroSection',
+      },
+    }, */
+    {
+      name: 'form', // campo opcional para seleccionar un formulario
+      type: 'relationship',
+      relationTo: 'forms',
+      required: false,
+      admin: {
+        description: 'Selecciona el formulario que se mostrará en el hero',
+        condition: (_, { type } = {}) => type === 'rfsdhubHeroSection',
+      },
+    }
   ],
   label: false,
 }
