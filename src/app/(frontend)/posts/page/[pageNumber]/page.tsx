@@ -11,6 +11,8 @@ import { notFound } from 'next/navigation'
 
 export const revalidate = 600
 
+export const dynamicParams = true;
+
 type Args = {
   params: Promise<{
     pageNumber: string
