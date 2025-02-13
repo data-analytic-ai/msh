@@ -20,6 +20,10 @@ export const hero: Field = {
       label: 'Type',
       options: [
         {
+          label: 'HeroLeads',
+          value: 'heroLeads',
+        },
+        {
           label: 'None',
           value: 'none',
         },
@@ -66,7 +70,7 @@ export const hero: Field = {
       name: 'media',
       type: 'upload',
       admin: {
-        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact', 'rfsdhubHeroSection'].includes(type),
+        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact', 'rfsdhubHeroSection', 'heroLeads'].includes(type),
       },
       relationTo: 'media',
       required: true,
