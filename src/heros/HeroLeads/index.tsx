@@ -8,7 +8,7 @@ type leadsHeroSection = {
     
   }
 
-export const heroLeads: React.FC<Page['hero']> = ({richText, media}) => {
+export const HeroLeads: React.FC<Page['hero']> = ({richText, media}) => {
  
     return(
         <div><h1>Hero de prueba</h1></div>
