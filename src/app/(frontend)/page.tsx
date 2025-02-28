@@ -32,7 +32,9 @@ export default async function Home() {
   return (
     <>
       <RenderHero  type='rfsdhubHeroSection' richText={page.hero.richText} form={page.hero.form} media={page.hero.media}  />
-      <RenderBlocks blocks={page.layout} />
+      <div className="px-4 md:px-6 lg:px-8">
+        <RenderBlocks blocks={page.layout} />
+      </div>
     </>
 
   )
