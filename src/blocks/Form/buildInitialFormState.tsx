@@ -8,7 +8,7 @@ export const buildInitialFormState = (fields: FormFieldBlock[]) => {
         [field.name]: field.defaultValue,
       }
     }
-    if (field.blockType === 'country') {
+    if (field.blockType === 'textarea') {
       return {
         ...initialSchema,
         [field.name]: '',
@@ -38,6 +38,30 @@ export const buildInitialFormState = (fields: FormFieldBlock[]) => {
         [field.name]: '',
       }
     }
+    if (field.blockType === 'number') {
+      return {
+        ...initialSchema,
+        [field.name]: '',
+      }
+    }
+    if (field.blockType === 'country') {
+      return {
+        ...initialSchema,
+        [field.name]: '',
+      }
+    }
+    if (field.blockType === 'message') {
+      return {
+        ...initialSchema,
+        [field.name]: '',
+      }
+    }
+    if (field.blockType === 'colorPicker') {
+      return {
+        ...initialSchema,
+        [field.name]: '',
+      }
+    } 
 
     return initialSchema
   }, {})
