@@ -9,7 +9,7 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 
   eslint: {
@@ -18,7 +18,11 @@ const nextConfig = {
 
   images: {
     remotePatterns: [
-      ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map((item) => {
+      ...[
+        NEXT_PUBLIC_SERVER_URL,
+        'https://rfsd-hub-qa.up.railway.app',
+        'https://roofingsidinghub.com',
+      ].map((item) => {
         const url = new URL(item)
 
         return {
