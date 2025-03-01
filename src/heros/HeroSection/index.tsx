@@ -1,187 +1,50 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Media } from '@/components/Media';
-import RichText from '@/components/RichText';
+import React from "react";
+import { Media } from "@/components/Media";
+import RichText from "@/components/RichText";
+import { FormBlock } from "@/blocks/Form/Component";
+import { Page } from "@/payload-types";
+import type { Form } from '@payloadcms/plugin-form-builder/types'
+// export type HeroSectionProps = {
+//   richText?: any;
+//   media?: any;
+//   form?: any; // Asegúrate de que coincida con FormType de FormBlock
+// };
 
-// Tipos para tus campos y formulario
-export type FormField = {
-  blockType: 'textarea' | 'email' | 'number' | 'text';
-  name: string;
-  label: string;
-  required?: boolean;
-};
-
-type FormType = {
-  id: string;
-  title: string;
-  fields: FormField[];
-  submitButtonLabel?: string;
-  confirmationType?: string;
-};
-
-type HeroSectionProps = {
-  richText?: any;
-  media?: any;
-  form?: FormType;
-};
-
-export const HeroSection: React.FC<HeroSectionProps> = ({
-  richText,
-  media,
-  form,
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const methods = useForm();
-
-  // Lógica para enviar el formulario y guardarlo en tu endpoint de "form-submissions"
-  const onSubmit = async (formData: Record<string, any>) => {
-    if (!form?.id) {
-      // Si no hay form._id, no tenemos dónde guardar
-      setError('No form ID provided');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      // Estructura de datos que tu endpoint espera
-      // (similar a la usada en el FormBlock)
-      const submissionData = Object.entries(formData).map(([field, value]) => ({
-        field,
-        value,
-      }));
-
-      // Llamada a tu API para almacenar el formulario
-      const res = await fetch('/api/form-submissions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          form: form.id,       // el ID del form
-          submissionData,       // array con { field, value }
-        }),
-      });
-
-      if (!res.ok) {
-        const errBody = await res.json();
-        throw new Error(errBody?.errors?.[0]?.message || 'Submission error');
-      }
-
-      setHasSubmitted(true);
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Renderizado genérico de cada campo, similar a tu FormBlock
-  const renderField = (field: FormField) => {
-    switch (field.blockType) {
-      case 'textarea':
-        return (
-          <Textarea
-            {...methods.register(field.name, { required: field.required })}
-            className="h-24"
-          />
-        );
-      case 'email':
-        return (
-          <Input
-            type="email"
-            {...methods.register(field.name, { required: field.required })}
-          />
-        );
-      case 'number':
-        return (
-          <Input
-            type="number"
-            {...methods.register(field.name, { required: field.required })}
-          />
-        );
-      default:
-        // 'text', etc.
-        return (
-          <Input
-            type="text"
-            {...methods.register(field.name, { required: field.required })}
-          />
-        );
-    }
-  };
-
+const HeroSection: React.FC<Page['hero']> = ({ richText, media, form }) => {
   return (
-    <section className="relative min-h-[600px]">
-      {/* Fondo dinámico con Payload Media */}
+    <section className="relative min-h-[100vh] w-full bg-primary overflow-hidden flex items-center justify-center">
       {media && (
-        <div className="absolute inset-0">
+        <div className="absolute top-0 left-0 right-0 bottom-0 w-full h-full">
           <Media
-            fill
-            imgClassName="w-full h-full object-cover"
+            imgClassName="w-full h-full object-cover object-center"
             resource={media}
             priority
+            fill
+            size="100vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-100/90 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/20 dark:from-black/60 dark:to-black/30" />
         </div>
       )}
-
-      <div className="relative max-w-7xl mx-auto px-6 py-12 md:py-24 flex flex-col md:flex-row items-center gap-12">
-        <div className="flex-1">
+      <div className="relative container mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 mt-[-16vh] sm:mt-[-10vh] md:mt-[-6vh] lg:mt-[-16vh]">
+        <div className="w-full md:w-1/2 lg:w-3/5 flex items-center justify-center">
           {richText && (
             <RichText
-              className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"
+              className="text-1x1 sm:text-2xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-md text-center mx-auto"
               data={richText}
               enableGutter={false}
             />
           )}
         </div>
-
-        {/* Formulario dinámico */}
-        {form && !hasSubmitted && (
-          <div className="w-full md:w-[450px] bg-white/95 backdrop-blur rounded-lg shadow-xl p-6">
-            <h2 className="text-xl font-semibold mb-4">{form.title}</h2>
-            <FormProvider {...methods}>
-              <form onSubmit={methods.handleSubmit(onSubmit)}>
-                {form.fields?.map((field) => (
-                  <div className="mb-4" key={field.name}>
-                    <Label htmlFor={field.name}>
-                      {field.label}
-                      {field.required && ' *'}
-                    </Label>
-                    {renderField(field)}
-                  </div>
-                ))}
-
-                {/* Mostrar error si existe */}
-                {error && <p className="text-red-500 my-2">{error}</p>}
-
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading
-                    ? 'Sending...'
-                    : form.submitButtonLabel || 'Submit'}
-                </Button>
-              </form>
-            </FormProvider>
-          </div>
-        )}
-
-        {/* Mensaje de confirmación si ya se envió el formulario */}
-        {form && hasSubmitted && form.confirmationType === 'message' && (
-          <div className="w-full md:w-[450px] bg-white/95 backdrop-blur rounded-lg shadow-xl p-6">
-            <p className="text-xl">¡Gracias por tu envío!</p>
-            {/* Si deseas renderizar un campo `confirmationMessage` más elaborado, hazlo aquí */}
+        {form && (
+          <div className="w-full md:w-1/2 lg:w-2/5 p-1 sm:p-2 flex items-center justify-center">
+            <FormBlock enableIntro={true} form={form as Form} />
           </div>
         )}
       </div>
     </section>
   );
 };
+
+export default HeroSection;

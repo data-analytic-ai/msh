@@ -93,7 +93,7 @@ export interface Page {
   id: string;
   title: string;
   hero: {
-    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact' | 'rfsdhubHeroSection';
+    type: 'heroLeads' | 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact' | 'rfsdhubHeroSection';
     richText?: {
       root: {
         type: string;
