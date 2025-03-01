@@ -14,29 +14,31 @@ import type { Form } from '@payloadcms/plugin-form-builder/types'
 
 const HeroSection: React.FC<Page['hero']> = ({ richText, media, form }) => {
   return (
-    <section className="relative min-h-[80vh] bg-primary">
+    <section className="relative min-h-[100vh] w-full bg-primary overflow-hidden flex items-center justify-center">
       {media && (
-        <div className="absolute inset-0">
+        <div className="absolute top-0 left-0 right-0 bottom-0 w-full h-full">
           <Media
-            imgClassName="w-full h-full object-cover"
+            imgClassName="w-full h-full object-cover object-center"
             resource={media}
             priority
+            fill
+            size="100vw"
           />
-          {/* <div className="absolute inset-0 bg-gradient-to-r from-blue-100/90 to-transparent" /> */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/20 dark:from-black/60 dark:to-black/30" />
         </div>
       )}
-      <div className="relative max-w-7xl mx-auto px-4 py-8 md:px-6 md:py-12 lg:py-24 flex flex-col md:flex-row items-center gap-8 md:gap-12">
-        <div className="flex-1">
+      <div className="relative container mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 mt-[-16vh] sm:mt-[-10vh] md:mt-[-6vh] lg:mt-[-16vh]">
+        <div className="w-full md:w-1/2 lg:w-3/5 flex items-center justify-center">
           {richText && (
             <RichText
-              className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6"
+              className="text-1x1 sm:text-2xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-md text-center mx-auto"
               data={richText}
               enableGutter={false}
             />
           )}
         </div>
         {form && (
-          <div className="w-full max-w-md mx-auto">
+          <div className="w-full md:w-1/2 lg:w-2/5 p-1 sm:p-2 flex items-center justify-center">
             <FormBlock enableIntro={true} form={form as Form} />
           </div>
         )}
