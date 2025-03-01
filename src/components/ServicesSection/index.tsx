@@ -24,34 +24,56 @@ const services = [
 
 export default function ServicesSection() {
   return (
-    <section className="py-16 md:py-24 px-6 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Our Services</h2>
-        <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+    <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-card dark:bg-card">
+      <div className="container mx-auto">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">Our Services</h2>
+        <p className="text-center text-muted-foreground mb-8 md:mb-12 max-w-2xl mx-auto text-sm sm:text-base">
           At RoofingSidingHub.com, we focus on providing reliable roofing and siding services to meet your home's
           exterior requirements. Our experienced team delivers quality workmanship for durable protection and improved
           appearance. Explore our range of roofing and siding options for your property today.
         </p>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {services.map((service, index) => (
-            <div key={index} className="flex flex-col">
-              <div className="relative h-48 mb-4">
+            <div 
+              key={index} 
+              className="flex flex-col bg-background dark:bg-background rounded-lg shadow-sm overflow-hidden transition-transform hover:translate-y-[-4px] hover:shadow-md"
+            >
+              <div className="relative h-48 mb-0">
                 <Image
                   src={service.image || "/placeholder.svg"}
                   alt={service.title}
                   fill
-                  className="rounded-lg object-cover"
+                  className="object-cover"
                 />
               </div>
-              <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
-              <p className="text-gray-600 flex-grow">{service.description}</p>
+              <div className="p-4 sm:p-6 flex-grow">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 text-foreground">{service.title}</h3>
+                <p className="text-sm sm:text-base text-muted-foreground">{service.description}</p>
+              </div>
             </div>
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <Button variant="secondary">View All Services</Button>
+        <div className="text-center mt-8 md:mt-12">
+          <Button variant="secondary">
+            View All Services
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="ml-2 h-4 w-4"
+            >
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+          </Button>
         </div>
       </div>
     </section>
