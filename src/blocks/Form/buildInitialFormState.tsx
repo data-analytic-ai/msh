@@ -45,15 +45,16 @@ export const buildInitialFormState = (fields: FormFieldBlock[]) => {
       }
     }
     if (field.blockType === 'message') {
-      return {
-        ...initialSchema,
-        [field.blockType]: '',
-      }
+      return initialSchema;
     }
+    // Corregimos el manejo del campo colorPicker
+    // @ts-ignore - Ignoramos el error de tipo ya que sabemos que este campo existe
     if (field.blockType === 'colorPicker') {
+      // @ts-ignore
       return {
         ...initialSchema,
-        [field]: '',
+        // @ts-ignore
+        [field.name]: '',
       }
     } 
 

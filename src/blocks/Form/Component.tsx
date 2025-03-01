@@ -45,11 +45,12 @@ export const FormBlock: React.FC<
   const formMethods = useForm({
     defaultValues: buildInitialFormState(formFromProps.fields),
     shouldUnregister: false,
-    
+    mode: 'onChange'
   })
+  
   const {
     control,
-    formState: { errors, isValid },
+    formState: { errors },
     handleSubmit,
     register,
     trigger,
@@ -63,33 +64,128 @@ export const FormBlock: React.FC<
 
   // --- LÓGICA MULTIPASOS ---
   // Obtenemos todos los campos (se asume que vienen de la base de datos)
-  const allFields = useMemo(() => formFromProps.fields.map((f, index) => ({
-    ...f,
-    uniqueName: f.id || `${f.name}-${index}`
-  })), [formFromProps.fields])
-  
+  const allFields = useMemo(() => formFromProps.fields.map((f, index) => {
+    // Crear un identificador único para cada campo
+    const fieldName = 'name' in f ? f.name : f.blockType;
+    const fieldId = 'id' in f ? f.id : undefined;
+    
+    return {
+      ...f,
+      uniqueName: fieldId || `${fieldName}-${index}`
+    };
+  }), [formFromProps.fields])
   
   // Definimos 3 campos por pasos
   const fieldsPerStep = 3;
   const totalSteps = Math.ceil(allFields.length / fieldsPerStep);
   const currentFields = useMemo(() => allFields.slice(step * fieldsPerStep, (step + 1) * fieldsPerStep), [allFields, step])
 
-  // Función para navegar: valida los campos del paso actual antes de avanzar
-  const handleNext = async () => {
-    const fieldNames   = currentFields.map(f => f.name)
-    const valid = await trigger(fieldNames as any)
-    if (valid) setStep(prev => Math.min(prev + 1, totalSteps - 1))
-  }
-  const handleBack = () => setStep(prev => Math.max(prev - 1, 0))
+  // Función para retroceder
+  const handleBack = useCallback(() => {
+    setStep(prev => Math.max(prev - 1, 0));
+  }, []);
 
-  // --- VALIDACIÓN GENERAL ---
-  // En este ejemplo la validación se realiza dentro de cada Field, usando el mapeo de "fields" importado.
-  // Por ello, en este componente multipasos, reutilizamos el mapeo original:
+  // Función para avanzar - memoizada con useCallback
+  const handleNext = useCallback(async () => {
+    // Filtramos solo los campos que tienen 'name' y son requeridos para validación
+    const requiredFields = currentFields
+      .filter(f => 'name' in f && 'required' in f && f.required);
+    
+    const fieldNames = requiredFields
+      .map(f => 'name' in f ? f.name : undefined)
+      .filter(Boolean);
+    
+    // Si hay campos requeridos, validamos antes de avanzar
+    if (fieldNames.length > 0) {
+      const valid = await trigger(fieldNames as any);
+      if (!valid) {
+        return; // Si la validación falla, no avanzamos
+      }
+    }
+    
+    // Avanzamos al siguiente paso
+    setStep(prev => Math.min(prev + 1, totalSteps - 1));
+  }, [currentFields, trigger, totalSteps]);
+
+  // Manejador de envío del formulario
+  const onSubmit = useCallback((data: Data) => {
+    // Si no estamos en el último paso, avanzamos al siguiente
+    if (step < totalSteps - 1) {
+      handleNext();
+      return;
+    }
+    
+    // Evitamos múltiples envíos
+    if (isLoading || hasSubmitted) return;
+    
+    // Protección adicional contra envíos automáticos
+    const procesarEnvio = () => {
+      setError(undefined);
+      setIsLoading(true);
+      
+      const dataToSend = allFields
+        .filter(field => 'name' in field)
+        .map(field => ({
+          field: 'name' in field ? field.name : '',
+          value: 'name' in field ? data[field.name] || '' : '',
+        }));
+      
+      fetch(`${getClientSideURL()}/api/form-submissions`, {
+        body: JSON.stringify({
+          form: formID,
+          submissionData: dataToSend,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+      })
+        .then(async (req) => {
+          const res = await req.json();
+          setIsLoading(false);
+          
+          if (req.status >= 400) {
+            setError({
+              message: res.errors?.[0]?.message || 'Internal Server Error',
+              status: res.status,
+            });
+            return;
+          }
+          
+          setHasSubmitted(true);
+          
+          if (confirmationType === 'redirect' && redirect && redirect.url) {
+            router.push(redirect.url);
+          }
+        })
+        .catch((err) => {
+          console.warn(err);
+          setIsLoading(false);
+          setError({ message: 'Something went wrong.' });
+        });
+    };
+    
+    // Usamos requestAnimationFrame para asegurar que se ejecute en el momento adecuado
+    window.requestAnimationFrame(() => {
+      procesarEnvio();
+    });
+  }, [allFields, formID, confirmationType, redirect, router, isLoading, hasSubmitted, step, totalSteps, handleNext]);
+
+  // --- RENDERIZADO DE CAMPOS ---
   const renderField = (field: any, index: number) => {
     const Field: React.FC<any> = fields?.[field.blockType as keyof typeof fields]
     if (Field) {
+      // Aplicamos clases adicionales para campos opcionales
+      const isOptionalField = 'required' in field && !field.required;
+      
       return (
-        <div className="mb-6 last:mb-0" key={field.uniqueName}>
+        <div 
+          className={`mb-6 last:mb-0 ${isOptionalField ? 'optional-field' : ''}`} 
+          key={field.uniqueName}
+          // Añadimos data-attributes para depuración
+          data-field-type={field.blockType}
+          data-is-optional={isOptionalField}
+        >
           <Field
             form={formFromProps}
             {...field}
@@ -110,64 +206,6 @@ export const FormBlock: React.FC<
     </div>
   )
 
-  // --- ENVÍO DEL FORMULARIO ---
-  const onSubmit = useCallback(
-    (data: Data) => {
-      let loadingTimerID: ReturnType<typeof setTimeout>
-      const submitForm = async () => {
-        setError(undefined)
-        const dataToSend = allFields.map(field => ({
-          field: field.name, // o field.originalName, según convenga
-          value: data[field.name] || '',
-        }))
-
-        // Delay en el indicador de carga
-        loadingTimerID = setTimeout(() => {
-          setIsLoading(true)
-        }, 1000)
-
-        try {
-          const req = await fetch(`${getClientSideURL()}/api/form-submissions`, {
-            body: JSON.stringify({
-              form: formID,
-              submissionData: dataToSend,
-            }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            method: 'POST',
-          })
-
-          const res = await req.json()
-
-          clearTimeout(loadingTimerID)
-          setIsLoading(false)
-
-          if (req.status >= 400) {
-            setError({
-              message: res.errors?.[0]?.message || 'Internal Server Error',
-              status: res.status,
-            })
-            return
-          }
-
-          setHasSubmitted(true)
-
-          if (confirmationType === 'redirect' && redirect && redirect.url) {
-            router.push(redirect.url)
-          }
-        } catch (err) {
-          console.warn(err)
-          clearTimeout(loadingTimerID)
-          setIsLoading(false)
-          setError({ message: 'Something went wrong.' })
-        }
-      }
-      void submitForm()
-    },
-    [router, formID, redirect, confirmationType]
-  )
-
   // --- BARRA DE PROGRESO ---
   const ProgressBar = () => (
     <div className="mb-8 flex">
@@ -185,7 +223,7 @@ export const FormBlock: React.FC<
       {enableIntro && introContent && !hasSubmitted && (
         <RichText className="mb-8 lg:mb-12" data={introContent} enableGutter={false} />
       )}
-      <div className="p-4 lg:p-6 border border-border rounded-[0.8rem]">
+      <div className="p-4 lg:p-6 border bg-background dark:bg-card/90 backdrop-blur-sm rounded-lg shadow-lg border-border rounded-[0.8rem] ">
         <FormProvider {...formMethods}>
           {!isLoading && hasSubmitted && confirmationType === 'message' && (
             <RichText data={confirmationMessage} />
@@ -195,22 +233,61 @@ export const FormBlock: React.FC<
           {!hasSubmitted && (
             <>
               <ProgressBar />
-              <form id={formID} onSubmit={handleSubmit(onSubmit) } >
-                {renderCurrentFields()}
-                <div className="flex justify-between mt-4">
+              <form 
+                id={formID} 
+                onSubmit={(e) => {
+                  // Prevención adicional para el envío involuntario
+                  if (step < totalSteps - 1) {
+                    e.preventDefault();
+                    handleNext();
+                    return false;
+                  }
+                  
+                  return handleSubmit(onSubmit)(e);
+                }} 
+                noValidate
+                className={`relative ${step === totalSteps - 1 ? 'form-last-step' : ''}`}
+              >
+                {/* Marcador visual para depuración */}
+                {step === totalSteps - 1 && (
+                  <div className="bg-yellow-100 dark:bg-yellow-900 py-1 px-2 mb-4 text-sm text-yellow-900 dark:text-yellow-100">
+                    Last step
+                  </div>
+                )}
+                
+                {/* Wrapper con altura mínima para evitar saltos de layout */}
+                <div className="min-h-[200px]">
+                  {renderCurrentFields()}
+                </div>
+                
+                <div className="flex justify-between mt-8">
                   {step > 0 && (
                     <Button type="button" onClick={handleBack} variant="secondary">
                       Back
                     </Button>
                   )}
                   {step < totalSteps - 1 ? (
-                    <Button type="button" onClick={handleNext} variant="secondary">
+                    <Button 
+                      type="button" 
+                      onClick={(e) => {
+                        e.preventDefault(); // Prevenir cualquier comportamiento por defecto
+                        handleNext();
+                      }} 
+                      variant="secondary"
+                    >
                       Next
                     </Button>
                   ) : (
-                    <Button type="submit" disabled={isLoading || !isValid} variant="secondary">
-                      {isLoading ? "Sending..." : submitButtonLabel}
-                    </Button>
+                    <div className="relative z-10">
+                      <Button 
+                        type="submit" 
+                        disabled={isLoading} 
+                        variant="secondary"
+                        className="relative z-10"
+                      >
+                        {isLoading ? "Sending..." : submitButtonLabel}
+                      </Button>
+                    </div>
                   )}
                 </div>
               </form>
