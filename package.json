@@ -1,7 +1,7 @@
 {
-  "name": "roofing-siding-hub",
+  "name": "multi-service-hub",
   "version": "1.0.0",
-  "description": "Website template for Payload",
+  "description": "Website for Multi Service Hub",
   "license": "MIT",
   "type": "module",
   "scripts": {
