@@ -112,8 +112,11 @@ export const seed = async ({
       collection: 'users',
       data: {
         name: 'Demo Author',
+        lastName: 'Demo',
         email: 'demo-author@example.com',
         password: 'password',
+        userType: 'client',
+        phoneNumber: '+1234567890',
       },
     }),
     payload.create({

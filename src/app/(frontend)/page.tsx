@@ -1,10 +1,8 @@
 import { getPayload } from 'payload'
 import payloadConfig from '@/payload.config'
 import React from 'react'
-import type { Page as PageType } from '@/payload-types'
 // Un componente para renderizar tus datos
 import { RenderBlocks } from '@/blocks/RenderBlocks'
-import { Pages } from '@/collections/Pages'
 import { RenderHero } from '@/heros/RenderHero'
 import Link from 'next/link'
 
