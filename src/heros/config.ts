@@ -8,7 +8,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 
 import { linkGroup } from '@/fields/linkGroup'
-
+import { FormBlock } from '@/blocks/Form/config'
 export const hero: Field = {
   name: 'hero',
   type: 'group',
@@ -16,9 +16,13 @@ export const hero: Field = {
     {
       name: 'type',
       type: 'select',
-      defaultValue: 'lowImpact',
+      defaultValue: 'rfsdhubHeroSection',
       label: 'Type',
       options: [
+        {
+          label: 'HeroLeads',
+          value: 'heroLeads',
+        },
         {
           label: 'None',
           value: 'none',
@@ -35,6 +39,10 @@ export const hero: Field = {
           label: 'Low Impact',
           value: 'lowImpact',
         },
+        {
+          label: 'RFSDHUB Hero Section',
+          value: 'rfsdhubHeroSection',
+        }
       ],
       required: true,
     },
@@ -62,11 +70,30 @@ export const hero: Field = {
       name: 'media',
       type: 'upload',
       admin: {
-        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact'].includes(type),
+        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact', 'rfsdhubHeroSection', 'heroLeads'].includes(type),
       },
       relationTo: 'media',
       required: true,
     },
+    /* {                  
+      name: 'Form layout',
+      type: 'blocks',
+      blocks: [FormBlock],
+      admin: {
+        initCollapsed: true,
+        condition: (_, { type } = {}) => type === 'rfsdhubHeroSection',
+      },
+    }, */
+    {
+      name: 'form', // campo opcional para seleccionar un formulario
+      type: 'relationship',
+      relationTo: 'forms',
+      required: false,
+      admin: {
+        description: 'Selecciona el formulario que se mostrará en el hero',
+        condition: (_, { type } = {}) => type === 'rfsdhubHeroSection',
+      },
+    }
   ],
   label: false,
 }

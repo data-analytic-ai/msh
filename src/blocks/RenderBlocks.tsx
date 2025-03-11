@@ -1,4 +1,3 @@
-import { cn } from '@/utilities/ui'
 import React, { Fragment } from 'react'
 
 import type { Page } from '@/payload-types'
@@ -8,6 +7,7 @@ import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { EmergencyServicesBlock } from '@/blocks/EmergencyServices/Component'
 
 const blockComponents = {
   archive: ArchiveBlock,
@@ -15,6 +15,7 @@ const blockComponents = {
   cta: CallToActionBlock,
   formBlock: FormBlock,
   mediaBlock: MediaBlock,
+  emergencyServices: EmergencyServicesBlock,
 }
 
 export const RenderBlocks: React.FC<{
