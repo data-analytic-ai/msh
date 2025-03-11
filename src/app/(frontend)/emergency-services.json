@@ -1,0 +1,228 @@
+{
+  "title": "Servicios de Emergencia",
+  "slug": "servicios-de-emergencia",
+  "hero": {
+    "type": "veryHighImpact",
+    "richText": [
+      {
+        "type": "h1",
+        "children": [
+          {
+            "text": "Servicios de Emergencia a tu Alcance"
+          }
+        ]
+      },
+      {
+        "type": "p",
+        "children": [
+          {
+            "text": "Conectamos contigo con profesionales verificados para resolver cualquier emergencia en tu hogar en minutos."
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "link": {
+          "type": "custom",
+          "url": "/solicitar-servicio",
+          "label": "Solicitar Servicio",
+          "appearance": "primary"
+        }
+      },
+      {
+        "link": {
+          "type": "custom",
+          "url": "/como-funciona",
+          "label": "Cómo Funciona",
+          "appearance": "secondary"
+        }
+      }
+    ],
+    "media": null
+  },
+  "layout": [
+    {
+      "blockType": "emergencyServices",
+      "blockName": "Servicios de Emergencia Principal",
+      "heading": "Servicios de Emergencia a tu Alcance",
+      "description": [
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "Conectamos contigo con profesionales verificados para resolver cualquier emergencia en tu hogar en minutos. Selecciona el tipo de servicio que necesitas para comenzar."
+            }
+          ]
+        }
+      ],
+      "services": [
+        {
+          "serviceType": "plumbing",
+          "serviceIcon": "🚿",
+          "serviceDescription": "Reparación de fugas, desatascos, instalación de grifos y más. Nuestros plomeros profesionales están disponibles 24/7."
+        },
+        {
+          "serviceType": "electrical",
+          "serviceIcon": "💡",
+          "serviceDescription": "Resolución de cortocircuitos, instalación de iluminación, reparación de enchufes y soluciones para cualquier problema eléctrico."
+        },
+        {
+          "serviceType": "glass",
+          "serviceIcon": "🪟",
+          "serviceDescription": "Reemplazo de vidrios rotos, instalación de ventanas, reparación de puertas de vidrio y más."
+        },
+        {
+          "serviceType": "hvac",
+          "serviceIcon": "❄️",
+          "serviceDescription": "Reparación e instalación de sistemas de calefacción, ventilación y aire acondicionado por técnicos certificados."
+        },
+        {
+          "serviceType": "pests",
+          "serviceIcon": "🐜",
+          "serviceDescription": "Control y eliminación de plagas con métodos seguros y efectivos por profesionales especializados."
+        },
+        {
+          "serviceType": "locksmith",
+          "serviceIcon": "🔑",
+          "serviceDescription": "Apertura de cerraduras, cambio de llaves, instalación de cerraduras de seguridad y más."
+        }
+      ],
+      "showRequestForm": true,
+      "links": [
+        {
+          "link": {
+            "type": "custom",
+            "url": "/como-funciona",
+            "label": "Cómo Funciona",
+            "appearance": "secondary"
+          }
+        }
+      ],
+      "showContractorSection": true,
+      "contractorHeading": "¿Eres un profesional? Únete a nuestra red",
+      "contractorDescription": [
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "Si eres un profesional calificado, puedes unirte a nuestra red de contratistas y comenzar a recibir solicitudes de servicio de clientes en tu área."
+            }
+          ]
+        }
+      ],
+      "contractorLinks": [
+        {
+          "link": {
+            "type": "custom",
+            "url": "/registro-contratista",
+            "label": "Regístrate como Contratista"
+          }
+        }
+      ]
+    },
+    {
+      "blockType": "content",
+      "blockName": "Cómo Funciona",
+      "richText": [
+        {
+          "type": "h2",
+          "children": [
+            {
+              "text": "¿Cómo Funciona?"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "Solicitar un servicio de emergencia es rápido y sencillo:"
+            }
+          ]
+        },
+        {
+          "type": "ul",
+          "children": [
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Selecciona el tipo de servicio que necesitas"
+                }
+              ]
+            },
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Describe brevemente el problema"
+                }
+              ]
+            },
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Recibe propuestas de profesionales verificados en minutos"
+                }
+              ]
+            },
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Selecciona al profesional que mejor se adapte a tus necesidades"
+                }
+              ]
+            },
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Realiza el pago de forma segura a través de nuestra plataforma"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "blockType": "cta",
+      "blockName": "CTA Principal",
+      "richText": [
+        {
+          "type": "h2",
+          "children": [
+            {
+              "text": "¿Estás listo para resolver tu emergencia?"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "Nuestros profesionales están disponibles 24/7 para ayudarte con cualquier emergencia en tu hogar."
+            }
+          ]
+        }
+      ],
+      "links": [
+        {
+          "link": {
+            "type": "custom",
+            "url": "/solicitar-servicio",
+            "label": "Solicitar Servicio Ahora",
+            "appearance": "primary"
+          }
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "title": "Servicios de Emergencia 24/7 | Multi-Service Hub",
+    "description": "Conectamos contigo con profesionales verificados para resolver cualquier emergencia en tu hogar en minutos. Plomería, electricidad, cerrajería y más."
+  }
+}
