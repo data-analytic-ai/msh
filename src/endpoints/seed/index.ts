@@ -104,9 +104,9 @@ export const seed = async ({
     technologyCategory,
     newsCategory,
     financeCategory,
-    designCategory,
-    softwareCategory,
-    engineeringCategory,
+    _designCategory,
+    _softwareCategory,
+    _engineeringCategory,
   ] = await Promise.all([
     payload.create({
       collection: 'users',

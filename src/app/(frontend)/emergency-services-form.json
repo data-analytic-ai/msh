@@ -1,0 +1,270 @@
+{
+  "title": "Solicitud de Servicio de Emergencia",
+  "confirmationMessage": [
+    {
+      "type": "h2",
+      "children": [
+        {
+          "text": "¡Gracias por tu solicitud!"
+        }
+      ]
+    },
+    {
+      "type": "p",
+      "children": [
+        {
+          "text": "Hemos recibido tu solicitud de servicio y te contactaremos en breve con propuestas de nuestros profesionales verificados."
+        }
+      ]
+    }
+  ],
+  "redirect": {
+    "url": "/confirmacion-solicitud"
+  },
+  "submitButtonLabel": "Solicitar Servicio",
+  "fields": [
+    {
+      "name": "serviceType",
+      "label": "Tipo de Servicio",
+      "required": true,
+      "type": "select",
+      "blockType": "select",
+      "options": [
+        {
+          "label": "Plomería",
+          "value": "plumbing"
+        },
+        {
+          "label": "Electricidad",
+          "value": "electrical"
+        },
+        {
+          "label": "Vidrios",
+          "value": "glass"
+        },
+        {
+          "label": "HVAC",
+          "value": "hvac"
+        },
+        {
+          "label": "Plagas",
+          "value": "pests"
+        },
+        {
+          "label": "Cerrajería",
+          "value": "locksmith"
+        }
+      ],
+      "admin": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "fullName",
+      "label": "Nombre Completo",
+      "required": true,
+      "blockType": "text",
+      "type": "text"
+    },
+    {
+      "name": "email",
+      "label": "Correo Electrónico",
+      "required": true,
+      "blockType": "email",
+      "type": "email"
+    },
+    {
+      "name": "phone",
+      "label": "Teléfono",
+      "required": true,
+      "blockType": "text",
+      "type": "text",
+      "admin": {
+        "description": "Necesitamos tu teléfono para que los profesionales puedan contactarte"
+      }
+    },
+    {
+      "name": "address",
+      "label": "Dirección",
+      "required": true,
+      "blockType": "text",
+      "type": "text",
+      "admin": {
+        "description": "Dirección donde se requiere el servicio"
+      }
+    },
+    {
+      "name": "description",
+      "label": "Descripción del Problema",
+      "required": true,
+      "blockType": "textarea",
+      "type": "textarea",
+      "admin": {
+        "description": "Por favor describe el problema con el mayor detalle posible"
+      }
+    },
+    {
+      "name": "urgency",
+      "label": "Nivel de Urgencia",
+      "required": true,
+      "blockType": "select",
+      "type": "select",
+      "options": [
+        {
+          "label": "Emergencia (Requiere atención inmediata)",
+          "value": "emergency"
+        },
+        {
+          "label": "Urgente (Dentro de las próximas horas)",
+          "value": "urgent"
+        },
+        {
+          "label": "Normal (En el transcurso del día)",
+          "value": "normal"
+        },
+        {
+          "label": "Programado (Puede esperar)",
+          "value": "scheduled"
+        }
+      ]
+    },
+    {
+      "name": "availabilityDate",
+      "label": "Fecha Disponible",
+      "required": true,
+      "blockType": "date",
+      "type": "date",
+      "admin": {
+        "description": "¿Cuándo es un buen momento para que te visite el profesional?"
+      }
+    },
+    {
+      "name": "imageUpload",
+      "label": "Imágenes del Problema (opcional)",
+      "required": false,
+      "blockType": "fileUpload",
+      "type": "upload",
+      "admin": {
+        "description": "Sube imágenes que ayuden a entender mejor el problema (máximo 3 imágenes)"
+      }
+    },
+    {
+      "name": "termsAccepted",
+      "label": "Acepto los términos y condiciones",
+      "required": true,
+      "blockType": "checkbox",
+      "type": "checkbox",
+      "admin": {
+        "description": "Debes aceptar los términos y condiciones para continuar"
+      }
+    }
+  ],
+  "emails": [
+    {
+      "emailTo": "{{email}}",
+      "cc": "",
+      "bcc": "admin@multi-service-hub.com",
+      "replyTo": "soporte@multi-service-hub.com",
+      "subject": "Confirmación de Solicitud de Servicio - Multi-Service Hub",
+      "message": [
+        {
+          "type": "h2",
+          "children": [
+            {
+              "text": "¡Gracias por tu solicitud!"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "Hemos recibido tu solicitud de servicio y te contactaremos en breve con propuestas de nuestros profesionales verificados."
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "Aquí está un resumen de tu solicitud:"
+            }
+          ]
+        },
+        {
+          "type": "ul",
+          "children": [
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Tipo de Servicio: "
+                },
+                {
+                  "text": "{{serviceType}}"
+                }
+              ]
+            },
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Descripción: "
+                },
+                {
+                  "text": "{{description}}"
+                }
+              ]
+            },
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Dirección: "
+                },
+                {
+                  "text": "{{address}}"
+                }
+              ]
+            },
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Nivel de Urgencia: "
+                },
+                {
+                  "text": "{{urgency}}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "Si tienes alguna pregunta, no dudes en contactarnos respondiendo a este correo electrónico o llamando al 555-123-4567."
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "Atentamente,"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "El equipo de Multi-Service Hub"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
