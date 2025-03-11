@@ -18,11 +18,7 @@ const nextConfig = {
 
   images: {
     remotePatterns: [
-      ...[
-        NEXT_PUBLIC_SERVER_URL,
-        'https://rfsd-hub-qa.up.railway.app',
-        'https://roofingsidinghub.com',
-      ].map((item) => {
+      ...[NEXT_PUBLIC_SERVER_URL, 'https://urgent-fix-qa.up.railway.app'].map((item) => {
         const url = new URL(item)
 
         return {
