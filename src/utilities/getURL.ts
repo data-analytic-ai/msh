@@ -7,6 +7,11 @@ export const getServerSideURL = () => {
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   }
 
+  // Soporte explícito para Railway
+  if (!url && process.env.RAILWAY_STATIC_URL) {
+    return process.env.RAILWAY_STATIC_URL
+  }
+
   if (!url) {
     url = 'http://localhost:3000'
   }
@@ -25,6 +30,16 @@ export const getClientSideURL = () => {
 
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  }
+
+  // Soporte explícito para Railway
+  if (process.env.RAILWAY_STATIC_URL) {
+    return process.env.RAILWAY_STATIC_URL
+  }
+
+  // Fallback para el entorno de Railway QA
+  if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_SERVER_URL) {
+    return 'https://rfsd-hub-qa.up.railway.app'
   }
 
   return process.env.NEXT_PUBLIC_SERVER_URL || ''

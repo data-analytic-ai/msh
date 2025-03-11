@@ -8,7 +8,7 @@ export const buildInitialFormState = (fields: FormFieldBlock[]) => {
         [field.name]: field.defaultValue,
       }
     }
-    if (field.blockType === 'country') {
+    if (field.blockType === 'textarea') {
       return {
         ...initialSchema,
         [field.name]: '',
@@ -35,9 +35,28 @@ export const buildInitialFormState = (fields: FormFieldBlock[]) => {
     if (field.blockType === 'state') {
       return {
         ...initialSchema,
+        [field.defaultValue || field.name ]: '',
+      }
+    }
+    if (field.blockType === 'country') {
+      return {
+        ...initialSchema,
         [field.name]: '',
       }
     }
+    if (field.blockType === 'message') {
+      return initialSchema;
+    }
+    // Corregimos el manejo del campo colorPicker
+    // @ts-ignore - Ignoramos el error de tipo ya que sabemos que este campo existe
+    if (field.blockType === 'colorPicker') {
+      // @ts-ignore
+      return {
+        ...initialSchema,
+        // @ts-ignore
+        [field.name]: '',
+      }
+    } 
 
     return initialSchema
   }, {})
