@@ -40,6 +40,7 @@ export const getClientSideURL = () => {
   // Fallback para el entorno de Railway QA
   if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_SERVER_URL) {
     return 'https://urgent-fix-qa.up.railway.app'
+  }
 
   return process.env.NEXT_PUBLIC_SERVER_URL || ''
 }
