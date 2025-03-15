@@ -42,9 +42,23 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     height = fullHeight!
     alt = altFromResource || ''
 
-    const cacheTag = resource.updatedAt
+    // Obtenemos la URL base del servidor
+    const baseUrl = getClientSideURL()
 
-    src = `${getClientSideURL()}${url}?${cacheTag}`
+    // Verificamos si la URL ya es absoluta o relativa
+    if (url && typeof url === 'string' && url.startsWith('/')) {
+      // Si es una URL relativa, la combinamos con la URL base
+      // Aseguramos que no haya doble barra
+      const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
+      const cleanUrl = url.startsWith('/') ? url : `/${url}`
+
+      // Agregamos el timestamp como parámetro de caché
+      const cacheTag = resource.updatedAt
+      src = `${cleanBaseUrl}${cleanUrl}?${cacheTag}`
+    } else if (url && typeof url === 'string') {
+      // Si ya es una URL absoluta, la usamos directamente
+      src = url
+    }
   }
 
   const loading = loadingFromProps || (!priority ? 'lazy' : undefined)

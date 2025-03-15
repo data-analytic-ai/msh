@@ -31,7 +31,7 @@ export default async function Home() {
   return (
     <>
       {/* Banner de Servicios de Emergencia */}
-      <div className="bg-red-600 text-white py-3 px-4">
+      <div className="bg-red-600 text-white py-2 px-4">
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between">
           <div className="flex items-center mb-3 md:mb-0">
             <svg
