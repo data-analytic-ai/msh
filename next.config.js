@@ -26,6 +26,11 @@ const nextConfig = {
           protocol: url.protocol.replace(':', ''),
         }
       }),
+      {
+        hostname: '192.168.1.115',
+        protocol: 'http',
+        port: '3000',
+      },
     ],
   },
   reactStrictMode: true,
