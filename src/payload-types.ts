@@ -326,6 +326,7 @@ export interface Category {
 export interface User {
   id: string;
   userType: 'client' | 'contractor';
+  role: 'admin' | 'user';
   name: string;
   lastName: string;
   phoneNumber: string;
@@ -1479,6 +1480,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   userType?: T;
+  role?: T;
   name?: T;
   lastName?: T;
   phoneNumber?: T;

@@ -12,7 +12,7 @@ export const Users: CollectionConfig = {
     update: authenticated,
   },
   admin: {
-    defaultColumns: ['name', 'email', 'userType'],
+    defaultColumns: ['name', 'email', 'userType', 'role'],
     useAsTitle: 'name',
   },
   auth: true,
@@ -24,6 +24,15 @@ export const Users: CollectionConfig = {
       options: [
         { label: 'Cliente', value: 'client' },
         { label: 'Contratista', value: 'contractor' },
+      ],
+    },
+    {
+      name: 'role',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Admin', value: 'admin' },
+        { label: 'User', value: 'user' },
       ],
     },
     {
