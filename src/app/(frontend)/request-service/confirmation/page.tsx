@@ -27,7 +27,7 @@ export default function ConfirmationPage() {
   useEffect(() => {
     if (!selectedService || !location) {
       // If information is missing, redirect to the service request page
-      router.replace('/request-service')
+      router.replace('/')
     }
   }, [selectedService, location, router])
 
