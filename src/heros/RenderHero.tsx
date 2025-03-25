@@ -7,6 +7,7 @@ import { LowImpactHero } from '@/heros/LowImpact'
 import { MediumImpactHero } from '@/heros/MediumImpact'
 import HeroSection from '@/heros/HeroSection'
 import { HeroLeads } from './HeroLeads'
+import UrgentFixHero from './UrgentFixHero'
 
 const heroes = {
   highImpact: HighImpactHero,
@@ -14,6 +15,7 @@ const heroes = {
   mediumImpact: MediumImpactHero,
   rfsdhubHeroSection: HeroSection,
   heroLeads: HeroLeads,
+  urgentFixHero: UrgentFixHero,
 }
 
 export const RenderHero: React.FC<Page['hero']> = (props) => {

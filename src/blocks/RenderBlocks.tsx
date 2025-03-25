@@ -1,53 +1,60 @@
-import React, { Fragment } from 'react'
+import React from 'react'
+import { Page } from '../payload-types'
 
-import type { Page } from '@/payload-types'
-
-import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
-import { CallToActionBlock } from '@/blocks/CallToAction/Component'
-import { ContentBlock } from '@/blocks/Content/Component'
-import { FormBlock } from '@/blocks/Form/Component'
-import { MediaBlock } from '@/blocks/MediaBlock/Component'
-import { EmergencyServicesBlock } from '@/blocks/EmergencyServices/Component'
+import { ArchiveBlock } from './ArchiveBlock/Component'
+import { BannerBlock } from './Banner/Component'
+import { CallToActionBlock } from './CallToAction/Component'
+import { CodeBlock } from './Code/Component'
+import { ContentBlock } from './Content/Component'
+import { MediaBlock } from './MediaBlock/Component'
+import { RelatedPosts } from './RelatedPosts/Component'
+import { FormBlock } from './Form/Component'
+import { EmergencyServicesBlock } from './EmergencyServices/Component'
+import { UrgentFixServicesBlock } from './UrgentFixServices/Component'
 
 const blockComponents = {
-  archive: ArchiveBlock,
+  archiveBlock: ArchiveBlock,
+  bannerBlock: BannerBlock,
+  callToAction: CallToActionBlock,
+  codeBlock: CodeBlock,
   content: ContentBlock,
   cta: CallToActionBlock,
   formBlock: FormBlock,
   mediaBlock: MediaBlock,
+  relatedPosts: RelatedPosts,
   emergencyServices: EmergencyServicesBlock,
+  urgentFixServices: UrgentFixServicesBlock,
 }
 
 export const RenderBlocks: React.FC<{
-  blocks: Page['layout'][0][]
+  blocks: Page['layout'][][]
 }> = (props) => {
   const { blocks } = props
 
-  const hasBlocks = blocks && Array.isArray(blocks) && blocks.length > 0
-
-  if (hasBlocks) {
-    return (
-      <Fragment>
-        {blocks.map((block, index) => {
-          const { blockType } = block
-
-          if (blockType && blockType in blockComponents) {
-            const Block = blockComponents[blockType]
-
-            if (Block) {
-              return (
-                <div className="my-16" key={index}>
-                  {/* @ts-expect-error there may be some mismatch between the expected types here */}
-                  <Block {...block} disableInnerContainer />
-                </div>
-              )
-            }
-          }
-          return null
-        })}
-      </Fragment>
-    )
+  if (!blocks || blocks?.length === 0) {
+    return null
   }
 
-  return null
+  return (
+    <div className="my-8 space-y-16">
+      {blocks.map((block, index) => {
+        const Block = blockComponents?.[block.blockType as keyof typeof blockComponents]
+
+        if (Block) {
+          return (
+            <div
+              key={index}
+              data-block-type={block.blockType}
+              className={index % 2 === 0 ? 'bg-background' : 'bg-muted/50'}
+              data-index={index}
+            >
+              <Block {...(block as any)} />
+            </div>
+          )
+        }
+
+        return null
+      })}
+    </div>
+  )
 }
