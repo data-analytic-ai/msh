@@ -91,6 +91,9 @@ export const Users: CollectionConfig = {
             { label: 'HVAC', value: 'hvac' },
             { label: 'Plagas', value: 'pests' },
             { label: 'Cerrajería', value: 'locksmith' },
+            { label: 'Techado', value: 'roofing' },
+            { label: 'Revestimiento', value: 'siding' },
+            { label: 'Reparaciones Generales', value: 'general' },
           ],
         },
         {
