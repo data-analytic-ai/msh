@@ -21,22 +21,28 @@ export async function Footer() {
             <Logo className="max-w-[200px]" />
           </Link>
           <p className="text-sm text-muted-foreground max-w-xs">
-            Connecting homeowners with trusted, professional roofing and siding contractors throughout the US.
+            Connecting you with trusted professionals contractors throughout the US.
           </p>
         </div>
 
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
           <nav className="flex flex-col sm:flex-row gap-4 sm:gap-6">
             {navItems.map(({ link }, i) => {
-              return <CMSLink className="text-foreground hover:text-primary transition-colors text-sm font-medium" key={i} {...link} />
+              return (
+                <CMSLink
+                  className="text-foreground hover:text-primary transition-colors text-sm font-medium"
+                  key={i}
+                  {...link}
+                />
+              )
             })}
           </nav>
           <ThemeSelector />
         </div>
-        
+
         <div className="mt-8 md:mt-0 pt-6 md:pt-0 border-t md:border-t-0 border-border">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} RoofingSidingHub. All rights reserved.
+            © {new Date().getFullYear()} For Devs (LLC). All rights reserved.
           </p>
         </div>
       </div>
