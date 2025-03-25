@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ArrowLeft, Camera } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 // Service type name mappings
 const serviceNames: Record<string, string> = {
@@ -101,10 +102,12 @@ export default function RequestServiceDetailsPage() {
             <div className="grid grid-cols-3 gap-2">
               {images.map((image, index) => (
                 <div key={index} className="relative aspect-square rounded-md bg-muted">
-                  <img
+                  <Image
                     src={image}
                     alt={`Uploaded ${index + 1}`}
-                    className="h-full w-full rounded-md object-cover"
+                    fill
+                    className="object-cover rounded-md"
+                    sizes="(max-width: 768px) 100vw, 33vw"
                   />
                 </div>
               ))}

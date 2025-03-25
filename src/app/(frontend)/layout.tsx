@@ -12,7 +12,6 @@ import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { draftMode } from 'next/headers'
-import { EmergencyBanner } from '@/components/emergency-ui/EmergencyBanner'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'

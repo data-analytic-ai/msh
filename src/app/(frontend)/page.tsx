@@ -4,7 +4,6 @@ import React from 'react'
 // Un componente para renderizar tus datos
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { RenderHero } from '@/heros/RenderHero'
-import Link from 'next/link'
 
 // O tu HeroSection, etc.
 
@@ -37,7 +36,7 @@ export default async function Home() {
         media={page.hero.media}
       />
       <div className="px-4 md:px-6 lg:px-8">
-        <RenderBlocks blocks={page.layout} />
+        <RenderBlocks blocks={page.layout ? [[page.layout]] : [[]]} />
       </div>
     </>
   )

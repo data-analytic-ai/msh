@@ -10,6 +10,7 @@ import { ArrowLeft, Camera, Upload } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { use } from 'react'
 
 // Tipos de servicios disponibles
 const services = [
@@ -21,7 +22,13 @@ const services = [
   { type: 'locksmith', icon: '🔑', name: 'Cerrajería' },
 ]
 
-export default function RequestServiceByTypePage({ params }: { params: { service: string } }) {
+export default function RequestServiceByTypePage({
+  params,
+}: {
+  params: Promise<{ service: string }>
+}) {
+  // Obtener el valor de service del parámetro de ruta
+  const { service } = use(params)
   const [isLoading, setIsLoading] = useState(false)
   const [images, setImages] = useState<string[]>([])
   const [step, setStep] = useState(1)
@@ -37,7 +44,7 @@ export default function RequestServiceByTypePage({ params }: { params: { service
     return lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : null
   }, [lat, lng])
 
-  const selectedService = params.service
+  const selectedService = service
   const serviceInfo = services.find((s) => s.type === selectedService)
 
   useEffect(() => {
