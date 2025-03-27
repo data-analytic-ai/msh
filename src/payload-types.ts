@@ -17,6 +17,7 @@ export interface Config {
     categories: Category;
     users: User;
     'service-requests': ServiceRequest;
+    services: Service;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -34,6 +35,7 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'service-requests': ServiceRequestsSelect<false> | ServiceRequestsSelect<true>;
+    services: ServicesSelect<false> | ServicesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -95,7 +97,7 @@ export interface Page {
   id: string;
   title: string;
   hero: {
-    type: 'heroLeads' | 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact' | 'rfsdhubHeroSection';
+    type: 'urgentFixHero' | 'heroLeads' | 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact' | 'rfsdhubHeroSection';
     richText?: {
       root: {
         type: string;
@@ -141,7 +143,7 @@ export interface Page {
      */
     form?: (string | null) | Form;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock | EmergencyServicesBlock)[];
+  layout?: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock | UrgentFixServicesBlock)[] | null;
   meta?: {
     title?: string | null;
     /**
@@ -323,7 +325,7 @@ export interface Category {
  */
 export interface User {
   id: string;
-  userType: 'client' | 'contractor';
+  role: 'superadmin' | 'admin' | 'contractor' | 'client';
   name: string;
   lastName: string;
   phoneNumber: string;
@@ -334,11 +336,22 @@ export interface User {
     lng?: number | null;
   };
   contractorFields?: {
-    services: ('plumbing' | 'electrical' | 'glass' | 'hvac' | 'pests' | 'locksmith')[];
+    services: (
+      | 'plumbing'
+      | 'electrical'
+      | 'glass'
+      | 'hvac'
+      | 'pests'
+      | 'locksmith'
+      | 'roofing'
+      | 'siding'
+      | 'general'
+    )[];
     yearsExperience: number;
     hasLicense?: boolean | null;
     rating?: number | null;
     reviewCount?: number | null;
+    isVerified?: boolean | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -694,15 +707,15 @@ export interface FormBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "EmergencyServicesBlock".
+ * via the `definition` "UrgentFixServicesBlock".
  */
-export interface EmergencyServicesBlock {
+export interface UrgentFixServicesBlock {
   /**
-   * Encabezado principal del bloque de servicios
+   * Main heading for the services block
    */
   heading: string;
   /**
-   * Descripción del servicio de emergencia
+   * Description of the available services
    */
   description: {
     root: {
@@ -720,20 +733,28 @@ export interface EmergencyServicesBlock {
     [k: string]: unknown;
   };
   /**
-   * Lista de servicios de emergencia disponibles
+   * List of available services
    */
-  services: {
-    serviceType: 'plumbing' | 'electrical' | 'glass' | 'hvac' | 'pests' | 'locksmith';
-    /**
-     * Emoji o código de icono para el servicio (ej: 🚿, 💡, 🪟)
-     */
-    serviceIcon: string;
-    serviceDescription: string;
-    id?: string | null;
-  }[];
+  services?:
+    | {
+        serviceType?:
+          | ('plumbing' | 'electrical' | 'glass' | 'hvac' | 'pests' | 'locksmith' | 'roofing' | 'siding' | 'general')
+          | null;
+        /**
+         * Icon or emoji for the service (e.g. 🚿, 💡, 🪟)
+         */
+        serviceIcon?: string | null;
+        serviceDescription: string;
+        /**
+         * Representative image for the service (optional)
+         */
+        serviceImage?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
   showRequestForm?: boolean | null;
   /**
-   * Formulario para solicitar servicios de emergencia
+   * Form for requesting services
    */
   requestForm?: (string | null) | Form;
   links?:
@@ -760,9 +781,83 @@ export interface EmergencyServicesBlock {
         id?: string | null;
       }[]
     | null;
-  showContractorSection?: boolean | null;
-  contractorHeading?: string | null;
-  contractorDescription?: {
+  /**
+   * Service presentation style
+   */
+  layout: 'grid' | 'list' | 'cards';
+  enableHover?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'urgentFixServices';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-requests".
+ */
+export interface ServiceRequest {
+  id: string;
+  requestTitle: string;
+  serviceType: 'plumbing' | 'electrical' | 'glass' | 'hvac' | 'pests' | 'locksmith' | 'roofing' | 'siding' | 'general';
+  description: string;
+  urgencyLevel: 'low' | 'medium' | 'high' | 'emergency';
+  status: 'pending' | 'assigned' | 'in-progress' | 'completed' | 'cancelled';
+  location: {
+    address: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  };
+  contactInfo: {
+    name: string;
+    email: string;
+    phone: string;
+    preferredContact: 'phone' | 'email' | 'sms';
+  };
+  preferredDateTime?: string | null;
+  photos?:
+    | {
+        photo: string | Media;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  quotes?:
+    | {
+        contractorName?: string | null;
+        amount?: number | null;
+        description?: string | null;
+        status?: ('pending' | 'accepted' | 'rejected') | null;
+        id?: string | null;
+      }[]
+    | null;
+  notes?:
+    | {
+        content: string;
+        author?: (string | null) | User;
+        createdAt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  customer?: (string | null) | User;
+  assignedContractor?: (string | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services".
+ */
+export interface Service {
+  id: string;
+  name: string;
+  type: 'plumbing' | 'electrical' | 'glass' | 'hvac' | 'pests' | 'locksmith' | 'roofing' | 'siding' | 'general';
+  /**
+   * An emoji that represents this service (e.g. 🚿, ⚡, 🪟)
+   */
+  icon?: string | null;
+  featuredImage?: (string | null) | Media;
+  shortDescription: string;
+  content: {
     root: {
       type: string;
       children: {
@@ -776,68 +871,25 @@ export interface EmergencyServicesBlock {
       version: number;
     };
     [k: string]: unknown;
-  } | null;
-  contractorLinks?:
+  };
+  pricing?:
     | {
-        link?: {
-          type?: ('reference' | 'custom') | null;
-          label?: string | null;
-          page?: (string | null) | Page;
-          url?: string | null;
-        };
+        name: string;
+        price: string;
+        description: string;
+        isPopular?: boolean | null;
         id?: string | null;
       }[]
     | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'emergencyServices';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "service-requests".
- */
-export interface ServiceRequest {
-  id: string;
-  serviceType: 'plumbing' | 'electrical' | 'glass' | 'hvac' | 'pests' | 'locksmith';
-  description: string;
-  status: 'pending' | 'finding_contractors' | 'contractor_selected' | 'in_progress' | 'completed' | 'cancelled';
-  location: {
-    address: string;
-    lat: number;
-    lng: number;
-  };
-  images?:
+  faqs?:
     | {
-        image: string | Media;
+        question: string;
+        answer: string;
         id?: string | null;
       }[]
     | null;
-  client?: (string | null) | User;
-  contractors?:
-    | {
-        contractor: string | User;
-        status: 'notified' | 'proposal_sent' | 'selected' | 'rejected';
-        price?: {
-          min: number;
-          max: number;
-        };
-        estimatedArrival?: number | null;
-        id?: string | null;
-      }[]
-    | null;
-  selectedContractor?: (string | null) | User;
-  payment?: {
-    amount: number;
-    status: 'pending' | 'authorized' | 'held' | 'released' | 'refunded';
-    paymentMethod?: ('credit_card' | 'paypal') | null;
-    transactionId?: string | null;
-  };
-  completionDetails?: {
-    completedAt: string;
-    confirmation: 'signature' | 'sms';
-    clientRating?: number | null;
-    clientReview?: string | null;
-  };
+  publishedAt?: string | null;
+  _status: 'draft' | 'published';
   updatedAt: string;
   createdAt: string;
 }
@@ -1038,6 +1090,10 @@ export interface PayloadLockedDocument {
         value: string | ServiceRequest;
       } | null)
     | ({
+        relationTo: 'services';
+        value: string | Service;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: string | Redirect;
       } | null)
@@ -1136,7 +1192,7 @@ export interface PagesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
-        emergencyServices?: T | EmergencyServicesBlockSelect<T>;
+        urgentFixServices?: T | UrgentFixServicesBlockSelect<T>;
       };
   meta?:
     | T
@@ -1238,9 +1294,9 @@ export interface FormBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "EmergencyServicesBlock_select".
+ * via the `definition` "UrgentFixServicesBlock_select".
  */
-export interface EmergencyServicesBlockSelect<T extends boolean = true> {
+export interface UrgentFixServicesBlockSelect<T extends boolean = true> {
   heading?: T;
   description?: T;
   services?:
@@ -1249,6 +1305,7 @@ export interface EmergencyServicesBlockSelect<T extends boolean = true> {
         serviceType?: T;
         serviceIcon?: T;
         serviceDescription?: T;
+        serviceImage?: T;
         id?: T;
       };
   showRequestForm?: T;
@@ -1268,22 +1325,8 @@ export interface EmergencyServicesBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
-  showContractorSection?: T;
-  contractorHeading?: T;
-  contractorDescription?: T;
-  contractorLinks?:
-    | T
-    | {
-        link?:
-          | T
-          | {
-              type?: T;
-              label?: T;
-              page?: T;
-              url?: T;
-            };
-        id?: T;
-      };
+  layout?: T;
+  enableHover?: T;
   id?: T;
   blockName?: T;
 }
@@ -1437,6 +1480,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   userType?: T;
+  role?: T;
   name?: T;
   lastName?: T;
   phoneNumber?: T;
@@ -1472,54 +1516,86 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "service-requests_select".
  */
 export interface ServiceRequestsSelect<T extends boolean = true> {
+  requestTitle?: T;
   serviceType?: T;
   description?: T;
+  urgencyLevel?: T;
   status?: T;
   location?:
     | T
     | {
         address?: T;
-        lat?: T;
-        lng?: T;
+        city?: T;
+        state?: T;
+        zipCode?: T;
       };
-  images?:
+  contactInfo?:
     | T
     | {
-        image?: T;
+        name?: T;
+        email?: T;
+        phone?: T;
+        preferredContact?: T;
+      };
+  preferredDateTime?: T;
+  photos?:
+    | T
+    | {
+        photo?: T;
+        description?: T;
         id?: T;
       };
-  client?: T;
-  contractors?:
+  quotes?:
     | T
     | {
-        contractor?: T;
-        status?: T;
-        price?:
-          | T
-          | {
-              min?: T;
-              max?: T;
-            };
-        estimatedArrival?: T;
-        id?: T;
-      };
-  selectedContractor?: T;
-  payment?:
-    | T
-    | {
+        contractorName?: T;
         amount?: T;
+        description?: T;
         status?: T;
-        paymentMethod?: T;
-        transactionId?: T;
+        id?: T;
       };
-  completionDetails?:
+  notes?:
     | T
     | {
-        completedAt?: T;
-        confirmation?: T;
-        clientRating?: T;
-        clientReview?: T;
+        content?: T;
+        author?: T;
+        createdAt?: T;
+        id?: T;
       };
+  customer?: T;
+  assignedContractor?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services_select".
+ */
+export interface ServicesSelect<T extends boolean = true> {
+  name?: T;
+  type?: T;
+  icon?: T;
+  featuredImage?: T;
+  shortDescription?: T;
+  content?: T;
+  pricing?:
+    | T
+    | {
+        name?: T;
+        price?: T;
+        description?: T;
+        isPopular?: T;
+        id?: T;
+      };
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  publishedAt?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -1,29 +1,50 @@
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
+import { admins } from '../../access/admins'
 
+/**
+ * Users Collection
+ *
+ * This collection stores all user data with different roles in the application.
+ * The role field determines the access level and permissions of each user.
+ */
 export const Users: CollectionConfig = {
   slug: 'users',
   access: {
-    admin: authenticated,
-    create: () => true || authenticated, // Permitir registro público
-    delete: authenticated,
+    admin: ({ req }) => {
+      return req.user?.role === 'admin' || req.user?.role === 'superadmin'
+    },
+    create: () => true, // Permitir registro público
+    delete: admins,
     read: authenticated,
-    update: authenticated,
+    update: ({ req: { user } }) => {
+      // Solo administradores pueden actualizar cualquier usuario
+      // Usuarios normales solo pueden actualizar su propio perfil
+      if (user?.role === 'admin' || user?.role === 'superadmin') return true
+      return {
+        id: {
+          equals: user?.id,
+        },
+      }
+    },
   },
   admin: {
-    defaultColumns: ['name', 'email', 'userType'],
+    defaultColumns: ['name', 'email', 'role'],
     useAsTitle: 'name',
   },
   auth: true,
   fields: [
     {
-      name: 'userType',
+      name: 'role',
       type: 'select',
       required: true,
+      defaultValue: 'client',
       options: [
-        { label: 'Cliente', value: 'client' },
+        { label: 'Super Admin', value: 'superadmin' },
+        { label: 'Administrador', value: 'admin' },
         { label: 'Contratista', value: 'contractor' },
+        { label: 'Cliente', value: 'client' },
       ],
     },
     {
@@ -76,7 +97,7 @@ export const Users: CollectionConfig = {
       type: 'group',
       label: 'Información de Contratista',
       admin: {
-        condition: (data) => data.userType === 'contractor',
+        condition: (data) => data.role === 'contractor',
       },
       fields: [
         {
@@ -91,6 +112,9 @@ export const Users: CollectionConfig = {
             { label: 'HVAC', value: 'hvac' },
             { label: 'Plagas', value: 'pests' },
             { label: 'Cerrajería', value: 'locksmith' },
+            { label: 'Techado', value: 'roofing' },
+            { label: 'Revestimiento', value: 'siding' },
+            { label: 'Reparaciones Generales', value: 'general' },
           ],
         },
         {
@@ -117,6 +141,12 @@ export const Users: CollectionConfig = {
           type: 'number',
           defaultValue: 0,
           label: 'Número de reseñas',
+        },
+        {
+          name: 'isVerified',
+          type: 'checkbox',
+          defaultValue: false,
+          label: 'Contratista Verificado',
         },
       ],
     },

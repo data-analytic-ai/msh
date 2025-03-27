@@ -1,23 +1,27 @@
 import type { CollectionConfig } from 'payload'
-import { authenticated } from '../access/authenticated'
-
-interface User {
-  userType: 'client' | 'contractor'
-}
+import { adminsOrUser } from '../access/adminsOrUser'
+import { adminsOrRequestOwner } from '../access/adminsOrRequestOwner'
 
 export const ServiceRequests: CollectionConfig = {
   slug: 'service-requests',
   admin: {
-    useAsTitle: 'serviceType',
-    defaultColumns: ['serviceType', 'status', 'client.name', 'createdAt'],
+    useAsTitle: 'requestTitle',
+    defaultColumns: ['requestTitle', 'serviceType', 'status', 'createdAt'],
+    group: 'UrgentFix',
   },
   access: {
-    create: authenticated,
-    read: authenticated,
-    update: authenticated,
-    delete: authenticated,
+    create: () => true, // Todos pueden crear solicitudes
+    read: adminsOrRequestOwner, // Admin o el usuario que lo creó
+    update: adminsOrRequestOwner, // Admin o el usuario que lo creó pueden actualizar
+    delete: adminsOrUser, // El admin o usuario pueden eliminar
   },
   fields: [
+    {
+      name: 'requestTitle',
+      type: 'text',
+      required: true,
+      label: 'Título de la solicitud',
+    },
     {
       name: 'serviceType',
       type: 'select',
@@ -29,6 +33,9 @@ export const ServiceRequests: CollectionConfig = {
         { label: 'HVAC', value: 'hvac' },
         { label: 'Plagas', value: 'pests' },
         { label: 'Cerrajería', value: 'locksmith' },
+        { label: 'Techado', value: 'roofing' },
+        { label: 'Revestimiento', value: 'siding' },
+        { label: 'Reparaciones Generales', value: 'general' },
       ],
     },
     {
@@ -37,15 +44,34 @@ export const ServiceRequests: CollectionConfig = {
       required: true,
     },
     {
+      name: 'urgencyLevel',
+      type: 'select',
+      required: true,
+      defaultValue: 'medium',
+      options: [
+        { label: 'Baja - Programar en los próximos días', value: 'low' },
+        { label: 'Media - Atender en las próximas 24 horas', value: 'medium' },
+        { label: 'Alta - Atender lo antes posible', value: 'high' },
+        { label: 'Emergencia - Necesito asistencia inmediata', value: 'emergency' },
+      ],
+    },
+    {
       name: 'status',
       type: 'select',
       required: true,
       defaultValue: 'pending',
+      access: {
+        update: ({ req }) => {
+          // Verificar si es admin o contratista
+          if (!req.user) return false
+
+          return ['admin', 'superadmin', 'contractor'].includes(req.user.role)
+        },
+      },
       options: [
         { label: 'Pendiente', value: 'pending' },
-        { label: 'Buscando contratistas', value: 'finding_contractors' },
-        { label: 'Contratista seleccionado', value: 'contractor_selected' },
-        { label: 'En progreso', value: 'in_progress' },
+        { label: 'Asignado', value: 'assigned' },
+        { label: 'En proceso', value: 'in-progress' },
         { label: 'Completado', value: 'completed' },
         { label: 'Cancelado', value: 'cancelled' },
       ],
@@ -58,188 +84,210 @@ export const ServiceRequests: CollectionConfig = {
           name: 'address',
           type: 'text',
           required: true,
+          label: 'Dirección',
         },
         {
-          name: 'lat',
-          type: 'number',
+          name: 'city',
+          type: 'text',
           required: true,
+          label: 'Ciudad',
         },
         {
-          name: 'lng',
-          type: 'number',
+          name: 'state',
+          type: 'text',
           required: true,
+          label: 'Estado/Provincia',
+        },
+        {
+          name: 'zipCode',
+          type: 'text',
+          required: true,
+          label: 'Código Postal',
         },
       ],
     },
     {
-      name: 'images',
-      type: 'array',
-      label: 'Imágenes del problema',
+      name: 'contactInfo',
+      type: 'group',
       fields: [
         {
-          name: 'image',
+          name: 'name',
+          type: 'text',
+          required: true,
+          label: 'Nombre completo',
+        },
+        {
+          name: 'email',
+          type: 'email',
+          required: true,
+          label: 'Correo electrónico',
+        },
+        {
+          name: 'phone',
+          type: 'text',
+          required: true,
+          label: 'Teléfono',
+        },
+        {
+          name: 'preferredContact',
+          type: 'select',
+          required: true,
+          defaultValue: 'phone',
+          options: [
+            { label: 'Teléfono', value: 'phone' },
+            { label: 'Correo', value: 'email' },
+            { label: 'SMS', value: 'sms' },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'preferredDateTime',
+      type: 'date',
+      admin: {
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+      },
+      label: 'Fecha y hora preferida',
+    },
+    {
+      name: 'photos',
+      type: 'array',
+      label: 'Fotos del problema',
+      fields: [
+        {
+          name: 'photo',
           type: 'upload',
           relationTo: 'media',
           required: true,
         },
+        {
+          name: 'description',
+          type: 'text',
+          label: 'Descripción de la foto',
+        },
       ],
     },
     {
-      name: 'client',
-      type: 'relationship',
-      relationTo: 'users',
-      required: true,
-      admin: {
-        condition: (data) => {
-          if (data) {
-            const user = data as User
-            return user.userType === 'client'
-          }
-          return true
-        },
-      },
-    },
-    {
-      name: 'contractors',
+      name: 'quotes',
       type: 'array',
-      label: 'Contratistas notificados',
-      fields: [
-        {
-          name: 'contractor',
-          type: 'relationship',
-          relationTo: 'users',
-          required: true,
-        },
-        {
-          name: 'status',
-          type: 'select',
-          required: true,
-          defaultValue: 'notified',
-          options: [
-            { label: 'Notificado', value: 'notified' },
-            { label: 'Propuesta enviada', value: 'proposal_sent' },
-            { label: 'Seleccionado', value: 'selected' },
-            { label: 'Rechazado', value: 'rejected' },
-          ],
-        },
-        {
-          name: 'price',
-          type: 'group',
-          admin: {
-            condition: (data) => data.status === 'proposal_sent' || data.status === 'selected',
-          },
-          fields: [
-            {
-              name: 'min',
-              type: 'number',
-              required: true,
-              min: 0,
-            },
-            {
-              name: 'max',
-              type: 'number',
-              required: true,
-              min: 0,
-            },
-          ],
-        },
-        {
-          name: 'estimatedArrival',
-          type: 'number',
-          label: 'Tiempo estimado de llegada (minutos)',
-          admin: {
-            condition: (data) => data.status === 'proposal_sent' || data.status === 'selected',
-          },
-        },
-      ],
-    },
-    {
-      name: 'selectedContractor',
-      type: 'relationship',
-      relationTo: 'users',
       admin: {
-        condition: (data) =>
-          data.status === 'contractor_selected' ||
-          data.status === 'in_progress' ||
-          data.status === 'completed',
-      },
-    },
-    {
-      name: 'payment',
-      type: 'group',
-      admin: {
-        condition: (data) =>
-          data.status === 'contractor_selected' ||
-          data.status === 'in_progress' ||
-          data.status === 'completed',
+        condition: (data) => Boolean(data?.status !== 'pending'),
       },
       fields: [
+        {
+          name: 'contractorName',
+          type: 'text',
+          label: 'Nombre del contratista',
+        },
         {
           name: 'amount',
           type: 'number',
-          required: true,
+          label: 'Monto estimado',
           min: 0,
+        },
+        {
+          name: 'description',
+          type: 'textarea',
+          label: 'Descripción del presupuesto',
         },
         {
           name: 'status',
           type: 'select',
-          required: true,
           defaultValue: 'pending',
           options: [
             { label: 'Pendiente', value: 'pending' },
-            { label: 'Autorizado', value: 'authorized' },
-            { label: 'Retenido', value: 'held' },
-            { label: 'Liberado', value: 'released' },
-            { label: 'Reembolsado', value: 'refunded' },
+            { label: 'Aceptado', value: 'accepted' },
+            { label: 'Rechazado', value: 'rejected' },
           ],
-        },
-        {
-          name: 'paymentMethod',
-          type: 'select',
-          options: [
-            { label: 'Tarjeta de crédito', value: 'credit_card' },
-            { label: 'PayPal', value: 'paypal' },
-          ],
-        },
-        {
-          name: 'transactionId',
-          type: 'text',
         },
       ],
     },
     {
-      name: 'completionDetails',
-      type: 'group',
+      name: 'notes',
+      type: 'array',
       admin: {
-        condition: (data) => data.status === 'completed',
+        initCollapsed: true,
       },
       fields: [
         {
-          name: 'completedAt',
-          type: 'date',
-          required: true,
-        },
-        {
-          name: 'confirmation',
-          type: 'select',
-          required: true,
-          options: [
-            { label: 'Firma digital', value: 'signature' },
-            { label: 'Confirmación SMS', value: 'sms' },
-          ],
-        },
-        {
-          name: 'clientRating',
-          type: 'number',
-          min: 1,
-          max: 5,
-        },
-        {
-          name: 'clientReview',
+          name: 'content',
           type: 'textarea',
+          label: 'Contenido de la nota',
+          required: true,
+        },
+        {
+          name: 'author',
+          type: 'relationship',
+          relationTo: 'users',
+          hasMany: false,
+          label: 'Autor',
+        },
+        {
+          name: 'createdAt',
+          type: 'date',
+          label: 'Fecha de creación',
+          defaultValue: () => new Date(),
+          admin: {
+            readOnly: true,
+          },
         },
       ],
     },
+    {
+      name: 'customer',
+      type: 'relationship',
+      relationTo: 'users',
+      label: 'Cliente',
+      hasMany: false,
+      defaultValue: ({ req }) => {
+        if (req.user) {
+          return req.user.id
+        }
+      },
+    },
+    {
+      name: 'assignedContractor',
+      type: 'relationship',
+      relationTo: 'users',
+      label: 'Contratista asignado',
+      hasMany: false,
+      admin: {
+        condition: (data) => Boolean(data?.status !== 'pending'),
+      },
+      access: {
+        update: ({ req }) => {
+          // Verificar si es admin o contratista
+          if (!req.user) return false
+
+          return ['admin', 'superadmin', 'contractor'].includes(req.user.role)
+        },
+      },
+    },
   ],
   timestamps: true,
+  hooks: {
+    beforeChange: [
+      ({ req, data }) => {
+        if (req.user) {
+          if (data.customer === undefined) {
+            data.customer = req.user.id
+          }
+        }
+        return data
+      },
+    ],
+    afterChange: [
+      async ({ doc, operation }) => {
+        if (operation === 'create') {
+          // Aquí podrías implementar notificaciones
+          console.log(`Nueva solicitud de servicio creada: ${doc.id}`)
+        } else if (operation === 'update') {
+          // Notificar cambios de estatus
+          console.log(`Solicitud de servicio actualizada: ${doc.id}`)
+        }
+      },
+    ],
+  },
 }

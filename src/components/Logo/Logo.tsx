@@ -10,31 +10,23 @@ interface Props {
 export const Logo = (props: Props) => {
   const { loading: loadingFromProps, priority: priorityFromProps, className } = props
 
-  const loading = loadingFromProps || 'lazy'
-  const priority = priorityFromProps || 'low'
-
   // Combina las clases predeterminadas con las clases personalizadas
-  const imgClasses = clsx(
-    'w-auto',
-    'h-auto',
-    'max-h-[70px]', 
-    'sm:max-h-[75px]',
-    'md:max-h-[80px]',
-    'lg:max-h-[90px]',
-    className
+  const logoClasses = clsx(
+    'font-bold',
+    'text-2xl',
+    'sm:text-3xl',
+    'md:text-4xl',
+    'text-primary',
+    'hover:text-primary/90',
+    'transition-colors',
+    'duration-200',
+    className,
   )
 
   return (
-    /* eslint-disable @next/next/no-img-element */
-    <img
-      alt="Roofing & Siding Hub Logo"
-      width={400}
-      height={107}
-      loading={loading}
-      fetchPriority={priority}
-      decoding="async"
-      className={imgClasses}
-      src="https://roofingsidinghub.com/wp-content/uploads/2023/04/cropped-roofingsidinghub.com-2.png"
-    />
+    <div className={logoClasses}>
+      <span className="text-primary">Urgent</span>
+      <span className="text-accent">Fix</span>
+    </div>
   )
 }

@@ -16,9 +16,13 @@ export const hero: Field = {
     {
       name: 'type',
       type: 'select',
-      defaultValue: 'rfsdhubHeroSection',
+      defaultValue: 'urgentFixHero',
       label: 'Type',
       options: [
+        {
+          label: 'UrgentFix Hero',
+          value: 'urgentFixHero',
+        },
         {
           label: 'HeroLeads',
           value: 'heroLeads',
@@ -42,7 +46,7 @@ export const hero: Field = {
         {
           label: 'RFSDHUB Hero Section',
           value: 'rfsdhubHeroSection',
-        }
+        },
       ],
       required: true,
     },
@@ -70,10 +74,17 @@ export const hero: Field = {
       name: 'media',
       type: 'upload',
       admin: {
-        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact', 'rfsdhubHeroSection', 'heroLeads'].includes(type),
+        condition: (_, { type } = {}) =>
+          [
+            'highImpact',
+            'mediumImpact',
+            'rfsdhubHeroSection',
+            'heroLeads',
+            'urgentFixHero',
+          ].includes(type),
       },
       relationTo: 'media',
-      required: true,
+      required: false,
     },
     /* {                  
       name: 'Form layout',
@@ -91,9 +102,9 @@ export const hero: Field = {
       required: false,
       admin: {
         description: 'Selecciona el formulario que se mostrará en el hero',
-        condition: (_, { type } = {}) => type === 'rfsdhubHeroSection',
+        condition: (_, { type } = {}) => ['rfsdhubHeroSection', 'urgentFixHero'].includes(type),
       },
-    }
+    },
   ],
   label: false,
 }
