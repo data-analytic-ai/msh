@@ -23,9 +23,8 @@ export const RenderBlocks: React.FC<{
               data-block-type={block.blockType}
               className={index % 2 === 0 ? 'bg-background' : 'bg-muted/50'}
               data-index={index}
-              >
-
-             {/* The most direct solution is to use a @ts-ignore comment to tell the compiler to ignore the error on that specific line. While it's not ideal to ignore TypeScript errors, in this case it's justified because:
+            >
+              {/* The most direct solution is to use a @ts-ignore comment to tell the compiler to ignore the error on that specific line. While it's not ideal to ignore TypeScript errors, in this case it's justified because:
              At runtime, each component receives exactly the properties it needs based on its blockType
              The alternative would be to implement a complex structure of discriminated types that could be excessive
              If we prefer a solution without @ts-ignore, we could:
@@ -33,7 +32,7 @@ export const RenderBlocks: React.FC<{
              Extract only the properties that each component needs
              Implement a custom renderer for each block type
              But for most cases, @ts-ignore is sufficient and keeps the code simpler */}
-             {/* @ts-ignore - Cada componente espera props específicos basados en blockType */}
+              {/* @ts-expect-error - Cada componente espera props específicos basados en blockType */}
               <Block {...block} />
             </div>
           )

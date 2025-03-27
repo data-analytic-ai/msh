@@ -1,7 +1,4 @@
 import type { CollectionConfig } from 'payload'
-
-import { User } from '../payload-types'
-import { adminsOrContractors } from '../access/adminsOrContractors'
 import { adminsOrUser } from '../access/adminsOrUser'
 import { adminsOrRequestOwner } from '../access/adminsOrRequestOwner'
 
@@ -64,7 +61,12 @@ export const ServiceRequests: CollectionConfig = {
       required: true,
       defaultValue: 'pending',
       access: {
-        update: adminsOrContractors,
+        update: ({ req }) => {
+          // Verificar si es admin o contratista
+          if (!req.user) return false
+
+          return ['admin', 'superadmin', 'contractor'].includes(req.user.role)
+        },
       },
       options: [
         { label: 'Pendiente', value: 'pending' },
@@ -255,7 +257,12 @@ export const ServiceRequests: CollectionConfig = {
         condition: (data) => Boolean(data?.status !== 'pending'),
       },
       access: {
-        update: adminsOrContractors,
+        update: ({ req }) => {
+          // Verificar si es admin o contratista
+          if (!req.user) return false
+
+          return ['admin', 'superadmin', 'contractor'].includes(req.user.role)
+        },
       },
     },
   ],
@@ -272,7 +279,7 @@ export const ServiceRequests: CollectionConfig = {
       },
     ],
     afterChange: [
-      async ({ req, doc, operation }) => {
+      async ({ doc, operation }) => {
         if (operation === 'create') {
           // Aquí podrías implementar notificaciones
           console.log(`Nueva solicitud de servicio creada: ${doc.id}`)
