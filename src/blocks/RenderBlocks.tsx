@@ -1,33 +1,9 @@
 import React from 'react'
 import { Page } from '../payload-types'
-
-import { ArchiveBlock } from './ArchiveBlock/Component'
-import { BannerBlock } from './Banner/Component'
-import { CallToActionBlock } from './CallToAction/Component'
-import { CodeBlock } from './Code/Component'
-import { ContentBlock } from './Content/Component'
-import { MediaBlock } from './MediaBlock/Component'
-import { RelatedPosts } from './RelatedPosts/Component'
-import { FormBlock } from './Form/Component'
-import { EmergencyServicesBlock } from './EmergencyServices/Component'
-import { UrgentFixServicesBlock } from './UrgentFixServices/Component'
-
-const blockComponents = {
-  archiveBlock: ArchiveBlock,
-  bannerBlock: BannerBlock,
-  callToAction: CallToActionBlock,
-  codeBlock: CodeBlock,
-  content: ContentBlock,
-  cta: CallToActionBlock,
-  formBlock: FormBlock,
-  mediaBlock: MediaBlock,
-  relatedPosts: RelatedPosts,
-  emergencyServices: EmergencyServicesBlock,
-  urgentFixServices: UrgentFixServicesBlock,
-}
+import { blockComponents } from '.'
 
 export const RenderBlocks: React.FC<{
-  blocks: Page['layout'][][]
+  blocks: Page['layout']
 }> = (props) => {
   const { blocks } = props
 
@@ -47,8 +23,18 @@ export const RenderBlocks: React.FC<{
               data-block-type={block.blockType}
               className={index % 2 === 0 ? 'bg-background' : 'bg-muted/50'}
               data-index={index}
-            >
-              <Block {...(block as any)} />
+              >
+
+             {/* The most direct solution is to use a @ts-ignore comment to tell the compiler to ignore the error on that specific line. While it's not ideal to ignore TypeScript errors, in this case it's justified because:
+             At runtime, each component receives exactly the properties it needs based on its blockType
+             The alternative would be to implement a complex structure of discriminated types that could be excessive
+             If we prefer a solution without @ts-ignore, we could:
+             Create a specific discriminated union type for each component
+             Extract only the properties that each component needs
+             Implement a custom renderer for each block type
+             But for most cases, @ts-ignore is sufficient and keeps the code simpler */}
+             {/* @ts-ignore - Cada componente espera props específicos basados en blockType */}
+              <Block {...block} />
             </div>
           )
         }

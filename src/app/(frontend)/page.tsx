@@ -36,7 +36,7 @@ export default async function Home() {
         media={page.hero.media}
       />
       <div className="px-4 md:px-6 lg:px-8">
-        <RenderBlocks blocks={page.layout ? [[page.layout]] : [[]]} />
+        <RenderBlocks blocks={page.layout} />
       </div>
     </>
   )
