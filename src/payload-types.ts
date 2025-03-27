@@ -325,8 +325,7 @@ export interface Category {
  */
 export interface User {
   id: string;
-  userType: 'client' | 'contractor';
-  role: 'admin' | 'user';
+  role: 'superadmin' | 'admin' | 'contractor' | 'client';
   name: string;
   lastName: string;
   phoneNumber: string;
@@ -352,6 +351,7 @@ export interface User {
     hasLicense?: boolean | null;
     rating?: number | null;
     reviewCount?: number | null;
+    isVerified?: boolean | null;
   };
   updatedAt: string;
   createdAt: string;
