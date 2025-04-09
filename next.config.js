@@ -31,6 +31,14 @@ const nextConfig = {
         protocol: 'http',
         port: '3000',
       },
+      {
+        hostname: 'maps.googleapis.com',
+        protocol: 'https',
+      },
+      {
+        hostname: 'lh3.googleusercontent.com',
+        protocol: 'https',
+      },
     ],
   },
   reactStrictMode: true,
