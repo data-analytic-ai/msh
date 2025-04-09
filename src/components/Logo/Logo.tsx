@@ -8,7 +8,7 @@ interface Props {
 }
 
 export const Logo = (props: Props) => {
-  const { loading: loadingFromProps, priority: priorityFromProps, className } = props
+  const { className } = props
 
   // Combina las clases predeterminadas con las clases personalizadas
   const logoClasses = clsx(
@@ -25,7 +25,7 @@ export const Logo = (props: Props) => {
 
   return (
     <div className={logoClasses}>
-      <span className="text-primary">Urgent</span>
+      <span className="text-primary dark:text-white">Urgent</span>
       <span className="text-accent">Fix</span>
     </div>
   )
