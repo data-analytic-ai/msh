@@ -11,9 +11,8 @@ import { useServiceRequest } from '@/context/ServiceRequestContext'
 import MapComponent, { LocationType } from '@/components/ui/MapComponent'
 import { ServiceType } from '@/context/ServiceRequestContext'
 
-const UrgentFixHero: React.FC<Page['hero']> = ({ form, links }) => {
+const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   // Usar el contexto compartido con la nueva propiedad de array
@@ -31,15 +30,12 @@ const UrgentFixHero: React.FC<Page['hero']> = ({ form, links }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        setLoading(true)
         const { user: currentUser } = await getMe(false)
         if (currentUser) {
           setUser(currentUser)
         }
       } catch (error) {
         console.error('Error fetching user:', error)
-      } finally {
-        setLoading(false)
       }
     }
 
