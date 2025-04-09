@@ -34,7 +34,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 }) => {
   const handleClick = (e: React.MouseEvent) => {
     if (useServiceLinks) return // No hacer nada si estamos usando links
-    if (onClick) onClick()
+
+    // Siempre llamar a onClick si existe
+    if (onClick) {
+      e.stopPropagation() // Evitar que el evento se propague
+      onClick()
+    }
   }
 
   const cardContent = (
