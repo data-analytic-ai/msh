@@ -2,7 +2,7 @@ import React from 'react'
 
 import { HeaderThemeProvider } from './HeaderTheme'
 import { ThemeProvider } from './Theme'
-import { ServiceRequestProvider } from '@/contexts/ServiceRequestContext'
+import { ServiceRequestProvider } from '@/context/ServiceRequestContext'
 
 export const Providers: React.FC<{
   children: React.ReactNode
