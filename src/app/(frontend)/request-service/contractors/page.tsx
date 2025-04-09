@@ -78,7 +78,6 @@ export default function ContractorsPage() {
 
   // Buscar contratistas cercanos usando el API
   useEffect(() => {
-    // Si no hay servicio o ubicación, redireccionar a la página principal
     if (!selectedServices || !location) {
       router.replace('/')
       return
@@ -87,94 +86,27 @@ export default function ContractorsPage() {
     const getContractors = async () => {
       setIsLoading(true)
       try {
-        // Usar el servicio de fetchNearbyContractors para obtener contratistas
         const apiContractors = await fetchNearbyContractors(selectedServices, location, 5)
 
         // Transformar los datos a formato UI
-        const uiContractors: UIContractor[] = apiContractors.map((contractor) => {
-          // Extraer nombre y apellido del nombre completo (si es posible)
-          let firstName = ''
-          let lastName = ''
-
-          if (contractor.name) {
-            const nameParts = contractor.name.split(' ')
-            if (nameParts.length > 1) {
-              firstName = nameParts[0] || ''
-              lastName = nameParts.slice(1).join(' ')
-            } else {
-              firstName = contractor.name
-            }
-          }
-
-          return {
-            ...contractor,
-            firstName,
-            lastName,
-            avatar: contractor.profileImage,
-            phoneNumber: contractor.contactPhone || '', // Asegurar que nunca sea undefined
-            // Usar datos dinámicos o placeholder para el tiempo de respuesta
-            responseTime: '15-30 min',
-            // Aseguramos que location tiene la propiedad distance
-            location: {
-              ...contractor.location,
-              distance: (contractor.location as LocationWithDistance).distance || 0,
-            },
-          }
-        })
+        const uiContractors: UIContractor[] = apiContractors.map((contractor) => ({
+          ...contractor,
+          firstName: contractor.name.split(' ')[0] || '',
+          lastName: contractor.name.split(' ').slice(1).join(' ') || '',
+          avatar: contractor.profileImage,
+          phoneNumber: contractor.contactPhone,
+          responseTime: '15-30 min',
+          location: {
+            ...contractor.location,
+            distance: 0, // Calcular distancia si es necesario
+          },
+        }))
 
         setContractors(uiContractors)
       } catch (error) {
         console.error('Error buscando contratistas:', error)
-
-        // En caso de error, usar datos simulados como fallback
-        setContractors([
-          {
-            id: '1',
-            name: 'Juan García',
-            firstName: 'Juan',
-            lastName: 'García',
-            description: 'Plomero profesional con experiencia en todo tipo de instalaciones.',
-            contactEmail: 'juan@example.com',
-            contactPhone: '+1 555-123-4567',
-            address: '123 Calle Principal',
-            location: {
-              lat: location.lat + 0.01,
-              lng: location.lng - 0.005,
-              distance: 2.3,
-            },
-            servicesOffered: ['plumbing', 'electrical'],
-            yearsExperience: 8,
-            rating: 4.8,
-            reviewCount: 172,
-            avatar: '/avatars/contractor1.jpg',
-            phoneNumber: '+1 555-123-4567',
-            responseTime: '15 min',
-            verified: true,
-          },
-          {
-            id: '2',
-            name: 'María Rodríguez',
-            firstName: 'María',
-            lastName: 'Rodríguez',
-            description: 'Especialista en instalaciones eléctricas y aire acondicionado.',
-            contactEmail: 'maria@example.com',
-            contactPhone: '+1 555-987-6543',
-            address: '456 Avenida Central',
-            location: {
-              lat: location.lat - 0.008,
-              lng: location.lng + 0.01,
-              distance: 3.7,
-            },
-            servicesOffered: ['hvac', 'electrical'],
-            yearsExperience: 5,
-            rating: 4.6,
-            reviewCount: 98,
-            avatar: '/avatars/contractor2.jpg',
-            phoneNumber: '+1 555-987-6543',
-            responseTime: '30 min',
-            verified: true,
-          },
-        ])
+        // Mostrar mensaje de error al usuario
+        // Puedes usar un toast o un estado para mostrar el error
       } finally {
         setIsLoading(false)
       }
@@ -218,12 +150,7 @@ export default function ContractorsPage() {
 
   const handleContactClick = (contractorId: string) => {
     setSelectedContractorId(contractorId)
-    // Aquí implementaríamos la lógica para contactar al contratista
-    // Ejemplo: Redirección a página de chat o detalles del contratista
-    const contractor = contractors.find((c) => c.id === contractorId)
-    if (contractor) {
-      alert(`Contactando a ${contractor.name}...`)
-    }
+    router.push(`/request-service/contractors/${contractorId}`)
   }
 
   if (loadError) return <div className="text-center p-4">Error loading maps</div>
