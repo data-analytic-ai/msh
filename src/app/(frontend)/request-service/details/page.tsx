@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ServiceType, useServiceRequest } from '@/context/ServiceRequestContext'
+import { useServiceRequest } from '@/context/ServiceRequestContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -19,9 +19,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { getClientSideURL } from '@/utilities/getURL'
-import { getPayload } from 'payload'
-import config from '@payload-config'
-import { ServiceRequest } from '@/payload-types'
 
 // Service type name mappings
 const serviceNames: Record<string, string> = {

@@ -15,7 +15,7 @@ export const HeaderNav: React.FC<{ data: Header; isMobile?: boolean }> = ({
   isMobile = false,
 }) => {
   const navItems = data?.navItems || []
-  const { userEmail, isAuthenticated, logout } = useServiceRequest()
+  const { isAuthenticated, logout } = useServiceRequest()
   const [userName, setUserName] = useState<string | null>(null)
 
   // Fetch user details if authenticated

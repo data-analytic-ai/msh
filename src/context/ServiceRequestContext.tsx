@@ -389,7 +389,7 @@ export const ServiceRequestProvider = ({ children }: { children: ReactNode }) =>
 
   const syncWithDatabase = useCallback(async () => {
     return syncWithDatabaseInternal(userEmail)
-  }, [userEmail])
+  }, [userEmail, syncWithDatabaseInternal])
 
   // Login function to set user email and token
   const login = useCallback(
