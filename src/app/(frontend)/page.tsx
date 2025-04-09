@@ -4,9 +4,9 @@ import React from 'react'
 // Un componente para renderizar tus datos
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { RenderHero } from '@/heros/RenderHero'
+import { UserServiceRequestsWrapper } from '@/components/UserServiceRequestsWrapper'
 
-// O tu HeroSection, etc.
-
+// Este componente es el que renderiza la página completa
 export default async function Home() {
   const payload = await getPayload({ config: payloadConfig })
 
@@ -36,6 +36,8 @@ export default async function Home() {
         media={page.hero.media}
       />
       <div className="px-4 md:px-6 lg:px-8">
+        {/* User Service Requests will only show for authenticated users */}
+        <UserServiceRequestsWrapper />
         <RenderBlocks blocks={page.layout} />
       </div>
     </>
