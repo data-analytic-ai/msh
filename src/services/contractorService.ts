@@ -23,24 +23,29 @@ export async function fetchNearbyContractors(
   limit: number = 5,
 ): Promise<Contractor[]> {
   try {
-    // Create search parameters for API call
-    const searchParams = new URLSearchParams({
-      services: JSON.stringify(services),
-      lat: location.lat.toString(),
-      lng: location.lng.toString(),
-      limit: limit.toString(),
+    // Usar el endpoint POST optimizado
+    const response = await fetch('/api/contractors/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        services,
+        location,
+        limit,
+      }),
     })
 
-    const response = await fetch(`/api/contractors?${searchParams.toString()}`)
     if (!response.ok) {
-      throw new Error('Failed to fetch contractors')
+      const errorData = await response.json()
+      throw new Error(errorData.error || 'Failed to fetch contractors')
     }
 
     const data = await response.json()
     return data.contractors
   } catch (error) {
     console.error('Error fetching contractors:', error)
-    return []
+    throw error // Re-lanzar el error para un mejor manejo en el componente
   }
 }
 

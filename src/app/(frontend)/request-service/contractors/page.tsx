@@ -76,8 +76,9 @@ export default function ContractorsPage() {
     libraries,
   })
 
-  // Buscar contratistas cercanos usando el API
+  // Cargar contratistas cercanos usando Google Places API
   useEffect(() => {
+    // Si no hay servicio o ubicación, redireccionar a la página principal
     if (!selectedServices || !location) {
       router.replace('/')
       return
@@ -86,34 +87,195 @@ export default function ContractorsPage() {
     const getContractors = async () => {
       setIsLoading(true)
       try {
-        const apiContractors = await fetchNearbyContractors(selectedServices, location, 5)
+        // Mapear servicios a términos de búsqueda para Google Places
+        const serviceTerms = {
+          plumbing: 'plumber',
+          electrical: 'electrician',
+          glass: 'glass repair',
+          hvac: 'hvac contractor',
+          pests: 'pest control',
+          locksmith: 'locksmith',
+          roofing: 'roofing contractor',
+          siding: 'siding contractor',
+          general: 'general contractor',
+        }
 
-        // Transformar los datos a formato UI
-        const uiContractors: UIContractor[] = apiContractors.map((contractor) => ({
-          ...contractor,
-          firstName: contractor.name.split(' ')[0] || '',
-          lastName: contractor.name.split(' ').slice(1).join(' ') || '',
-          avatar: contractor.profileImage,
-          phoneNumber: contractor.contactPhone,
-          responseTime: '15-30 min',
-          location: {
-            ...contractor.location,
-            distance: 0, // Calcular distancia si es necesario
-          },
-        }))
+        // Tomar el primer servicio seleccionado como término principal de búsqueda
+        const primaryService = selectedServices[0] || 'general'
+        const searchTerm =
+          serviceTerms[primaryService as keyof typeof serviceTerms] || primaryService
 
-        setContractors(uiContractors)
+        // Esperar a que Google Maps se cargue
+        if (!isLoaded || !window.google) {
+          console.log('Esperando a que Google Maps se cargue...')
+          return
+        }
+
+        // Crear servicio de Places
+        const placesService = new google.maps.places.PlacesService(document.createElement('div'))
+
+        // Configurar búsqueda
+        const request = {
+          location: new google.maps.LatLng(location.lat, location.lng),
+          radius: 5000, // 5km
+          type: 'business', // Negocios
+          keyword: searchTerm, // Término específico para el servicio
+        }
+
+        // Ejecutar búsqueda
+        placesService.nearbySearch(request, (results, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+            console.log('Resultados Google Places:', results)
+
+            // Convertir resultados de Google Places a formato de contratistas
+            const googleContractors: UIContractor[] = results.map(
+              (place: google.maps.places.PlaceResult) => {
+                const placeLocation = place.geometry?.location
+                const distanceEstimate = Math.random() * 5 // Simulación entre 0-5km
+
+                // Tratar las imágenes con cuidado ya que pueden causar problemas
+                // No intentamos usar las imágenes de Google Places para evitar problemas de dominio
+                const avatarUrl = '' // Dejamos esto vacío intencionalmente
+
+                return {
+                  id: place.place_id || String(Math.random()),
+                  name: place.name || 'Sin nombre',
+                  firstName: place.name?.split(' ')[0] || '',
+                  lastName: place.name?.split(' ').slice(1).join(' ') || '',
+                  description: place.vicinity || '',
+                  contactEmail: '',
+                  contactPhone: '',
+                  website: '',
+                  address: place.vicinity || '',
+                  location: {
+                    lat: placeLocation?.lat() || 0,
+                    lng: placeLocation?.lng() || 0,
+                    distance: distanceEstimate,
+                  },
+                  servicesOffered: selectedServices,
+                  yearsExperience: 0,
+                  rating: place.rating || 0,
+                  reviewCount: place.user_ratings_total || 0,
+                  avatar: avatarUrl,
+                  phoneNumber: '',
+                  responseTime: '15-30 min',
+                  verified: place.business_status === 'OPERATIONAL',
+                }
+              },
+            )
+
+            setContractors(googleContractors)
+          } else {
+            console.error('Error en Google Places:', status)
+            // Usar fallback con datos simulados
+            setContractors([
+              {
+                id: '1',
+                name: 'Juan García',
+                firstName: 'Juan',
+                lastName: 'García',
+                description: 'Plomero profesional con experiencia en todo tipo de instalaciones.',
+                contactEmail: 'juan@example.com',
+                contactPhone: '+1 555-123-4567',
+                address: '123 Calle Principal',
+                location: {
+                  lat: location.lat + 0.01,
+                  lng: location.lng - 0.005,
+                  distance: 2.3,
+                },
+                servicesOffered: ['plumbing', 'electrical'],
+                yearsExperience: 8,
+                rating: 4.8,
+                reviewCount: 172,
+                avatar: '/avatars/contractor1.jpg',
+                phoneNumber: '+1 555-123-4567',
+                responseTime: '15 min',
+                verified: true,
+              },
+              {
+                id: '2',
+                name: 'María Rodríguez',
+                firstName: 'María',
+                lastName: 'Rodríguez',
+                description: 'Especialista en instalaciones eléctricas y aire acondicionado.',
+                contactEmail: 'maria@example.com',
+                contactPhone: '+1 555-987-6543',
+                address: '456 Avenida Central',
+                location: {
+                  lat: location.lat - 0.008,
+                  lng: location.lng + 0.01,
+                  distance: 3.7,
+                },
+                servicesOffered: ['hvac', 'electrical'],
+                yearsExperience: 5,
+                rating: 4.6,
+                reviewCount: 98,
+                avatar: '/avatars/contractor2.jpg',
+                phoneNumber: '+1 555-987-6543',
+                responseTime: '30 min',
+                verified: true,
+              },
+            ])
+          }
+          setIsLoading(false)
+        })
       } catch (error) {
         console.error('Error buscando contratistas:', error)
-        // Mostrar mensaje de error al usuario
-        // Puedes usar un toast o un estado para mostrar el error
-      } finally {
+        // Datos fallback para casos de error
+        setContractors([
+          {
+            id: '1',
+            name: 'Juan García',
+            firstName: 'Juan',
+            lastName: 'García',
+            description: 'Plomero profesional con experiencia en todo tipo de instalaciones.',
+            contactEmail: 'juan@example.com',
+            contactPhone: '+1 555-123-4567',
+            address: '123 Calle Principal',
+            location: {
+              lat: location.lat + 0.01,
+              lng: location.lng - 0.005,
+              distance: 2.3,
+            },
+            servicesOffered: ['plumbing', 'electrical'],
+            yearsExperience: 8,
+            rating: 4.8,
+            reviewCount: 172,
+            avatar: '/avatars/contractor1.jpg',
+            phoneNumber: '+1 555-123-4567',
+            responseTime: '15 min',
+            verified: true,
+          },
+          {
+            id: '2',
+            name: 'María Rodríguez',
+            firstName: 'María',
+            lastName: 'Rodríguez',
+            description: 'Especialista en instalaciones eléctricas y aire acondicionado.',
+            contactEmail: 'maria@example.com',
+            contactPhone: '+1 555-987-6543',
+            address: '456 Avenida Central',
+            location: {
+              lat: location.lat - 0.008,
+              lng: location.lng + 0.01,
+              distance: 3.7,
+            },
+            servicesOffered: ['hvac', 'electrical'],
+            yearsExperience: 5,
+            rating: 4.6,
+            reviewCount: 98,
+            avatar: '/avatars/contractor2.jpg',
+            phoneNumber: '+1 555-987-6543',
+            responseTime: '30 min',
+            verified: true,
+          },
+        ])
         setIsLoading(false)
       }
     }
 
     getContractors()
-  }, [selectedServices, location, router])
+  }, [selectedServices, location, router, isLoaded])
 
   // Actualizar el estado del contratista seleccionado en el contexto
   useEffect(() => {
@@ -262,18 +424,9 @@ export default function ContractorsPage() {
                   <CardContent className="p-0">
                     <div className="flex items-center p-4">
                       <div className="relative h-16 w-16 flex-shrink-0 rounded-full overflow-hidden mr-4 border">
-                        {contractor.avatar ? (
-                          <Image
-                            src={contractor.avatar}
-                            alt={contractor.name}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="h-full w-full bg-muted flex items-center justify-center text-2xl">
-                            {contractor.firstName?.charAt(0) || contractor.name.charAt(0)}
-                          </div>
-                        )}
+                        <div className="h-full w-full bg-muted flex items-center justify-center text-2xl">
+                          {contractor.firstName?.charAt(0) || contractor.name.charAt(0)}
+                        </div>
                         {contractor.verified && (
                           <div className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-0.5 w-5 h-5 flex items-center justify-center text-xs">
                             ✓
