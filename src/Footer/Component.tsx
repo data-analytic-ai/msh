@@ -23,6 +23,7 @@ export async function Footer() {
           <p className="text-sm text-muted-foreground max-w-xs">
             Connecting you with trusted professionals contractors throughout the US.
           </p>
+          <Link href="/contractor">Are you a contractor?</Link>
         </div>
 
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-8">

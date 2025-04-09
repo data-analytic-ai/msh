@@ -37,36 +37,32 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   }, [pathname])
 
   return (
-    <header 
-      className="container relative z-30 transition-all duration-300" 
+    <header
+      className="container relative z-30 transition-all duration-300"
       {...(theme ? { 'data-theme': theme } : {})}
     >
       <div className="py-4 md:py-6 lg:py-8 flex justify-between items-center">
         <Link href="/" className="z-20 relative">
           <Logo loading="eager" priority="high" className="w-auto" />
         </Link>
-        
+
         {/* Mobile menu button */}
-        <button 
-          className="md:hidden z-20 p-2" 
+        <button
+          className="md:hidden z-20 p-2"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
         >
-          {mobileMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
+          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
-        
+
         {/* Desktop navigation */}
         <div className="hidden md:block">
           <HeaderNav data={data} />
         </div>
-        
+
         {/* Mobile navigation overlay */}
-        <div 
-          className={`fixed inset-0 bg-background dark:bg-background md:hidden transition-all duration-300 ${
+        <div
+          className={`fixed inset-0 bg-background text-primary dark:bg-background md:hidden transition-all duration-300 ${
             mobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
           } flex flex-col items-center justify-center`}
         >
