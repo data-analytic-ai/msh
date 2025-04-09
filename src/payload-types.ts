@@ -18,6 +18,8 @@ export interface Config {
     users: User;
     'service-requests': ServiceRequest;
     services: Service;
+    'contractor-directory': ContractorDirectory;
+    contractors: Contractor;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -36,6 +38,8 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     'service-requests': ServiceRequestsSelect<false> | ServiceRequestsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
+    'contractor-directory': ContractorDirectorySelect<false> | ContractorDirectorySelect<true>;
+    contractors: ContractorsSelect<false> | ContractorsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -791,29 +795,91 @@ export interface UrgentFixServicesBlock {
   blockType: 'urgentFixServices';
 }
 /**
+ * Service requests submitted by customers
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "service-requests".
  */
 export interface ServiceRequest {
   id: string;
+  /**
+   * Unique identifier for this service request
+   */
+  requestId?: string | null;
+  /**
+   * Title of the service request
+   */
   requestTitle: string;
-  serviceType: 'plumbing' | 'electrical' | 'glass' | 'hvac' | 'pests' | 'locksmith' | 'roofing' | 'siding' | 'general';
+  /**
+   * Type of service requested
+   */
+  serviceType: (
+    | 'plumbing'
+    | 'electrical'
+    | 'glass'
+    | 'hvac'
+    | 'pests'
+    | 'locksmith'
+    | 'roofing'
+    | 'siding'
+    | 'general'
+  )[];
+  /**
+   * Detailed description of the service needed
+   */
   description: string;
+  /**
+   * How urgent is this service request
+   */
   urgencyLevel: 'low' | 'medium' | 'high' | 'emergency';
+  /**
+   * Current status of the service request
+   */
   status: 'pending' | 'assigned' | 'in-progress' | 'completed' | 'cancelled';
+  /**
+   * Service location details
+   */
   location: {
-    address: string;
-    city: string;
-    state: string;
-    zipCode: string;
+    /**
+     * Complete formatted address
+     */
+    formattedAddress: string;
+    /**
+     * Geographic coordinates
+     */
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
+    /**
+     * City extracted from address
+     */
+    city?: string | null;
+    /**
+     * State/province extracted from address
+     */
+    state?: string | null;
+    /**
+     * Postal code extracted from address
+     */
+    zipCode?: string | null;
   };
-  contactInfo: {
-    name: string;
+  /**
+   * Customer contact information
+   */
+  customerInfo: {
+    fullName: string;
     email: string;
     phone: string;
     preferredContact: 'phone' | 'email' | 'sms';
   };
+  /**
+   * When the customer would prefer service
+   */
   preferredDateTime?: string | null;
+  /**
+   * Photos of the problem requiring service
+   */
   photos?:
     | {
         photo: string | Media;
@@ -821,15 +887,27 @@ export interface ServiceRequest {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Service quotes from contractors
+   */
   quotes?:
     | {
-        contractorName?: string | null;
+        /**
+         * Contractor who provided the quote
+         */
+        contractor?: (string | null) | User;
+        /**
+         * Estimated cost in USD
+         */
         amount?: number | null;
         description?: string | null;
         status?: ('pending' | 'accepted' | 'rejected') | null;
         id?: string | null;
       }[]
     | null;
+  /**
+   * Internal notes about this request
+   */
   notes?:
     | {
         content: string;
@@ -838,7 +916,13 @@ export interface ServiceRequest {
         id?: string | null;
       }[]
     | null;
+  /**
+   * User who submitted the request
+   */
   customer?: (string | null) | User;
+  /**
+   * Contractor assigned to this service request
+   */
   assignedContractor?: (string | null) | User;
   updatedAt: string;
   createdAt: string;
@@ -890,6 +974,227 @@ export interface Service {
     | null;
   publishedAt?: string | null;
   _status: 'draft' | 'published';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Directory of contractors in New York for UrgentFix services
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contractor-directory".
+ */
+export interface ContractorDirectory {
+  id: string;
+  /**
+   * Name of the contractor business
+   */
+  businessName: string;
+  /**
+   * First name of business contact or owner
+   */
+  firstName?: string | null;
+  /**
+   * Last name of business contact or owner
+   */
+  lastName?: string | null;
+  /**
+   * Services offered by this contractor
+   */
+  services: ('plumbing' | 'electrical' | 'glass' | 'hvac' | 'pests' | 'locksmith' | 'roofing' | 'siding' | 'general')[];
+  /**
+   * Whether this contractor is currently available for new jobs
+   */
+  isAvailable?: boolean | null;
+  /**
+   * Whether this contractor has been verified by UrgentFix
+   */
+  isVerified?: boolean | null;
+  /**
+   * Google Maps Place ID for this business
+   */
+  placeId?: string | null;
+  /**
+   * Business location details
+   */
+  location: {
+    /**
+     * Complete formatted address from Google Maps
+     */
+    formattedAddress: string;
+    /**
+     * Geographic coordinates
+     */
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
+    /**
+     * City extracted from address
+     */
+    city?: string | null;
+    /**
+     * State/province extracted from address
+     */
+    state?: string | null;
+    /**
+     * Postal code extracted from address
+     */
+    zipCode?: string | null;
+    /**
+     * Neighborhood or district in New York
+     */
+    neighborhood?: string | null;
+  };
+  /**
+   * Contact information
+   */
+  contactInfo?: {
+    email?: string | null;
+    phone?: string | null;
+    website?: string | null;
+  };
+  /**
+   * Business details and metrics
+   */
+  businessDetails?: {
+    description?: string | null;
+    yearsInBusiness?: number | null;
+    employeeCount?: number | null;
+    licenses?:
+      | {
+          licenseType?: string | null;
+          licenseNumber?: string | null;
+          expirationDate?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    certifications?:
+      | {
+          name?: string | null;
+          issuedBy?: string | null;
+          year?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Data from Google Maps
+   */
+  googleData?: {
+    rating?: number | null;
+    reviewCount?: number | null;
+    openingHours?:
+      | {
+          day?: ('monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday') | null;
+          open?: string | null;
+          close?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    categories?:
+      | {
+          category?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * UrgentFix platform metrics
+   */
+  urgentFixMetrics?: {
+    responseTime?: ('under15' | '15to30' | '30to60' | 'over60') | null;
+    completionRate?: number | null;
+    onTimeRate?: number | null;
+    platformRating?: number | null;
+    jobsCompleted?: number | null;
+  };
+  /**
+   * Business photos and media
+   */
+  media?: {
+    logo?: (string | null) | Media;
+    photos?:
+      | {
+          photo?: (string | null) | Media;
+          caption?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Metadata about web scraping
+   */
+  scrapingData?: {
+    lastScraped?: string | null;
+    dataSource?: string | null;
+    scrapingStatus?: ('pending' | 'complete' | 'failed' | 'needs-update') | null;
+  };
+  /**
+   * User account associated with this contractor (if any)
+   */
+  user?: (string | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contractors".
+ */
+export interface Contractor {
+  id: string;
+  name: string;
+  description: string;
+  contactEmail: string;
+  contactPhone: string;
+  website?: string | null;
+  address: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  servicesOffered: (string | Service)[];
+  yearsExperience: number;
+  rating: number;
+  reviewCount: number;
+  profileImage?: (string | null) | Media;
+  coverImage?: (string | null) | Media;
+  specialties?:
+    | {
+        specialty: string;
+        id?: string | null;
+      }[]
+    | null;
+  certifications?:
+    | {
+        certification: string;
+        id?: string | null;
+      }[]
+    | null;
+  workingHours?: {
+    monday?: string | null;
+    tuesday?: string | null;
+    wednesday?: string | null;
+    thursday?: string | null;
+    friday?: string | null;
+    saturday?: string | null;
+    sunday?: string | null;
+  };
+  socialMedia?: {
+    facebook?: string | null;
+    instagram?: string | null;
+    twitter?: string | null;
+    linkedin?: string | null;
+  };
+  verified?: boolean | null;
+  dataSource: 'manual' | 'google_maps' | 'yelp' | 'external_api';
+  /**
+   * ID or reference in the external data source
+   */
+  dataSourceId?: string | null;
+  /**
+   * When this data was last updated from external source
+   */
+  lastScraped?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1092,6 +1397,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'services';
         value: string | Service;
+      } | null)
+    | ({
+        relationTo: 'contractor-directory';
+        value: string | ContractorDirectory;
+      } | null)
+    | ({
+        relationTo: 'contractors';
+        value: string | Contractor;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1479,7 +1792,6 @@ export interface CategoriesSelect<T extends boolean = true> {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  userType?: T;
   role?: T;
   name?: T;
   lastName?: T;
@@ -1500,6 +1812,7 @@ export interface UsersSelect<T extends boolean = true> {
         hasLicense?: T;
         rating?: T;
         reviewCount?: T;
+        isVerified?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1516,6 +1829,7 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "service-requests_select".
  */
 export interface ServiceRequestsSelect<T extends boolean = true> {
+  requestId?: T;
   requestTitle?: T;
   serviceType?: T;
   description?: T;
@@ -1524,15 +1838,21 @@ export interface ServiceRequestsSelect<T extends boolean = true> {
   location?:
     | T
     | {
-        address?: T;
+        formattedAddress?: T;
+        coordinates?:
+          | T
+          | {
+              lat?: T;
+              lng?: T;
+            };
         city?: T;
         state?: T;
         zipCode?: T;
       };
-  contactInfo?:
+  customerInfo?:
     | T
     | {
-        name?: T;
+        fullName?: T;
         email?: T;
         phone?: T;
         preferredContact?: T;
@@ -1548,7 +1868,7 @@ export interface ServiceRequestsSelect<T extends boolean = true> {
   quotes?:
     | T
     | {
-        contractorName?: T;
+        contractor?: T;
         amount?: T;
         description?: T;
         status?: T;
@@ -1596,6 +1916,176 @@ export interface ServicesSelect<T extends boolean = true> {
       };
   publishedAt?: T;
   _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contractor-directory_select".
+ */
+export interface ContractorDirectorySelect<T extends boolean = true> {
+  businessName?: T;
+  firstName?: T;
+  lastName?: T;
+  services?: T;
+  isAvailable?: T;
+  isVerified?: T;
+  placeId?: T;
+  location?:
+    | T
+    | {
+        formattedAddress?: T;
+        coordinates?:
+          | T
+          | {
+              lat?: T;
+              lng?: T;
+            };
+        city?: T;
+        state?: T;
+        zipCode?: T;
+        neighborhood?: T;
+      };
+  contactInfo?:
+    | T
+    | {
+        email?: T;
+        phone?: T;
+        website?: T;
+      };
+  businessDetails?:
+    | T
+    | {
+        description?: T;
+        yearsInBusiness?: T;
+        employeeCount?: T;
+        licenses?:
+          | T
+          | {
+              licenseType?: T;
+              licenseNumber?: T;
+              expirationDate?: T;
+              id?: T;
+            };
+        certifications?:
+          | T
+          | {
+              name?: T;
+              issuedBy?: T;
+              year?: T;
+              id?: T;
+            };
+      };
+  googleData?:
+    | T
+    | {
+        rating?: T;
+        reviewCount?: T;
+        openingHours?:
+          | T
+          | {
+              day?: T;
+              open?: T;
+              close?: T;
+              id?: T;
+            };
+        categories?:
+          | T
+          | {
+              category?: T;
+              id?: T;
+            };
+      };
+  urgentFixMetrics?:
+    | T
+    | {
+        responseTime?: T;
+        completionRate?: T;
+        onTimeRate?: T;
+        platformRating?: T;
+        jobsCompleted?: T;
+      };
+  media?:
+    | T
+    | {
+        logo?: T;
+        photos?:
+          | T
+          | {
+              photo?: T;
+              caption?: T;
+              id?: T;
+            };
+      };
+  scrapingData?:
+    | T
+    | {
+        lastScraped?: T;
+        dataSource?: T;
+        scrapingStatus?: T;
+      };
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contractors_select".
+ */
+export interface ContractorsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  contactEmail?: T;
+  contactPhone?: T;
+  website?: T;
+  address?: T;
+  location?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  servicesOffered?: T;
+  yearsExperience?: T;
+  rating?: T;
+  reviewCount?: T;
+  profileImage?: T;
+  coverImage?: T;
+  specialties?:
+    | T
+    | {
+        specialty?: T;
+        id?: T;
+      };
+  certifications?:
+    | T
+    | {
+        certification?: T;
+        id?: T;
+      };
+  workingHours?:
+    | T
+    | {
+        monday?: T;
+        tuesday?: T;
+        wednesday?: T;
+        thursday?: T;
+        friday?: T;
+        saturday?: T;
+        sunday?: T;
+      };
+  socialMedia?:
+    | T
+    | {
+        facebook?: T;
+        instagram?: T;
+        twitter?: T;
+        linkedin?: T;
+      };
+  verified?: T;
+  dataSource?: T;
+  dataSourceId?: T;
+  lastScraped?: T;
   updatedAt?: T;
   createdAt?: T;
 }
