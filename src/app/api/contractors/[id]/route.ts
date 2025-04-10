@@ -7,41 +7,48 @@
 import { NextRequest, NextResponse } from 'next/server'
 import payload from 'payload'
 import { Contractor } from '@/types/contractor'
+import { Contractor as PayloadContractor, Media } from '@/payload-types'
 
-// Function to convert ContractorDirectory to Contractor type
-function mapToContractor(contractor: any): Contractor {
+// Function to convert PayloadContractor to Contractor type for API response
+function mapToContractor(contractor: PayloadContractor): Contractor {
+  // Función auxiliar para extraer URL de un campo Media de Payload
+  const getMediaUrl = (media: string | Media | null | undefined): string | undefined => {
+    if (!media) return undefined
+    if (typeof media === 'string') return media
+    return media.url || undefined
+  }
+
   return {
     id: contractor.id,
-    name: contractor.businessName,
-    description: contractor.businessDetails?.description || '',
-    contactEmail: contractor.contactInfo?.email || '',
-    contactPhone: contractor.contactInfo?.phone || '',
-    website: contractor.contactInfo?.website,
-    address: contractor.location.formattedAddress,
+    name: contractor.name,
+    description: contractor.description,
+    contactEmail: contractor.contactEmail,
+    contactPhone: contractor.contactPhone,
+    website: contractor.website || undefined,
+    address: contractor.address,
     location: {
-      lat: contractor.location.coordinates.lat,
-      lng: contractor.location.coordinates.lng,
+      lat: contractor.location.lat,
+      lng: contractor.location.lng,
     },
-    servicesOffered: contractor.services,
-    yearsExperience: contractor.businessDetails?.yearsInBusiness || 0,
-    rating: contractor.googleData?.rating || 0,
-    reviewCount: contractor.googleData?.reviewCount || 0,
-    profileImage: contractor.media?.logo?.url,
-    coverImage: contractor.media?.photos?.[0]?.photo?.url,
-    specialties: contractor.businessDetails?.certifications?.map((cert: any) => cert.name) || [],
+    servicesOffered: contractor.servicesOffered.map((service) =>
+      typeof service === 'string' ? service : service.type,
+    ),
+    yearsExperience: contractor.yearsExperience,
+    rating: contractor.rating,
+    reviewCount: contractor.reviewCount,
+    profileImage: getMediaUrl(contractor.profileImage),
+    coverImage: getMediaUrl(contractor.coverImage),
+    specialties: contractor.specialties?.map((s) => s.specialty) || [],
     workingHours: {
-      monday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'monday')?.open,
-      tuesday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'tuesday')?.open,
-      wednesday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'wednesday')
-        ?.open,
-      thursday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'thursday')
-        ?.open,
-      friday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'friday')?.open,
-      saturday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'saturday')
-        ?.open,
-      sunday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'sunday')?.open,
+      monday: contractor.workingHours?.monday || undefined,
+      tuesday: contractor.workingHours?.tuesday || undefined,
+      wednesday: contractor.workingHours?.wednesday || undefined,
+      thursday: contractor.workingHours?.thursday || undefined,
+      friday: contractor.workingHours?.friday || undefined,
+      saturday: contractor.workingHours?.saturday || undefined,
+      sunday: contractor.workingHours?.sunday || undefined,
     },
-    verified: contractor.isVerified || false,
+    verified: contractor.verified || false,
   }
 }
 

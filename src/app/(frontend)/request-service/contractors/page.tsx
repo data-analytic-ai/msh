@@ -7,9 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ArrowLeft, MapPin, Phone, Star, Clock } from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { GoogleMap, useLoadScript, Marker, Libraries } from '@react-google-maps/api'
-import { fetchNearbyContractors } from '@/services/contractorService'
 import { Contractor } from '@/types/contractor'
 
 // Extendiendo la interfaz Location para incluir distancia
@@ -312,6 +310,35 @@ export default function ContractorsPage() {
 
   const handleContactClick = (contractorId: string) => {
     setSelectedContractorId(contractorId)
+
+    // Guardar datos del contratista seleccionado en sessionStorage
+    const contractor = contractors.find((c) => c.id === contractorId)
+    if (contractor) {
+      // Guardar datos mínimos para recuperar después
+      if (contractor.id.startsWith('ChIJ') || contractor.id.includes('place')) {
+        // Es un ID de Google Place
+        sessionStorage.setItem(`place_${contractor.id}_name`, contractor.name)
+        sessionStorage.setItem(`place_${contractor.id}_vicinity`, contractor.address)
+        sessionStorage.setItem(`place_${contractor.id}_lat`, contractor.location.lat.toString())
+        sessionStorage.setItem(`place_${contractor.id}_lng`, contractor.location.lng.toString())
+        sessionStorage.setItem(`place_${contractor.id}_rating`, contractor.rating.toString())
+        sessionStorage.setItem(`place_${contractor.id}_reviews`, contractor.reviewCount.toString())
+      }
+
+      // Guardar lista de contratistas recientes
+      try {
+        const recentContractors = JSON.parse(sessionStorage.getItem('recent_contractors') || '[]')
+        const updatedContractors = [
+          contractor,
+          ...recentContractors.filter((c: { id: string }) => c.id !== contractor.id),
+        ].slice(0, 5) // Mantener solo los 5 más recientes
+
+        sessionStorage.setItem('recent_contractors', JSON.stringify(updatedContractors))
+      } catch (e) {
+        console.error('Error saving recent contractors:', e)
+      }
+    }
+
     router.push(`/request-service/contractors/${contractorId}`)
   }
 
