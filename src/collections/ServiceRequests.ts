@@ -427,6 +427,31 @@ export const ServiceRequests: CollectionConfig = {
         },
       },
     },
+    {
+      name: 'paymentStatus',
+      type: 'select',
+      defaultValue: 'not_initiated',
+      admin: {
+        position: 'sidebar',
+        description: 'Current status of the payment',
+      },
+      options: [
+        { label: 'Not Initiated', value: 'not_initiated' },
+        { label: 'Pending', value: 'pending' },
+        { label: 'Authorized', value: 'authorized' },
+        { label: 'Captured', value: 'captured' },
+        { label: 'Cancelled', value: 'cancelled' },
+        { label: 'Failed', value: 'failed' },
+      ],
+    },
+    {
+      name: 'paymentIntentId',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Stripe Payment Intent ID',
+      },
+    },
   ],
   hooks: {
     afterChange: [

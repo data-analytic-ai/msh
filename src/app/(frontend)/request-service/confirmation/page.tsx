@@ -72,7 +72,7 @@ export default function ConfirmationPage() {
     if ((!selectedServices || !location || !requestId) && userEmail) {
       handleSyncRequest()
     }
-  }, [selectedServices, location, requestId, userEmail])
+  }, [selectedServices, location, requestId, userEmail ])
 
   const handleSyncRequest = async () => {
     if (!userEmail) return
@@ -102,13 +102,13 @@ export default function ConfirmationPage() {
     if (!isAuthenticated && userEmail) {
       // Try to authenticate the user and then redirect
       handleSyncRequest().then(() => {
-        router.push('/request-service/contractors')
+        router.push('/request-service/find-contractor')
       })
     } else {
       // User is already authenticated, redirect directly
       setTimeout(() => {
         setIsLoading(false)
-        router.push('/request-service/contractors')
+        router.push('/request-service/find-contractor')
       }, 1000)
     }
   }

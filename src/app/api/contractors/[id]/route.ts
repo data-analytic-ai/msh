@@ -10,7 +10,7 @@ import { Contractor } from '@/types/contractor'
 import { Contractor as PayloadContractor, Media } from '@/payload-types'
 
 // Function to convert PayloadContractor to Contractor type for API response
-function mapToContractor(contractor: PayloadContractor): Contractor {
+function mapToContractor(contractor: any): Contractor {
   // Función auxiliar para extraer URL de un campo Media de Payload
   const getMediaUrl = (media: string | Media | null | undefined): string | undefined => {
     if (!media) return undefined
@@ -20,35 +20,36 @@ function mapToContractor(contractor: PayloadContractor): Contractor {
 
   return {
     id: contractor.id,
-    name: contractor.name,
-    description: contractor.description,
-    contactEmail: contractor.contactEmail,
-    contactPhone: contractor.contactPhone,
-    website: contractor.website || undefined,
-    address: contractor.address,
+    name: contractor.businessName,
+    description: contractor.businessDetails?.description || '',
+    contactEmail: contractor.contactInfo?.email || '',
+    contactPhone: contractor.contactInfo?.phone || '',
+    website: contractor.contactInfo?.website || undefined,
+    address: contractor.location.formattedAddress,
     location: {
-      lat: contractor.location.lat,
-      lng: contractor.location.lng,
+      lat: contractor.location.coordinates.lat,
+      lng: contractor.location.coordinates.lng,
     },
-    servicesOffered: contractor.servicesOffered.map((service) =>
-      typeof service === 'string' ? service : service.type,
-    ),
-    yearsExperience: contractor.yearsExperience,
-    rating: contractor.rating,
-    reviewCount: contractor.reviewCount,
-    profileImage: getMediaUrl(contractor.profileImage),
-    coverImage: getMediaUrl(contractor.coverImage),
-    specialties: contractor.specialties?.map((s) => s.specialty) || [],
+    servicesOffered: contractor.services || [],
+    yearsExperience: contractor.businessDetails?.yearsInBusiness || 0,
+    rating: contractor.googleData?.rating || 0,
+    reviewCount: contractor.googleData?.reviewCount || 0,
+    profileImage: getMediaUrl(contractor.media?.logo),
+    coverImage: getMediaUrl(contractor.media?.photos?.[0]?.photo),
+    specialties: contractor.businessDetails?.certifications?.map((cert: any) => cert.name) || [],
     workingHours: {
-      monday: contractor.workingHours?.monday || undefined,
-      tuesday: contractor.workingHours?.tuesday || undefined,
-      wednesday: contractor.workingHours?.wednesday || undefined,
-      thursday: contractor.workingHours?.thursday || undefined,
-      friday: contractor.workingHours?.friday || undefined,
-      saturday: contractor.workingHours?.saturday || undefined,
-      sunday: contractor.workingHours?.sunday || undefined,
+      monday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'monday')?.open,
+      tuesday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'tuesday')?.open,
+      wednesday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'wednesday')
+        ?.open,
+      thursday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'thursday')
+        ?.open,
+      friday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'friday')?.open,
+      saturday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'saturday')
+        ?.open,
+      sunday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'sunday')?.open,
     },
-    verified: contractor.verified || false,
+    verified: contractor.isVerified || false,
   }
 }
 
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     // Fetch contractor from PayloadCMS
     const contractor = await payload.findByID({
-      collection: 'contractors',
+      collection: 'contractor-directory',
       id,
       depth: 2, // Load nested relationships
     })
@@ -78,7 +79,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 
     // Transform data
-    const mappedContractor = mapToContractor(contractor)
+    const mappedContractor = mapToContractor(contractor as any)
 
     return NextResponse.json({ contractor: mappedContractor })
   } catch (error) {

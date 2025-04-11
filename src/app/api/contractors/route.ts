@@ -83,7 +83,11 @@ export async function GET(request: NextRequest) {
     const limitParam = searchParams.get('limit')
 
     // Parse and validate parameters
-    const services = servicesParam ? JSON.parse(servicesParam) : []
+    const services = servicesParam
+      ? servicesParam.includes('[')
+        ? JSON.parse(servicesParam)
+        : servicesParam.split(',')
+      : []
     const lat = latParam ? parseFloat(latParam) : null
     const lng = lngParam ? parseFloat(lngParam) : null
     const limit = limitParam ? parseInt(limitParam, 10) : 5
