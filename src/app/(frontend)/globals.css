@@ -22,6 +22,7 @@
   }
 
   :root {
+    /* Base colors */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -52,9 +53,38 @@
 
     --radius: 0.2rem;
 
-    --success: 196 52% 74%;
-    --warning: 34 89% 85%;
+    /* Status colors */
+    --success: 142 76% 36%;
+    --success-foreground: 210 40% 98%;
+    --success-light: 142 72% 95%;
+    --success-light-foreground: 142 76% 36%;
+    --success-border: 142 72% 88%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 40% 98%;
+    --warning-light: 38 92% 95%;
+    --warning-light-foreground: 38 92% 30%;
+    --warning-border: 38 92% 85%;
+
     --error: 0 84.2% 60.2%;
+    --error-foreground: 210 40% 98%;
+    --error-light: 0 84.2% 95%; 
+    --error-light-foreground: 0 84.2% 50%;
+    --error-border: 0 84.2% 88%;
+
+    --info: 217 91% 60%;
+    --info-foreground: 210 40% 98%;
+    --info-light: 217 91% 95%;
+    --info-light-foreground: 217 91% 60%;
+    --info-border: 217 91% 88%;
+
+    /* Neutral colors */
+    --slate-50: 220 16% 96%;
+    --slate-100: 220 14% 94%;
+    --slate-200: 220 13% 88%;
+    --slate-300: 220 11% 76%;
+    --slate-400: 220 9% 62%;
+    --slate-500: 220 8% 44%;
   }
 
   [data-theme='dark'] {
@@ -86,9 +116,38 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
 
-    --success: 196 100% 14%;
-    --warning: 34 51% 25%;
-    --error: 0 62.8% 30.6%;
+    /* Status colors - dark mode */
+    --success: 142 76% 40%;
+    --success-foreground: 0 0% 100%;
+    --success-light: 142 60% 14%;
+    --success-light-foreground: 142 76% 85%;
+    --success-border: 142 60% 20%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --warning-light: 38 60% 14%;
+    --warning-light-foreground: 38 92% 85%;
+    --warning-border: 38 60% 20%;
+
+    --error: 0 62.8% 50%;
+    --error-foreground: 0 0% 100%;
+    --error-light: 0 60% 14%;
+    --error-light-foreground: 0 62.8% 85%;
+    --error-border: 0 60% 20%;
+
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+    --info-light: 217 60% 14%;
+    --info-light-foreground: 217 91% 85%;
+    --info-border: 217 60% 20%;
+
+    /* Neutral colors - dark mode */
+    --slate-50: 220 16% 10%;
+    --slate-100: 220 14% 14%;
+    --slate-200: 220 13% 18%;
+    --slate-300: 220 11% 30%;
+    --slate-400: 220 9% 46%;
+    --slate-500: 220 8% 65%;
   }
 }
 
@@ -108,4 +167,27 @@ html {
 html[data-theme='dark'],
 html[data-theme='light'] {
   opacity: initial;
+}
+
+/* Estilos adicionales que pueden ser necesarios */
+@layer components {
+  .status-badge {
+    @apply inline-flex items-center rounded-full px-2 py-1 text-xs font-medium;
+  }
+  
+  .status-badge-success {
+    @apply status-badge bg-success-light text-success-light-foreground;
+  }
+  
+  .status-badge-warning {
+    @apply status-badge bg-warning-light text-warning-light-foreground;
+  }
+  
+  .status-badge-error {
+    @apply status-badge bg-error-light text-error-light-foreground;
+  }
+  
+  .status-badge-info {
+    @apply status-badge bg-info-light text-info-light-foreground;
+  }
 }

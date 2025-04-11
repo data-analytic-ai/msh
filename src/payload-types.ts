@@ -924,6 +924,14 @@ export interface ServiceRequest {
    * Contractor assigned to this service request
    */
   assignedContractor?: (string | null) | User;
+  /**
+   * Current status of the payment
+   */
+  paymentStatus?: ('not_initiated' | 'pending' | 'authorized' | 'captured' | 'cancelled' | 'failed') | null;
+  /**
+   * Stripe Payment Intent ID
+   */
+  paymentIntentId?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1884,6 +1892,8 @@ export interface ServiceRequestsSelect<T extends boolean = true> {
       };
   customer?: T;
   assignedContractor?: T;
+  paymentStatus?: T;
+  paymentIntentId?: T;
   updatedAt?: T;
   createdAt?: T;
 }

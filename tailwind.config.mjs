@@ -1,13 +1,18 @@
 /** @type {import('tailwindcss').Config} */
+import tailwindAnimate from 'tailwindcss-animate'
+import tailwindTypography from '@tailwindcss/typography'
+
 export default {
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
+    './src/app/**/*.{ts,tsx}',
+    
   ],
   darkMode: ['selector', '[data-theme="dark"]'],
-  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
+  plugins: [tailwindAnimate, tailwindTypography],
   prefix: '',
   safelist: [
     'lg:col-span-4',
@@ -22,6 +27,22 @@ export default {
     'bg-success/30',
     'border-warning',
     'bg-warning/30',
+    'bg-success-light',
+    'text-success',
+    'text-success-light-foreground',
+    'border-success',
+    'bg-warning-light',
+    'text-warning',
+    'text-warning-light-foreground',
+    'border-warning',
+    'bg-error-light',
+    'text-error',
+    'text-error-light-foreground',
+    'border-error',
+    'bg-info-light',
+    'text-info',
+    'text-info-light-foreground',
+    'border-info',
   ],
   theme: {
     container: {
@@ -86,9 +107,42 @@ export default {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',
         },
-        success: 'hsl(var(--success))',
-        error: 'hsl(var(--error))',
-        warning: 'hsl(var(--warning))',
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          foreground: 'hsl(var(--success-foreground))',
+          light: 'hsl(var(--success-light))',
+          'light-foreground': 'hsl(var(--success-light-foreground))',
+          border: 'hsl(var(--success-border))',
+        },
+        error: {
+          DEFAULT: 'hsl(var(--error))',
+          foreground: 'hsl(var(--error-foreground))',
+          light: 'hsl(var(--error-light))',
+          'light-foreground': 'hsl(var(--error-light-foreground))',
+          border: 'hsl(var(--error-border))',
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--warning))',
+          foreground: 'hsl(var(--warning-foreground))',
+          light: 'hsl(var(--warning-light))',
+          'light-foreground': 'hsl(var(--warning-light-foreground))',
+          border: 'hsl(var(--warning-border))',
+        },
+        info: {
+          DEFAULT: 'hsl(var(--info))',
+          foreground: 'hsl(var(--info-foreground))',
+          light: 'hsl(var(--info-light))',
+          'light-foreground': 'hsl(var(--info-light-foreground))',
+          border: 'hsl(var(--info-border))',
+        },
+        slate: {
+          50: 'hsl(var(--slate-50))',
+          100: 'hsl(var(--slate-100))',
+          200: 'hsl(var(--slate-200))',
+          300: 'hsl(var(--slate-300))',
+          400: 'hsl(var(--slate-400))',
+          500: 'hsl(var(--slate-500))',
+        },
       },
       fontFamily: {
         mono: ['var(--font-geist-mono)'],
