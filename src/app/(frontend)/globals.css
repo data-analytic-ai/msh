@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 .text-wrap-fallback {
   word-wrap: break-word;
@@ -8,75 +9,108 @@
 } 
 
 @layer base {
-  * {
-    border-color: hsl(var(--border));
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: auto;
+    font-weight: auto;
   }
+
+  * {
+    border-color: var(--border);
+  }
+  
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    background-color: var(--background);
+    color: var(--foreground);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
   }
 }
 
+
+@theme {
+  /* Breakpoints */
+  --breakpoints-3xl: 1920px;
+  --breakpoints-2xl: 1536px;
+  --breakpoints-xl: 1280px;
+  --breakpoints-lg: 1024px;
+  --breakpoints-md: 768px;
+  --breakpoints-sm: 640px;
+
+  --color-logo-urgent-dark: #ffffff;
+  --color-logo-fix-dark: #D93D1A;
+  
+  
+  
+}
+
+
 :root {
-  /* Configuración básica como radius, colores, etc. */
+  /* Configuración básica */
   --radius: 0.2rem;
   
-  /* Colores principales */
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 240 5% 96%;
-  --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 15 80% 50%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 240 6% 80%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
+  /* Logo Colors */
+  --logo-urgent: #FFFFFF;
+  --logo-fix: #D93D1A;
+  
+  /* Colores principales - armónicos con el logo */
+  --background: #FFFFFF;
+  --foreground: #1F2937;
+
+  --card: #F9FAFB;
+  --card-foreground: #1F2937;
+
+  --popover: #FFFFFF;
+  --popover-foreground: #1F2937;
+
+  --primary: #FF4500;
+  --primary-foreground: #FFFFFF;
+
+  --secondary: #F3F4F6;
+  --secondary-foreground: #1F2937;
+
+  --muted: #F3F4F6;
+  --muted-foreground: #6B7280;
+
+  --accent: #FF6E40;
+  --accent-foreground: #FFFFFF;
+
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+
+  --border: #E5E7EB;
+  --input: #F3F4F6;
+  --ring: #FF4500;
 
   /* Status colors */
-  --success: 142 76% 36%;
-  --success-foreground: 210 40% 98%;
-  --success-light: 142 72% 95%;
-  --success-light-foreground: 142 76% 36%;
-  --success-border: 142 72% 88%;
+  --success: #10B981;
+  --success-foreground: #FFFFFF;
+  --success-light: #ECFDF5;
+  --success-light-foreground: #065F46;
+  --success-border: #A7F3D0;
 
-  --warning: 38 92% 50%;
-  --warning-foreground: 210 40% 98%;
-  --warning-light: 38 92% 95%;
-  --warning-light-foreground: 38 92% 30%;
-  --warning-border: 38 92% 85%;
+  --warning: #F59E0B;
+  --warning-foreground: #FFFFFF;
+  --warning-light: #FFFBEB;
+  --warning-light-foreground: #92400E;
+  --warning-border: #FEF3C7;
 
-  --error: 0 84.2% 60.2%;
-  --error-foreground: 210 40% 98%;
-  --error-light: 0 84.2% 95%; 
-  --error-light-foreground: 0 84.2% 50%;
-  --error-border: 0 84.2% 88%;
+  --error: #EF4444;
+  --error-foreground: #FFFFFF;
+  --error-light: #FEF2F2;
+  --error-light-foreground: #B91C1C;
+  --error-border: #FEE2E2;
 
-  --info: 217 91% 60%;
-  --info-foreground: 210 40% 98%;
-  --info-light: 217 91% 95%;
-  --info-light-foreground: 217 91% 60%;
-  --info-border: 217 91% 88%;
-
-  /* Neutral colors */
-  --slate-50: 220 16% 96%;
-  --slate-100: 220 14% 94%;
-  --slate-200: 220 13% 88%;
-  --slate-300: 220 11% 76%;
-  --slate-400: 220 9% 62%;
-  --slate-500: 220 8% 44%;
+  --info: #3B82F6;
+  --info-foreground: #FFFFFF;
+  --info-light: #EFF6FF;
+  --info-light-foreground: #1E40AF;
+  --info-border: #BFDBFE;
   
   /* Breakpoints */
   --breakpoint-sm: 40rem;
@@ -95,59 +129,63 @@
   --container-padding-2xl: 2rem;
 }
 
-[data-theme='dark'] {
-  --background: 0 0% 0%;
-  --foreground: 210 40% 98%;
-  --card: 0 0% 4%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 15 80% 50%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 0, 0%, 15%, 0.8;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
 
-  /* Status colors - dark mode */
-  --success: 142 76% 40%;
-  --success-foreground: 0 0% 100%;
-  --success-light: 142 60% 14%;
-  --success-light-foreground: 142 76% 85%;
-  --success-border: 142 60% 20%;
+/* Modo oscuro manejado con selector en vez de @dark dentro de @theme */
+[data-theme="dark"] {
+  --background: #121212;
+  --foreground: #F9FAFB;
 
-  --warning: 38 92% 50%;
-  --warning-foreground: 0 0% 100%;
-  --warning-light: 38 60% 14%;
-  --warning-light-foreground: 38 92% 85%;
-  --warning-border: 38 60% 20%;
 
-  --error: 0 62.8% 50%;
-  --error-foreground: 0 0% 100%;
-  --error-light: 0 60% 14%;
-  --error-light-foreground: 0 62.8% 85%;
-  --error-border: 0 60% 20%;
 
-  --info: 217 91% 60%;
-  --info-foreground: 0 0% 100%;
-  --info-light: 217 60% 14%;
-  --info-light-foreground: 217 91% 85%;
-  --info-border: 217 60% 20%;
+  --card: #1F1F1F;
+  --card-foreground: #F9FAFB;
 
-  /* Neutral colors - dark mode */
-  --slate-50: 220 16% 10%;
-  --slate-100: 220 14% 14%;
-  --slate-200: 220 13% 18%;
-  --slate-300: 220 11% 30%;
-  --slate-400: 220 9% 46%;
-  --slate-500: 220 8% 65%;
+  --popover: #1F1F1F;
+  --popover-foreground: #F9FAFB;
+
+  --primary: #FF4500;
+  --primary-foreground: #121212;
+
+  --secondary: #2D2D2D;
+  --secondary-foreground: #F9FAFB;
+
+  --muted: #2D2D2D;
+  --muted-foreground: #9CA3AF;
+
+  --accent: #FF6E40;
+  --accent-foreground: #121212;
+
+  --destructive: #F87171;
+  --destructive-foreground: #121212;
+
+  --border: #2D2D2D;
+  --input: #2D2D2D;
+  --ring: #FF4500;
+
+  /* Status colors */
+  --success: #34D399;
+  --success-foreground: #121212;
+  --success-light: #064E3B;
+  --success-light-foreground: #6EE7B7;
+  --success-border: #065F46;
+
+  --warning: #FBBF24;
+  --warning-foreground: #121212;
+  --warning-light: #78350F;
+  --warning-light-foreground: #FCD34D;
+  --warning-border: #92400E;
+
+  --error: #F87171;
+  --error-foreground: #121212;
+  --error-light: #7F1D1D;
+  --error-light-foreground: #FCA5A5;
+  --error-border: #B91C1C;
+
+  --info: #60A5FA;
+  --info-foreground: #121212;
+  --info-light: #1E3A8A;
+  --info-light-foreground: #93C5FD;
+  --info-border: #1E40AF;
 }
 
 html {
@@ -171,22 +209,22 @@ html[data-theme='light'] {
   }
 
   .status-badge-success {
-    background-color: hsl(var(--success-light));
-    color: hsl(var(--success-light-foreground));
+    background-color: var(--success-light);
+    color: var(--success-light-foreground);
   }
 
   .status-badge-warning {
-    background-color: hsl(var(--warning-light));
-    color: hsl(var(--warning-light-foreground));
+    background-color: var(--warning-light);
+    color: var(--warning-light-foreground);
   }
 
   .status-badge-error {
-    background-color: hsl(var(--error-light));
-    color: hsl(var(--error-light-foreground));
+    background-color: var(--error-light);
+    color: var(--error-light-foreground);
   }
 
   .status-badge-info {
-    background-color: hsl(var(--info-light));
-    color: hsl(var(--info-light-foreground));
+    background-color: var(--info-light);
+    color: var(--info-light-foreground);
   }
 }
