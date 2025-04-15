@@ -29,8 +29,8 @@ export const Logo = (props: Props) => {
 
   return (
     <div className={logoClasses}>
-      <span className="text-black dark:text-white">Urgent</span>
-      <span className="text-orange-500">Fix</span>
+      <span className="text-foreground dark:text-white">Urgent</span>
+      <span className="text-primary">Fix</span>
     </div>
   )
 }

@@ -10,6 +10,15 @@ import { Logo } from '@/components/Logo/Logo'
 import { HeaderNav } from './Nav'
 import { Menu, X } from 'lucide-react'
 
+/**
+ * HeaderClient - Main header component with theme support
+ *
+ * Responsive header component with mobile menu and theme switching.
+ * Adapts to different themes based on page context.
+ *
+ * @param {Header} data - Header configuration data from CMS
+ * @returns {JSX.Element} - The rendered header component
+ */
 interface HeaderClientProps {
   data: Header
 }
@@ -38,10 +47,10 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
 
   return (
     <header
-      className="container relative z-30 transition-all duration-300"
+      className="w-full relative z-30 transition-all duration-300 bg-background dark:bg-background-dark px-3"
       {...(theme ? { 'data-theme': theme } : {})}
     >
-      <div className="py-4 md:py-6 lg:py-8 flex justify-between items-center">
+      <div className="container mx-auto py-2 md:py-4 lg:py-6 flex justify-between items-center">
         <Link href="/" className="z-20 relative">
           <Logo loading="eager" priority="high" className="w-auto" />
         </Link>
@@ -52,7 +61,11 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
         >
-          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {mobileMenuOpen ? (
+            <X className="text-foreground h-6 w-6" />
+          ) : (
+            <Menu className="text-foreground h-6 w-6" />
+          )}
         </button>
 
         {/* Desktop navigation */}
@@ -62,7 +75,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
 
         {/* Mobile navigation overlay */}
         <div
-          className={`fixed inset-0 bg-background text-primary dark:bg-background md:hidden transition-all duration-300 ${
+          className={`fixed inset-0 bg-background text-foreground md:hidden transition-all duration-300 ${
             mobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
           } flex flex-col items-center justify-center`}
         >

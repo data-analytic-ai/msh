@@ -11,6 +11,15 @@ import { useServiceRequest } from '@/context/ServiceRequestContext'
 import MapComponent, { LocationType } from '@/components/ui/MapComponent'
 import { ServiceType } from '@/context/ServiceRequestContext'
 
+/**
+ * UrgentFixHero - Main hero component for service selection
+ *
+ * Allows users to select services and location for emergency service requests.
+ * Integrates with service request context for state management.
+ *
+ * @param {Page['hero']} props - Hero configuration from page data
+ * @returns {JSX.Element} - The rendered hero component
+ */
 const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
   const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
@@ -100,25 +109,29 @@ const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
   }
 
   return (
-    <section className="bg-background w-full py-6">
+    <section className="bg-background text-foreground w-full py-4 sm:py-6 md:py-8">
       <div className="container mx-auto px-4 space-y-6">
         {/* Greeting and title */}
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold">{user ? `Hello, ${user.name}` : 'Welcome'}</h2>
-          <p className="text-muted-foreground">What kind of emergency do you have today?</p>
+          <h2 className="text-xl sm:text-2xl font-bold">
+            {user ? `Hello, ${user.name}` : 'Welcome'}
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            What kind of emergency do you have today?
+          </p>
         </div>
 
         {/* Available services */}
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Select your service</h3>
+            <h3 className="text-base sm:text-lg font-semibold">Select your service</h3>
             {/* <Link href="/services" className="text-sm text-primary hover:underline">
               Ver todos los servicios
             </Link> */}
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
             {services.map((service, index: number) => (
-              <div key={index}>
+              <div key={index} className="w-full">
                 <ServiceCard
                   icon={service.icon}
                   name={service.name}
@@ -133,7 +146,7 @@ const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
         </div>
 
         {/* Map component */}
-        <div className="h-64 bg-muted/50 rounded-lg relative">
+        <div className="h-48 sm:h-56 md:h-64 bg-card rounded-lg relative shadow-sm">
           <MapComponent
             selectedService={selectedServices}
             location={location}
@@ -146,8 +159,10 @@ const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
 
         {/* Form (optional) */}
         {form && (
-          <div className="bg-card border rounded-lg p-4 mt-6">
-            <h3 className="text-lg font-semibold mb-20">Request a service</h3>
+          <div className="bg-card border rounded-lg p-3 sm:p-4 mt-4 sm:mt-6 shadow-sm">
+            <h3 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 md:mb-8">
+              Request a service
+            </h3>
             <FormBlock enableIntro={false} form={form as Form} />
           </div>
         )}

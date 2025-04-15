@@ -2,13 +2,18 @@ import React from 'react'
 import { cn } from '@/utilities/ui'
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'secondary' | 'destructive' | 'outline'
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info'
 }
 
 /**
  * Badge component
  *
- * A simple badge component that can be styled with className
+ * A simple badge component that displays short information with different
+ * visual styles based on the variant. Uses theme variables for consistent styling.
+ *
+ * @param {string} className - Additional classes to apply to the badge
+ * @param {'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info'} variant - Visual style variant
+ * @returns {JSX.Element} - The rendered badge component
  */
 export function Badge({ className = '', variant = 'default', ...props }: BadgeProps) {
   return (
@@ -20,6 +25,9 @@ export function Badge({ className = '', variant = 'default', ...props }: BadgePr
           'bg-secondary text-secondary-foreground': variant === 'secondary',
           'bg-destructive text-destructive-foreground': variant === 'destructive',
           'text-foreground border border-input': variant === 'outline',
+          'bg-success-light text-success-light-foreground': variant === 'success',
+          'bg-warning-light text-warning-light-foreground': variant === 'warning',
+          'bg-info-light text-info-light-foreground': variant === 'info',
         },
         className,
       )}
@@ -36,6 +44,9 @@ export const badgeVariants = {
       secondary: 'bg-secondary text-secondary-foreground',
       destructive: 'bg-destructive text-destructive-foreground',
       outline: 'text-foreground border border-input',
+      success: 'bg-success-light text-success-light-foreground',
+      warning: 'bg-warning-light text-warning-light-foreground',
+      info: 'bg-info-light text-info-light-foreground',
     },
   },
 }
