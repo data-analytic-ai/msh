@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useServiceRequest } from '@/context/ServiceRequestContext'
+import { useServiceRequest } from '@/hooks/useServiceRequest'
 import { PaymentFormWrapper } from '@/components/payment/PaymentForm'
 import { createPaymentIntent } from '@/lib/stripe-client'
 import { Button } from '@/components/ui/button'
