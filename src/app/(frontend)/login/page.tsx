@@ -7,45 +7,44 @@
  * y maneja las redirecciones según el rol del usuario.
  */
 import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useServiceRequest } from '@/context/ServiceRequestContext'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { getMe, invalidateUserCache } from '@/lib/auth'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { AlertCircle } from 'lucide-react'
+import { useAuth } from '@/providers/AuthProvider'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { resetContext, setUserEmail, setIsAuthenticated } = useServiceRequest()
-  const [email, setEmail] = useState('')
+  const searchParams = useSearchParams()
+  const emailParam = searchParams.get('email')
+
+  const { login, isAuthenticated, user, isLoading } = useAuth()
+  const [email, setEmail] = useState(emailParam || '')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Limpia el estado al cargar la página y verifica autenticación existente
+  // Verificar autenticación existente
   useEffect(() => {
-    resetContext()
-
-    const checkAuthentication = async () => {
-      const { user } = await getMe()
-      if (user) {
-        setUserEmail(user.email)
-        setIsAuthenticated(true)
-
-        // Si es admin o contratista, redirigir a admin panel
-        if (user.role === 'admin' || user.role === 'superadmin') {
-          router.push('/admin')
-        } else {
-          // Si es cliente, redirigir a la página principal
-          router.push('/')
-        }
+    if (isAuthenticated && user && !isLoading) {
+      // Si ya está autenticado, redirigir según el rol
+      if (user.role === 'admin' || user.role === 'superadmin') {
+        router.push('/admin')
+      } else {
+        // Si es cliente, redirigir a la página principal
+        router.push('/')
       }
     }
+  }, [isAuthenticated, user, router, isLoading])
 
-    checkAuthentication()
-  }, [resetContext, router, setUserEmail, setIsAuthenticated])
+  // Si recibimos un nuevo valor del parámetro email, actualizamos el estado
+  useEffect(() => {
+    if (emailParam) {
+      setEmail(emailParam)
+    }
+  }, [emailParam])
 
   // Función para manejar el login directo
   const handleLogin = async (e: React.FormEvent) => {
@@ -73,21 +72,34 @@ export default function LoginPage() {
 
       const userData = await response.json()
 
-      // Invalidar caché para forzar una recarga de los datos del usuario
-      invalidateUserCache()
+      // Actualizar estado de autenticación usando el provider
+      await login(userData.token)
 
-      // Autenticación exitosa
-      setUserEmail(email)
-      setIsAuthenticated(true)
+      // Verificar si hay una solicitud pendiente en sessionStorage
+      let pendingRequest = null
+      try {
+        const pendingRequestStr = sessionStorage.getItem('msh_pending_request')
+        if (pendingRequestStr) {
+          pendingRequest = JSON.parse(pendingRequestStr)
+          console.log('Encontrada solicitud pendiente después de login:', pendingRequest)
+          // Limpiar después de procesarlo
+          sessionStorage.removeItem('msh_pending_request')
+        }
+      } catch (e) {
+        console.error('Error procesando solicitud pendiente:', e)
+      }
 
-      // Redirigir según el rol
-      if (userData.user.role === 'admin' || userData.user.role === 'superadmin') {
+      // Redirigir según el contexto
+      if (pendingRequest && pendingRequest.returnPath) {
+        // Si hay una ruta de retorno específica, ir allí
+        router.push(pendingRequest.returnPath)
+      } else if (userData.user.role === 'admin' || userData.user.role === 'superadmin') {
         router.push('/admin') // Roles administrativos van al panel
       } else {
         router.push('/') // Clientes van a la página principal
       }
-    } catch (err: any) {
-      setError(err.message || 'Error al iniciar sesión')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al iniciar sesión')
     } finally {
       setLoading(false)
     }
@@ -135,7 +147,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading || isLoading}>
             {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
           </Button>
         </form>

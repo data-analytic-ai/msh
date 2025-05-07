@@ -8,17 +8,16 @@
  */
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useServiceRequest } from '@/context/ServiceRequestContext'
 import { Button } from '@/components/ui/button'
-import { getMe, invalidateUserCache } from '@/lib/auth'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { AlertCircle } from 'lucide-react'
+import { useAuth } from '@/providers/AuthProvider'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { resetContext, setUserEmail, setIsAuthenticated } = useServiceRequest()
+  const { login, isAuthenticated, user, isLoading } = useAuth()
   const [name, setName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -30,23 +29,15 @@ export default function RegisterPage() {
 
   // Verificar si el usuario ya está autenticado
   useEffect(() => {
-    const checkAuthentication = async () => {
-      const { user } = await getMe()
-      if (user) {
-        setUserEmail(user.email)
-        setIsAuthenticated(true)
-
-        // Redireccionar según rol
-        if (user.role === 'admin' || user.role === 'superadmin') {
-          router.push('/admin')
-        } else {
-          router.push('/')
-        }
+    if (isAuthenticated && user && !isLoading) {
+      // Redireccionar según rol
+      if (user.role === 'admin' || user.role === 'superadmin') {
+        router.push('/admin')
+      } else {
+        router.push('/')
       }
     }
-
-    checkAuthentication()
-  }, [router, setUserEmail, setIsAuthenticated])
+  }, [isAuthenticated, user, router, isLoading])
 
   // Función para manejar el registro
   const handleRegister = async (e: React.FormEvent) => {
@@ -84,9 +75,6 @@ export default function RegisterPage() {
 
       const userData = await response.json()
 
-      // Invalidar caché para forzar una recarga de los datos del usuario
-      invalidateUserCache()
-
       // Iniciar sesión automáticamente
       const loginResponse = await fetch('/api/users/login', {
         method: 'POST',
@@ -101,9 +89,13 @@ export default function RegisterPage() {
       })
 
       if (loginResponse.ok) {
-        // Registro y login exitoso
-        setUserEmail(email)
-        setIsAuthenticated(true)
+        // Obtener el token del login
+        const loginData = await loginResponse.json()
+
+        // Actualizar estado de autenticación usando el provider
+        await login(loginData.token)
+
+        // Redirigir a la página principal
         router.push('/')
       } else {
         // Registro exitoso pero login falló, redirigir a login
@@ -198,7 +190,7 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading || isLoading}>
             {loading ? 'Creando cuenta...' : 'Crear cuenta'}
           </Button>
         </form>
