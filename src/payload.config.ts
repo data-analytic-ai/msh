@@ -7,6 +7,7 @@ import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
+import Contractors from './collections/Contractors'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
@@ -64,17 +65,16 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URI || '',
   }),
-  collections: [Pages, Posts, Media, Categories, Users, ServiceRequests, Services],
+  collections: [Pages, Posts, Media, Categories, Users, ServiceRequests, Services, Contractors],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   plugins: [
     ...plugins,
     // storage-adapter-placeholder
   ],
-  // routes:{
-  //   admin: '/',
-
-  // },
+  routes: {
+    admin: '/admin', // Definimos explícitamente la ruta del panel de administración
+  },
   secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {

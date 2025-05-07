@@ -1,0 +1,247 @@
+{
+  "title": "Service Request Form",
+  "confirmationMessage": [
+    {
+      "type": "h2",
+      "children": [
+        {
+          "text": "Thank you for your service request!"
+        }
+      ]
+    },
+    {
+      "type": "p",
+      "children": [
+        {
+          "text": "We have received your request and will connect you with verified professionals in your area."
+        }
+      ]
+    }
+  ],
+  "redirect": {
+    "url": "/service-request/confirmation"
+  },
+  "submitButtonLabel": "Submit Request",
+  "fields": [
+    {
+      "name": "description",
+      "label": "Problem Description",
+      "required": true,
+      "blockType": "textarea",
+      "type": "textarea",
+      "admin": {
+        "description": "Please describe the problem in detail"
+      }
+    },
+    {
+      "name": "urgencyLevel",
+      "label": "Urgency Level",
+      "required": true,
+      "blockType": "select",
+      "type": "select",
+      "defaultValue": "medium",
+      "options": [
+        {
+          "label": "Low - Within a week",
+          "value": "low"
+        },
+        {
+          "label": "Medium - Within 48 hours",
+          "value": "medium"
+        },
+        {
+          "label": "High - Within 24 hours",
+          "value": "high"
+        },
+        {
+          "label": "Emergency - As soon as possible",
+          "value": "emergency"
+        }
+      ]
+    },
+    {
+      "name": "fullName",
+      "label": "Full Name",
+      "required": true,
+      "blockType": "text",
+      "type": "text"
+    },
+    {
+      "name": "email",
+      "label": "Email Address",
+      "required": true,
+      "blockType": "email",
+      "type": "email"
+    },
+    {
+      "name": "phone",
+      "label": "Phone Number",
+      "required": true,
+      "blockType": "text",
+      "type": "text",
+      "admin": {
+        "description": "We need your phone number so professionals can contact you"
+      }
+    },
+    {
+      "name": "preferredContact",
+      "label": "Preferred Contact Method",
+      "required": true,
+      "blockType": "select",
+      "type": "select",
+      "defaultValue": "phone",
+      "options": [
+        {
+          "label": "Phone",
+          "value": "phone"
+        },
+        {
+          "label": "Email",
+          "value": "email"
+        },
+        {
+          "label": "SMS",
+          "value": "sms"
+        }
+      ]
+    },
+    {
+      "name": "preferredDateTime",
+      "label": "Preferred Date and Time",
+      "required": false,
+      "blockType": "date",
+      "type": "date",
+      "admin": {
+        "description": "When would you prefer a professional to visit?"
+      }
+    },
+    {
+      "name": "additionalNotes",
+      "label": "Additional Notes",
+      "required": false,
+      "blockType": "textarea",
+      "type": "textarea",
+      "admin": {
+        "description": "Any other details that might help the professional"
+      }
+    },
+    {
+      "name": "termsAccepted",
+      "label": "I accept the terms and conditions",
+      "required": true,
+      "blockType": "checkbox",
+      "type": "checkbox",
+      "admin": {
+        "description": "You must accept the terms and conditions to continue"
+      }
+    }
+  ],
+  "emails": [
+    {
+      "emailTo": "{{email}}",
+      "cc": "",
+      "bcc": "admin@multi-service-hub.com",
+      "replyTo": "support@multi-service-hub.com",
+      "subject": "Service Request Confirmation - Multi-Service Hub",
+      "message": [
+        {
+          "type": "h2",
+          "children": [
+            {
+              "text": "Thank you for your service request!"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "We have received your request and will connect you with verified professionals in your area."
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "Here's a summary of your request:"
+            }
+          ]
+        },
+        {
+          "type": "ul",
+          "children": [
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Service Type: "
+                },
+                {
+                  "text": "{{serviceType}}"
+                }
+              ]
+            },
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Description: "
+                },
+                {
+                  "text": "{{description}}"
+                }
+              ]
+            },
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Location: "
+                },
+                {
+                  "text": "{{location}}"
+                }
+              ]
+            },
+            {
+              "type": "li",
+              "children": [
+                {
+                  "text": "Urgency Level: "
+                },
+                {
+                  "text": "{{urgencyLevel}}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "If you have any questions, please don't hesitate to contact us by replying to this email or calling 555-123-4567."
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "Best regards,"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
+            {
+              "text": "The Multi-Service Hub Team"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

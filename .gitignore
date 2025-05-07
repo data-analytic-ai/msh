@@ -6,6 +6,8 @@ node_modules
 .next
 .vercel
 .emergency-services-platform
+.cursorrules
+.cursor/
 # Payload default media upload directory
 public/media/
 

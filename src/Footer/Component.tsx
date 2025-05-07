@@ -8,42 +8,61 @@ import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
 import { CMSLink } from '@/components/Link'
 import { Logo } from '@/components/Logo/Logo'
 
+/**
+ * Footer - Main application footer component
+ *
+ * Displays the site logo, navigation links, theme selector, and copyright information.
+ * Adapts layout based on screen size for optimal viewing experience.
+ *
+ * @returns {JSX.Element} - The rendered footer component
+ */
 export async function Footer() {
   const footerData: Footer = await getCachedGlobal('footer', 1)()
 
   const navItems = footerData?.navItems || []
 
   return (
-    <footer className="mt-auto border-t border-border py-8 md:py-12 bg-card dark:bg-card text-foreground dark:text-foreground">
-      <div className="container mx-auto px-4 sm:px-6 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        <div className="flex flex-col gap-4">
-          <Link className="flex items-center" href="/">
-            <Logo className="max-w-[200px]" />
-          </Link>
-          <p className="text-sm text-muted-foreground max-w-xs">
-            Connecting you with trusted professionals contractors throughout the US.
-          </p>
-        </div>
+    <footer className="mt-auto w-full border-t border-border py-6 md:py-8 lg:py-12 bg-card dark:bg-card text-foreground dark:text-foreground">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Logo and description */}
+          <div className="flex flex-col gap-4">
+            <Link className="flex items-center" href="/">
+              <Logo className="max-w-[180px]" />
+            </Link>
+            <p className="text-sm text-muted-foreground max-w-xs">
+              Connecting you with trusted professionals contractors throughout the US.
+            </p>
+            <Link href="/contractor-home" className="text-sm hover:text-primary transition-colors">
+              Are you a contractor?
+            </Link>
+          </div>
 
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
-          <nav className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-            {navItems.map(({ link }, i) => {
-              return (
-                <CMSLink
-                  className="text-foreground hover:text-primary transition-colors text-sm font-medium"
-                  key={i}
-                  {...link}
-                />
-              )
-            })}
-          </nav>
-          <ThemeSelector />
-        </div>
+          {/* Navigation links */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-sm font-medium">Quick Links</h3>
+            <nav className="grid grid-cols-2 sm:grid-cols-1 gap-2">
+              {navItems.map(({ link }, i) => {
+                return (
+                  <CMSLink
+                    className="text-foreground hover:text-primary transition-colors text-sm"
+                    key={i}
+                    {...link}
+                  />
+                )
+              })}
+            </nav>
+          </div>
 
-        <div className="mt-8 md:mt-0 pt-6 md:pt-0 border-t md:border-t-0 border-border">
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} For Devs (LLC). All rights reserved.
-          </p>
+          {/* Theme and copyright */}
+          <div className="flex flex-col gap-4 w-1/2">
+            <div className="flex items-center gap-2">
+              <ThemeSelector />
+            </div>
+            <p className="text-xs text-muted-foreground mt-auto pt-4">
+              © {new Date().getFullYear()} For Devs (LLC). All rights reserved.
+            </p>
+          </div>
         </div>
       </div>
     </footer>
