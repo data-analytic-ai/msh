@@ -1,43 +1,59 @@
 /**
- * Contractor Interface
+ * Contractor Types
  *
- * Defines the structure for contractor data throughout the application
+ * Types related to contractors and services in the Multi-Service Hub platform
  */
 
+import { ServiceType } from '@/hooks/useServiceRequest'
+
+// Type for a service offered by a contractor
+export interface Service {
+  id: string
+  value?: string
+  slug?: string
+  name?: string
+}
+
+// Base contractor information from PayloadCMS
 export interface Contractor {
   id: string
   name: string
   description: string
-  contactEmail: string
-  contactPhone: string
+  contactEmail?: string
+  contactPhone?: string
   website?: string
   address: string
   location: {
     lat: number
     lng: number
   }
-  servicesOffered: string[]
-  yearsExperience: number
+  servicesOffered: Service[] | string[]
+  yearsExperience?: number
   rating: number
   reviewCount: number
-  profileImage?: string
-  coverImage?: string
+  profileImage?: {
+    id: string
+    url: string
+  }
+  coverImage?: {
+    id: string
+    url: string
+  }
   specialties?: string[]
-  certifications?: string[]
-  workingHours?: {
-    monday?: string
-    tuesday?: string
-    wednesday?: string
-    thursday?: string
-    friday?: string
-    saturday?: string
-    sunday?: string
-  }
-  socialMedia?: {
-    facebook?: string
-    instagram?: string
-    twitter?: string
-    linkedin?: string
-  }
   verified: boolean
+}
+
+// Extended contractor information for UI with distance
+export interface ContractorWithDistance extends Contractor {
+  distance?: number
+  responseTime?: string
+}
+
+// Type for selected contractor in context
+export interface SelectedContractor {
+  id: string
+  name: string
+  services: ServiceType[] | string[]
+  phoneNumber?: string
+  rating: number
 }
