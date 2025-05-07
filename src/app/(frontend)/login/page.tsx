@@ -6,7 +6,7 @@
  * Implementa login directo a través de la API de Payload
  * y maneja las redirecciones según el rol del usuario.
  */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -15,7 +15,39 @@ import { Label } from '@/components/ui/label'
 import { AlertCircle } from 'lucide-react'
 import { useAuth } from '@/providers/AuthProvider'
 
+// Componente principal
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFormSkeleton />}>
+      <LoginForm />
+    </Suspense>
+  )
+}
+
+// Esqueleto de carga
+function LoginFormSkeleton() {
+  return (
+    <div className="container mx-auto py-12 max-w-md">
+      <div className="bg-card rounded-lg border p-8 shadow-sm">
+        <h1 className="text-2xl font-bold mb-6">Iniciar sesión</h1>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <div className="h-5 w-1/3 bg-muted rounded animate-pulse"></div>
+            <div className="h-10 w-full bg-muted rounded animate-pulse"></div>
+          </div>
+          <div className="space-y-2">
+            <div className="h-5 w-1/3 bg-muted rounded animate-pulse"></div>
+            <div className="h-10 w-full bg-muted rounded animate-pulse"></div>
+          </div>
+          <div className="h-10 w-full bg-muted rounded animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Componente de formulario que usa hooks client-side
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const emailParam = searchParams.get('email')
