@@ -18,6 +18,7 @@ export interface Config {
     users: User;
     'service-requests': ServiceRequest;
     services: Service;
+    contractors: Contractor;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -36,6 +37,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     'service-requests': ServiceRequestsSelect<false> | ServiceRequestsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
+    contractors: ContractorsSelect<false> | ContractorsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -791,29 +793,91 @@ export interface UrgentFixServicesBlock {
   blockType: 'urgentFixServices';
 }
 /**
+ * Service requests submitted by customers
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "service-requests".
  */
 export interface ServiceRequest {
   id: string;
+  /**
+   * Unique identifier for this service request
+   */
+  requestId?: string | null;
+  /**
+   * Title of the service request
+   */
   requestTitle: string;
-  serviceType: 'plumbing' | 'electrical' | 'glass' | 'hvac' | 'pests' | 'locksmith' | 'roofing' | 'siding' | 'general';
+  /**
+   * Type of service requested
+   */
+  serviceType: (
+    | 'plumbing'
+    | 'electrical'
+    | 'glass'
+    | 'hvac'
+    | 'pests'
+    | 'locksmith'
+    | 'roofing'
+    | 'siding'
+    | 'general'
+  )[];
+  /**
+   * Detailed description of the service needed
+   */
   description: string;
+  /**
+   * How urgent is this service request
+   */
   urgencyLevel: 'low' | 'medium' | 'high' | 'emergency';
+  /**
+   * Current status of the service request
+   */
   status: 'pending' | 'assigned' | 'in-progress' | 'completed' | 'cancelled';
+  /**
+   * Service location details
+   */
   location: {
-    address: string;
-    city: string;
-    state: string;
-    zipCode: string;
+    /**
+     * Complete formatted address
+     */
+    formattedAddress: string;
+    /**
+     * Geographic coordinates
+     */
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
+    /**
+     * City extracted from address
+     */
+    city?: string | null;
+    /**
+     * State/province extracted from address
+     */
+    state?: string | null;
+    /**
+     * Postal code extracted from address
+     */
+    zipCode?: string | null;
   };
-  contactInfo: {
-    name: string;
+  /**
+   * Customer contact information
+   */
+  customerInfo: {
+    fullName: string;
     email: string;
     phone: string;
     preferredContact: 'phone' | 'email' | 'sms';
   };
+  /**
+   * When the customer would prefer service
+   */
   preferredDateTime?: string | null;
+  /**
+   * Photos of the problem requiring service
+   */
   photos?:
     | {
         photo: string | Media;
@@ -821,15 +885,27 @@ export interface ServiceRequest {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Service quotes from contractors
+   */
   quotes?:
     | {
-        contractorName?: string | null;
+        /**
+         * Contractor who provided the quote
+         */
+        contractor?: (string | null) | User;
+        /**
+         * Estimated cost in USD
+         */
         amount?: number | null;
         description?: string | null;
         status?: ('pending' | 'accepted' | 'rejected') | null;
         id?: string | null;
       }[]
     | null;
+  /**
+   * Internal notes about this request
+   */
   notes?:
     | {
         content: string;
@@ -838,8 +914,22 @@ export interface ServiceRequest {
         id?: string | null;
       }[]
     | null;
+  /**
+   * User who submitted the request
+   */
   customer?: (string | null) | User;
+  /**
+   * Contractor assigned to this service request
+   */
   assignedContractor?: (string | null) | User;
+  /**
+   * Current status of the payment
+   */
+  paymentStatus?: ('not_initiated' | 'pending' | 'authorized' | 'captured' | 'cancelled' | 'failed') | null;
+  /**
+   * Stripe Payment Intent ID
+   */
+  paymentIntentId?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -890,6 +980,68 @@ export interface Service {
     | null;
   publishedAt?: string | null;
   _status: 'draft' | 'published';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contractors".
+ */
+export interface Contractor {
+  id: string;
+  name: string;
+  description: string;
+  contactEmail: string;
+  contactPhone: string;
+  website?: string | null;
+  address: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  servicesOffered: (string | Service)[];
+  yearsExperience: number;
+  rating: number;
+  reviewCount: number;
+  profileImage?: (string | null) | Media;
+  coverImage?: (string | null) | Media;
+  specialties?:
+    | {
+        specialty: string;
+        id?: string | null;
+      }[]
+    | null;
+  certifications?:
+    | {
+        certification: string;
+        id?: string | null;
+      }[]
+    | null;
+  workingHours?: {
+    monday?: string | null;
+    tuesday?: string | null;
+    wednesday?: string | null;
+    thursday?: string | null;
+    friday?: string | null;
+    saturday?: string | null;
+    sunday?: string | null;
+  };
+  socialMedia?: {
+    facebook?: string | null;
+    instagram?: string | null;
+    twitter?: string | null;
+    linkedin?: string | null;
+  };
+  verified?: boolean | null;
+  dataSource: 'manual' | 'google_maps' | 'yelp' | 'external_api';
+  /**
+   * ID or reference in the external data source
+   */
+  dataSourceId?: string | null;
+  /**
+   * When this data was last updated from external source
+   */
+  lastScraped?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1092,6 +1244,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'services';
         value: string | Service;
+      } | null)
+    | ({
+        relationTo: 'contractors';
+        value: string | Contractor;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1479,7 +1635,6 @@ export interface CategoriesSelect<T extends boolean = true> {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  userType?: T;
   role?: T;
   name?: T;
   lastName?: T;
@@ -1500,6 +1655,7 @@ export interface UsersSelect<T extends boolean = true> {
         hasLicense?: T;
         rating?: T;
         reviewCount?: T;
+        isVerified?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1516,6 +1672,7 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "service-requests_select".
  */
 export interface ServiceRequestsSelect<T extends boolean = true> {
+  requestId?: T;
   requestTitle?: T;
   serviceType?: T;
   description?: T;
@@ -1524,15 +1681,21 @@ export interface ServiceRequestsSelect<T extends boolean = true> {
   location?:
     | T
     | {
-        address?: T;
+        formattedAddress?: T;
+        coordinates?:
+          | T
+          | {
+              lat?: T;
+              lng?: T;
+            };
         city?: T;
         state?: T;
         zipCode?: T;
       };
-  contactInfo?:
+  customerInfo?:
     | T
     | {
-        name?: T;
+        fullName?: T;
         email?: T;
         phone?: T;
         preferredContact?: T;
@@ -1548,7 +1711,7 @@ export interface ServiceRequestsSelect<T extends boolean = true> {
   quotes?:
     | T
     | {
-        contractorName?: T;
+        contractor?: T;
         amount?: T;
         description?: T;
         status?: T;
@@ -1564,6 +1727,8 @@ export interface ServiceRequestsSelect<T extends boolean = true> {
       };
   customer?: T;
   assignedContractor?: T;
+  paymentStatus?: T;
+  paymentIntentId?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1596,6 +1761,67 @@ export interface ServicesSelect<T extends boolean = true> {
       };
   publishedAt?: T;
   _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contractors_select".
+ */
+export interface ContractorsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  contactEmail?: T;
+  contactPhone?: T;
+  website?: T;
+  address?: T;
+  location?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  servicesOffered?: T;
+  yearsExperience?: T;
+  rating?: T;
+  reviewCount?: T;
+  profileImage?: T;
+  coverImage?: T;
+  specialties?:
+    | T
+    | {
+        specialty?: T;
+        id?: T;
+      };
+  certifications?:
+    | T
+    | {
+        certification?: T;
+        id?: T;
+      };
+  workingHours?:
+    | T
+    | {
+        monday?: T;
+        tuesday?: T;
+        wednesday?: T;
+        thursday?: T;
+        friday?: T;
+        saturday?: T;
+        sunday?: T;
+      };
+  socialMedia?:
+    | T
+    | {
+        facebook?: T;
+        instagram?: T;
+        twitter?: T;
+        linkedin?: T;
+      };
+  verified?: T;
+  dataSource?: T;
+  dataSourceId?: T;
+  lastScraped?: T;
   updatedAt?: T;
   createdAt?: T;
 }
