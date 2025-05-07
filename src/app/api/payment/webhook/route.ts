@@ -12,12 +12,12 @@ import { headers } from 'next/headers'
 
 // Inicializar Stripe con la clave secreta
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2024-04-10',
+  apiVersion: '2025-03-31.basil',
 })
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
-  const signature = headers().get('stripe-signature') as string
+  const signature = (await headers()).get('stripe-signature') as string
 
   let event: Stripe.Event
 
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
               collection: 'service-requests',
               id: serviceRequestId,
               data: {
-                paymentStatus: 'completed',
+                paymentStatus: 'captured',
               },
             })
           }
