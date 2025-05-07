@@ -12,7 +12,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useServiceRequest } from '@/context/ServiceRequestContext'
+import { useServiceRequest } from '@/hooks/useServiceRequest'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Check, Phone, MessageCircle, MapPin, Clock, ArrowLeft } from 'lucide-react'
@@ -31,22 +31,32 @@ enum ServiceStatus {
 
 export default function TrackingPage() {
   const router = useRouter()
-  const { selectedContractor } = useServiceRequest()
+  const { selectedContractor, requestId, formData, setCurrentStep } = useServiceRequest()
   const [currentStatus, setCurrentStatus] = useState<ServiceStatus>(ServiceStatus.CONFIRMED)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [serviceRequestId, setServiceRequestId] = useState<string | null>(null)
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null)
+
+  // Marcar el paso actual en el contexto
+  useEffect(() => {
+    setCurrentStep('tracking')
+  }, [setCurrentStep])
+
+  // Obtener paymentIntentId del sessionStorage o formData
+  useEffect(() => {
+    // Intentar obtener primero del sessionStorage
+    const storedPaymentIntentId = sessionStorage.getItem('paymentIntentId')
+
+    if (storedPaymentIntentId) {
+      setPaymentIntentId(storedPaymentIntentId)
+    } else if (formData && formData.paymentIntentId) {
+      // Si no está en sessionStorage, intentar obtenerlo de formData
+      setPaymentIntentId(formData.paymentIntentId)
+    }
+  }, [formData])
 
   // Para demo, vamos a simular el progreso del servicio
   useEffect(() => {
-    // Obtener datos guardados en el sessionStorage
-    const storedServiceRequestId = sessionStorage.getItem('serviceRequestId')
-    const storedPaymentIntentId = sessionStorage.getItem('paymentIntentId')
-
-    if (storedServiceRequestId) setServiceRequestId(storedServiceRequestId)
-    if (storedPaymentIntentId) setPaymentIntentId(storedPaymentIntentId)
-
     // Simular progreso del servicio para la demo
     const statusProgression = [
       { status: ServiceStatus.CONFIRMED, delay: 0 },
@@ -73,7 +83,7 @@ export default function TrackingPage() {
 
   // Manejar la confirmación de finalización del servicio
   const handleConfirmCompletion = async () => {
-    if (!serviceRequestId || !paymentIntentId) {
+    if (!requestId || !paymentIntentId) {
       setError('No se encontró información de la solicitud o del pago')
       return
     }
@@ -83,7 +93,7 @@ export default function TrackingPage() {
 
     try {
       // Capturar el pago retenido
-      const result = await capturePayment(paymentIntentId, serviceRequestId)
+      const result = await capturePayment(paymentIntentId, requestId)
 
       if (result && result.success) {
         // Actualizar el estado
@@ -91,9 +101,7 @@ export default function TrackingPage() {
 
         // Limpiar los datos de sessionStorage
         setTimeout(() => {
-          sessionStorage.removeItem('serviceRequestId')
           sessionStorage.removeItem('paymentIntentId')
-
           // Opcional: redirigir a una página de confirmación o valoración
           // router.push('/request-service/confirmation');
         }, 2000)
@@ -108,8 +116,8 @@ export default function TrackingPage() {
     }
   }
 
-  // Si no hay contratista seleccionado, redirigir o mostrar mensaje
-  if (!selectedContractor && !serviceRequestId) {
+  // Si no hay contratista seleccionado ni ID de solicitud, mostrar mensaje
+  if (!selectedContractor && !requestId) {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
@@ -156,6 +164,11 @@ export default function TrackingPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Seguimiento</h1>
         <p className="text-muted-foreground">Sigue el progreso de tu servicio solicitado</p>
+        {requestId && (
+          <Badge variant="outline" className="mt-2">
+            ID: {requestId}
+          </Badge>
+        )}
       </div>
 
       {/* Información del contratista */}
@@ -217,7 +230,7 @@ export default function TrackingPage() {
               )}
             </div>
             <div>
-              <h3 className="font-medium">Solicitud confirmada</h3>
+              <h3 className="font-medium">Confirmado</h3>
               <p className="text-sm text-muted-foreground">
                 {statusMessages[ServiceStatus.CONFIRMED]}
               </p>
@@ -254,7 +267,7 @@ export default function TrackingPage() {
             </div>
           </div>
 
-          {/* Estado 3: Llegada */}
+          {/* Estado 3: Llegó */}
           <div className="flex gap-3">
             <div className="flex flex-col items-center">
               <div
@@ -275,14 +288,14 @@ export default function TrackingPage() {
               )}
             </div>
             <div>
-              <h3 className="font-medium">Llegada</h3>
+              <h3 className="font-medium">Llegó</h3>
               <p className="text-sm text-muted-foreground">
                 {statusMessages[ServiceStatus.ARRIVED]}
               </p>
             </div>
           </div>
 
-          {/* Estado 4: Servicio en progreso */}
+          {/* Estado 4: En progreso */}
           <div className="flex gap-3">
             <div className="flex flex-col items-center">
               <div
@@ -301,14 +314,14 @@ export default function TrackingPage() {
               )}
             </div>
             <div>
-              <h3 className="font-medium">Servicio en progreso</h3>
+              <h3 className="font-medium">En progreso</h3>
               <p className="text-sm text-muted-foreground">
                 {statusMessages[ServiceStatus.IN_PROGRESS]}
               </p>
             </div>
           </div>
 
-          {/* Estado 5: Servicio completado */}
+          {/* Estado 5: Completado */}
           <div className="flex gap-3">
             <div className="flex flex-col items-center">
               <div
@@ -322,41 +335,50 @@ export default function TrackingPage() {
               </div>
             </div>
             <div>
-              <h3 className="font-medium">Servicio completado</h3>
+              <h3 className="font-medium">Completado</h3>
               <p className="text-sm text-muted-foreground">
                 {statusMessages[ServiceStatus.COMPLETED]}
               </p>
-
-              {/* Mostrar botón de confirmación solo cuando el servicio está en progreso */}
-              {currentStatus === ServiceStatus.IN_PROGRESS && (
-                <Button onClick={handleConfirmCompletion} disabled={isLoading} className="mt-3">
-                  {isLoading ? 'Procesando...' : 'Confirmar finalización del servicio'}
-                </Button>
-              )}
-
-              {/* Mostrar mensaje de error si hay */}
-              {error && <p className="text-sm text-error mt-2">{error}</p>}
-
-              {/* Mostrar mensaje de éxito si el servicio está completado */}
-              {currentStatus === ServiceStatus.COMPLETED && (
-                <div className="mt-3 p-3 bg-success-light text-success-light-foreground rounded-md text-sm">
-                  <p className="font-medium">¡Servicio completado!</p>
-                  <p>El pago ha sido procesado correctamente y liberado al contratista.</p>
-                </div>
-              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mapa */}
-      <div className="bg-slate-100 rounded-lg h-[300px] flex items-center justify-center mb-6">
-        <div className="text-center p-4">
-          <div className="mx-auto w-16 h-16 bg-slate-200 rounded-lg mb-3 flex items-center justify-center">
-            <MapPin className="h-8 w-8 text-muted-foreground" />
+      {/* Acción de confirmación */}
+      <div className="space-y-4">
+        {currentStatus === ServiceStatus.IN_PROGRESS ? (
+          <>
+            <Button
+              onClick={handleConfirmCompletion}
+              disabled={isLoading}
+              className="w-full bg-success hover:bg-success/90"
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                  Procesando...
+                </span>
+              ) : (
+                'Confirmar finalización del servicio'
+              )}
+            </Button>
+            {error && <p className="text-sm text-destructive text-center">{error}</p>}
+            <p className="text-sm text-muted-foreground text-center">
+              Al confirmar la finalización, el pago retenido será liberado al contratista.
+            </p>
+          </>
+        ) : currentStatus === ServiceStatus.COMPLETED ? (
+          <div className="bg-success/10 text-success-foreground p-4 rounded-lg text-center">
+            <h3 className="text-lg font-semibold mb-2">¡Servicio completado!</h3>
+            <p className="text-sm">
+              El pago ha sido procesado. Gracias por utilizar nuestros servicios.
+            </p>
           </div>
-          <p className="text-muted-foreground">Mapa de seguimiento no disponible en este momento</p>
-        </div>
+        ) : (
+          <p className="text-sm text-muted-foreground text-center">
+            Podrás confirmar la finalización del servicio cuando el contratista termine su trabajo.
+          </p>
+        )}
       </div>
     </div>
   )

@@ -14,13 +14,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, MapPin, Phone, Mail, Globe, Star, Clock, Check } from 'lucide-react'
 import Link from 'next/link'
-import { useServiceRequest } from '@/context/ServiceRequestContext'
+import { useServiceRequestStore } from '@/store/serviceRequestStore'
 import { Contractor } from '@/types/contractor'
 import { Separator } from '@/components/ui/separator'
 
 export default function ContractorDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const { setSelectedContractor } = useServiceRequest()
+  const { setSelectedContractor } = useServiceRequestStore()
   const [contractor, setContractor] = useState<Contractor | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useServiceRequest } from '@/context/ServiceRequestContext'
+import { useServiceRequest } from '@/hooks/useServiceRequest'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { getClientSideURL } from '@/utilities/getURL'
+import { useServiceRequestStore } from '@/store/serviceRequestStore'
 
 // Service type name mappings
 const serviceNames: Record<string, string> = {
@@ -48,6 +49,8 @@ export default function RequestServiceDetailsPage() {
     setRequestId,
     updateFormData,
     setUserEmail,
+    submitServiceRequest,
+    setCurrentStep,
   } = useServiceRequest()
 
   const router = useRouter()
@@ -62,13 +65,18 @@ export default function RequestServiceDetailsPage() {
     images: [],
   })
 
-  // Check if we have the required information
+  // Marcar el paso actual en el contexto
   useEffect(() => {
-    if (!selectedServices || !location) {
-      // If information is missing, redirect to the service request page
-      router.replace('/')
-    }
-  }, [selectedServices, location, router])
+    setCurrentStep('details')
+
+    // Debugging para detectar problemas de estado
+    console.log('Estado en details:', {
+      selectedServices,
+      location,
+      formattedAddress,
+      currentStep: 'details',
+    })
+  }, [setCurrentStep, selectedServices, location, formattedAddress])
 
   // Verificar si tenemos la información formateada
   useEffect(() => {
@@ -113,64 +121,44 @@ export default function RequestServiceDetailsPage() {
     // Save email to context for persistence across refreshes
     setUserEmail(formData.email)
 
-    // Guardar los datos del formulario en el contexto
-    updateFormData({
-      fullName: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      description: formData.description,
-      urgency: formData.urgency,
-      images: images,
-    })
-
     try {
       // Verificar que tenemos la ubicación antes de continuar
       if (!location) {
         throw new Error('No location selected')
       }
 
-      // Preparar los datos para enviar a la API en el formato esperado por ServiceRequests
-      const requestData = {
-        serviceType: selectedServices,
-        description: formData.description,
-        urgencyLevel: formData.urgency,
-        location: {
-          formattedAddress: formattedAddress,
-          coordinates: {
-            lat: location.lat,
-            lng: location.lng,
-          },
-          // Los campos city, state y zipCode serán extraídos por el hook beforeChange en el servidor
-        },
-        customerInfo: {
-          fullName: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-          preferredContact: 'phone', // Por defecto
-        },
-        preferredDateTime: null, // En una implementación completa, podríamos permitir seleccionar fecha/hora
-      }
-
-      // Corregir la llamada a la API
-      const response = await fetch(`${getClientSideURL()}/api/service-requests`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
+      // Log para diagnóstico
+      console.log('Enviando formulario con datos:', {
+        ...formData,
+        selectedServices,
+        location,
+        formattedAddress,
       })
 
-      if (!response.ok) {
-        // Añadir más detalles del error
-        const errorText = await response.text()
-        console.error('API error response:', response.status, errorText)
-        throw new Error(`Error creating service request: ${response.status} ${errorText}`)
+      // Guardar los datos del formulario en el contexto
+      updateFormData({
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        description: formData.description,
+        urgency: formData.urgency, // This matches the field name expected by the store
+        images: images,
+      })
+
+      // Usar la función del contexto para enviar la solicitud
+      const success = await submitServiceRequest(formData)
+
+      if (!success) {
+        throw new Error('Failed to submit service request')
       }
 
-      const data = await response.json()
-
-      // Guardar el ID de la solicitud en el contexto
-      setRequestId(data.requestId)
+      // Verificar que se haya establecido el requestId correctamente
+      const currentRequestId = useServiceRequestStore.getState().requestId
+      console.log('Estado después de submitServiceRequest:', {
+        requestId: currentRequestId,
+        formData,
+        success,
+      })
 
       // Redireccionar a la página de confirmación
       setIsLoading(false)
@@ -187,7 +175,25 @@ export default function RequestServiceDetailsPage() {
 
   // Si no tenemos la información requerida, mostrar un estado de carga
   if (!selectedServices || !location) {
-    return <div className="p-4">Loading...</div>
+    return (
+      <div className="min-h-screen flex flex-col">
+        <header className="sticky top-0 z-10 border-b bg-background">
+          <div className="flex h-16 items-center px-4">
+            <Link href="/" className="flex items-center gap-2 text-sm font-medium">
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Link>
+            <h1 className="ml-4 text-lg font-semibold">Request Information</h1>
+          </div>
+        </header>
+        <main className="flex-1 p-4">
+          <div className="space-y-6 text-center">
+            <p className="text-lg">No active service request found.</p>
+            <Button onClick={() => router.push('/')}>Start a New Request</Button>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -205,7 +211,7 @@ export default function RequestServiceDetailsPage() {
       <main className="flex-1 p-4">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Mapa en modo solo lectura */}
-          <div className="w-full h-48 rounded-lg overflow-hidden">
+          <div className="w-full h-48 rounded-lg overflow-hidden shadow-md">
             <MapComponent
               selectedService={selectedServices}
               location={location}
@@ -218,14 +224,22 @@ export default function RequestServiceDetailsPage() {
           </div>
 
           {/* Summary of previous selection */}
-          <div className="bg-primary/10 text-primary p-4 rounded-lg">
+          <div className="bg-primary/20 text-orange-900 p-4 rounded-lg">
             <h2 className="font-semibold text-lg">Selected Service</h2>
-            <p className="font-medium text-primary">
+            <p className="font-medium text-orange-950">
               {selectedServices.length > 0
-                ? selectedServices.map((service) => serviceNames[service]).join(', ')
+                ? selectedServices
+                    .map((service) => {
+                      // Comprobar si es un objeto con id o un string directo
+                      const serviceId = typeof service === 'object' ? service.id : service
+                      return serviceNames[serviceId] || serviceId
+                    })
+                    .join(', ')
                 : 'Not specified'}
             </p>
-            <p className="text-sm mt-1">Location: {formattedAddress || 'Loading address...'}</p>
+            <p className="text-sm mt-1 text-orange-950 ">
+              Location: {formattedAddress || 'Loading address...'}
+            </p>
           </div>
 
           {/* Customer information */}
@@ -356,3 +370,8 @@ export default function RequestServiceDetailsPage() {
     </div>
   )
 }
+
+// TODO: Funcionalidad que rellene los campos con la información del usuario si ya está registrado
+// TODO: Verificar antes de enviar el formulario si el usuario ya esta registrado, se le pide iniciar sesion y no se registra de nuevo.
+// TODO: En la la informacion del formulario, agregar una opcion para indicar que es de otra persona.
+// TODO: En la informacion del formulario, agregar un campo para indicar el codigo postal.

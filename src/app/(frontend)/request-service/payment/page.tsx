@@ -21,12 +21,17 @@ import { v4 as uuidv4 } from 'uuid'
 
 export default function PaymentPage() {
   const router = useRouter()
-  const { selectedContractor, location } = useServiceRequest()
+  const { selectedContractor, location, setCurrentStep } = useServiceRequest()
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [serviceRequestId, setServiceRequestId] = useState<string>(uuidv4())
+
+  // Marcar el paso actual en el contexto
+  useEffect(() => {
+    setCurrentStep('payment')
+  }, [setCurrentStep])
 
   // Precio estimado (podría venir del contratista o ser estimado según el servicio)
   const estimatedPrice = 450 // En pesos mexicanos (MXN)
