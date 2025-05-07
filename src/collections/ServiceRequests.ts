@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { adminsOrUser } from '../access/adminsOrUser'
 import { adminsOrRequestOwner } from '../access/adminsOrRequestOwner'
+import { adminsOrRequestOwnerOrContractors } from '../access/adminsOrRequestOwnerOrContractors'
 
 /**
  * ServiceRequests Collection
@@ -19,8 +20,8 @@ export const ServiceRequests: CollectionConfig = {
   },
   access: {
     create: () => true, // Anyone can create service requests
-    read: adminsOrRequestOwner, // Admin or the request owner can read
-    update: adminsOrRequestOwner, // Admin or the request owner can update
+    read: adminsOrRequestOwnerOrContractors, // Allow admins, request owners, or contractors to read
+    update: adminsOrRequestOwnerOrContractors, // Admin or the request owner or contractors can update
     delete: adminsOrUser, // Admin or user can delete
   },
   fields: [

@@ -8,6 +8,7 @@
 import { getPayload } from 'payload'
 import { NextResponse } from 'next/server'
 import config from '@payload-config'
+import { generateRandomPassword } from '@/utilities/passwordUtils'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -35,9 +36,12 @@ export async function GET(request: Request) {
     let userToken = null
     let isNewUser = false
     let tempPassword = null
+    let user = null
 
     // If user doesn't exist, create one automatically
     if (users.docs.length === 0) {
+      console.log('Usuario no encontrado, creando uno nuevo:', email)
+
       // First, find the most recent service request for this email to get user details
       const serviceRequests = await payload.find({
         collection: 'service-requests',
@@ -53,7 +57,8 @@ export async function GET(request: Request) {
       const customerInfo = serviceRequests.docs[0]?.customerInfo || null
 
       // Generate a random password that will be replaced on first login
-      tempPassword = Math.random().toString(36).slice(-8)
+      tempPassword = generateRandomPassword(10)
+      console.log(`Contraseña temporal generada para ${email}: ${tempPassword}`)
 
       try {
         // Create a new user with customer data from the service request
@@ -61,27 +66,34 @@ export async function GET(request: Request) {
           collection: 'users',
           data: {
             email,
-            password: tempPassword,
+            password: tempPassword || 'TemporaryPassword123!',
             role: 'client',
-            name: customerInfo?.fullName?.split(' ')[0] || 'Temporary',
-            lastName: customerInfo?.fullName?.split(' ').slice(1).join(' ') || 'User',
-            phoneNumber: customerInfo?.phone || '0000000000',
+            name: customerInfo?.fullName?.split(' ')[0] || email.split('@')[0] || 'User',
+            lastName: customerInfo?.fullName?.split(' ').slice(1).join(' ') || '',
+            phoneNumber: customerInfo?.phone || '',
           },
         })
 
         userId = newUser.id
+        user = newUser
         isNewUser = true
 
         // Login automatically to create a session
-        const loginResult = await payload.login({
-          collection: 'users',
-          data: {
-            email,
-            password: tempPassword,
-          },
-        })
+        try {
+          const loginResult = await payload.login({
+            collection: 'users',
+            data: {
+              email,
+              password: tempPassword,
+            },
+          })
 
-        userToken = loginResult.token
+          userToken = loginResult.token
+
+          console.log('Usuario autenticado correctamente:', email)
+        } catch (loginError) {
+          console.error('Error en autenticación después de crear usuario:', loginError)
+        }
 
         // Update service requests to link to this user
         if (serviceRequests.docs.length > 0) {
@@ -96,21 +108,26 @@ export async function GET(request: Request) {
               }),
             ),
           )
+          console.log(
+            `${serviceRequests.docs.length} solicitudes actualizadas para el usuario:`,
+            email,
+          )
         }
       } catch (userError) {
         console.error('Error creating user:', userError)
+        return NextResponse.json(
+          { error: 'Failed to create user', details: userError },
+          { status: 500 },
+        )
       }
     } else {
-      userId = users.docs[0]?.id || null
+      // Usuario existente
+      user = users.docs[0] || null
+      userId = user?.id || null
+      console.log('Usuario encontrado:', email, userId)
 
-      // Login the existing user
-      try {
-        // Note: We can't auto-login here without knowing password
-        // In a real app, you'd implement a passwordless login or token-based auth
-        // For now just return the user ID
-      } catch (loginError) {
-        console.error('Error logging in:', loginError)
-      }
+      // No podemos hacer login automático sin conocer la contraseña
+      // Solo devolvemos los datos del usuario
     }
 
     // Find the service requests for this email
@@ -132,9 +149,112 @@ export async function GET(request: Request) {
       userToken, // Return the token for client-side authentication
       isNewUser, // Indicar si es un usuario nuevo
       tempPassword: isNewUser ? tempPassword : null, // Devolver la contraseña temporal solo si es un usuario nuevo
+      user: {
+        email,
+        id: userId,
+        // No incluir datos sensibles aquí
+      },
     })
   } catch (error) {
     console.error('Error fetching user requests:', error)
     return NextResponse.json({ error: 'Failed to fetch service requests' }, { status: 500 })
+  }
+}
+
+/**
+ * Creates or updates a service request
+ *
+ * This endpoint creates new service requests and links them to users if they exist.
+ * If a request ID is provided, it updates the existing request instead.
+ *
+ * NOTA: Esta ruta está deprecada y solo se mantiene por compatibilidad.
+ * Se recomienda usar la API nativa de PayloadCMS en /api/service-requests
+ *
+ * @param request - The incoming request with service request data
+ * @returns Response with the created or updated service request data
+ */
+export async function POST(request: Request) {
+  try {
+    const requestData = await request.json()
+
+    // Transformar los datos para que coincidan con el esquema esperado por PayloadCMS
+    const transformedData = {
+      ...requestData,
+      location: {
+        formattedAddress: requestData.location.formattedAddress,
+        coordinates: {
+          lat: requestData.location.latitude || 0,
+          lng: requestData.location.longitude || 0,
+        },
+      },
+    }
+
+    // Eliminar propiedades que no existen en el schema
+    if (transformedData.location) {
+      delete transformedData.location.latitude
+      delete transformedData.location.longitude
+    }
+
+    // Log para diagnóstico
+    console.log('Redirecting to PayloadCMS API with data:', transformedData)
+
+    // Hacer solicitud a PayloadCMS directamente
+    const payload = await getPayload({ config })
+
+    let doc = null
+
+    // Si hay ID, actualizar; de lo contrario, crear
+    if (requestData.id) {
+      try {
+        doc = await payload.update({
+          collection: 'service-requests',
+          id: requestData.id,
+          data: transformedData,
+        })
+      } catch (updateError) {
+        console.error('Error updating service request:', updateError)
+        return NextResponse.json({ error: 'Failed to update service request' }, { status: 500 })
+      }
+    } else {
+      try {
+        doc = await payload.create({
+          collection: 'service-requests',
+          data: transformedData,
+        })
+      } catch (createError) {
+        console.error('Error creating service request:', createError)
+        return NextResponse.json({ error: 'Failed to create service request' }, { status: 500 })
+      }
+    }
+
+    let user = null
+    const token = null
+
+    // Buscar usuario por correo electrónico si está presente
+    if (requestData.customerInfo?.email) {
+      const users = await payload.find({
+        collection: 'users',
+        where: {
+          email: {
+            equals: requestData.customerInfo.email,
+          },
+        },
+        limit: 1,
+      })
+
+      if (users.docs.length > 0) {
+        user = users.docs[0]
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      doc,
+      user,
+      token,
+    })
+  } catch (error) {
+    console.error('Error processing service request:', error)
+    return NextResponse.json({ error: 'Failed to process service request' }, { status: 500 })
   }
 }

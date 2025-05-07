@@ -9,17 +9,25 @@
  */
 import React, { useEffect } from 'react'
 import { UserServiceRequests } from './UserServiceRequests'
-import { useServiceRequest } from '@/context/ServiceRequestContext'
+import { useServiceRequest } from '@/hooks/useServiceRequest'
+import { useAuth } from '@/providers/AuthProvider'
 
 export const UserServiceRequestsWrapper = () => {
-  const { resetServiceAndLocation } = useServiceRequest()
+  const { resetServiceAndLocation, requestId, currentStep } = useServiceRequest()
+  const { isAuthenticated } = useAuth()
 
-  // Asegurarnos de que no se usen servicios o ubicación en este componente de la página Home
   useEffect(() => {
-    // Este componente forma parte de la página Home, así que también necesitamos
-    // asegurarnos de que no use datos de servicios o ubicación
-    resetServiceAndLocation()
-  }, [resetServiceAndLocation])
+    // Solo reseteamos el servicio y ubicación si no estamos en un flujo activo de solicitud
+    // Si tenemos un requestId o estamos en un paso específico del flujo, no reseteamos
+    if (!requestId && currentStep === 'service') {
+      resetServiceAndLocation()
+    }
+  }, [resetServiceAndLocation, requestId, currentStep])
+
+  // Solo renderizar el componente si el usuario está autenticado
+  if (!isAuthenticated) {
+    return null
+  }
 
   return <UserServiceRequests />
 }

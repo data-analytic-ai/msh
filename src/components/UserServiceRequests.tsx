@@ -6,7 +6,6 @@
  * Gets service requests directly from the database via API.
  */
 import React, { useEffect, useState, useCallback } from 'react'
-import { getMe } from '@/lib/auth'
 import {
   Card,
   CardContent,
@@ -17,8 +16,9 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Clock, MapPin, Wrench, AlertTriangle, Loader2 } from 'lucide-react'
+import { Clock, MapPin, Wrench, AlertTriangle, Loader2, DollarSign } from 'lucide-react'
 import Link from 'next/link'
+import { useAuth } from '@/providers/AuthProvider'
 
 type ServiceRequestType = {
   id: string
@@ -32,6 +32,13 @@ type ServiceRequestType = {
     formattedAddress: string
   }
   createdAt: string
+  quotes?: Array<{
+    id?: string
+    contractor: string
+    amount: number
+    description: string
+    status: 'pending' | 'accepted' | 'rejected'
+  }>
 }
 
 /**
@@ -45,40 +52,11 @@ const useServiceRequests = () => {
   const [requests, setRequests] = useState<ServiceRequestType[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [userInfo, setUserInfo] = useState<{ email: string | null; authenticated: boolean }>({
-    email: null,
-    authenticated: false,
-  })
   const [tempPassword, setTempPassword] = useState<string | null>(null)
   const [isNewUser, setIsNewUser] = useState(false)
 
-  // Fetch current authenticated user
-  const getCurrentUser = useCallback(async () => {
-    try {
-      const { user } = await getMe(true) // Skip cache to ensure we have fresh data
-      if (user) {
-        setUserInfo({
-          email: user.email,
-          authenticated: true,
-        })
-        return user.email
-      } else {
-        setUserInfo({
-          email: null,
-          authenticated: false,
-        })
-        return null
-      }
-    } catch (err) {
-      console.error('Error getting current user:', err)
-      setError('Error al verificar el usuario')
-      setUserInfo({
-        email: null,
-        authenticated: false,
-      })
-      return null
-    }
-  }, [])
+  // Usar el contexto de autenticación global
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth()
 
   // Fetch service requests from database
   const fetchRequests = useCallback(async (email: string) => {
@@ -111,23 +89,22 @@ const useServiceRequests = () => {
     }
   }, [])
 
-  // Load all data
-  const loadData = useCallback(async () => {
-    const email = await getCurrentUser()
-    if (email) {
-      await fetchRequests(email)
-    }
-  }, [getCurrentUser, fetchRequests])
-
-  // Initial load and refresh when needed
+  // Load data when authenticated user changes
   useEffect(() => {
-    loadData()
+    if (isAuthenticated && user && user.email) {
+      fetchRequests(user.email)
+    } else {
+      // Si no hay usuario autenticado, limpiar las solicitudes
+      setRequests([])
+    }
+  }, [user, isAuthenticated, fetchRequests])
 
-    // Refresh when a new request has been completed
+  // Refresh when a new request has been completed
+  useEffect(() => {
     const handleCompletedRequest = () => {
       const needsRefresh = sessionStorage.getItem('fromCompletedRequest') === 'true'
-      if (needsRefresh) {
-        loadData()
+      if (needsRefresh && user?.email) {
+        fetchRequests(user.email)
         sessionStorage.removeItem('fromCompletedRequest')
       }
     }
@@ -136,8 +113,8 @@ const useServiceRequests = () => {
 
     // Set up event listener for page visibility changes to refresh data
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        loadData()
+      if (document.visibilityState === 'visible' && user?.email) {
+        fetchRequests(user.email)
       }
     }
 
@@ -146,14 +123,14 @@ const useServiceRequests = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [loadData])
+  }, [fetchRequests, user])
 
   return {
     requests,
-    isLoading,
+    isLoading: isLoading || authLoading,
     error,
-    refresh: loadData,
-    userInfo,
+    refresh: () => user?.email && fetchRequests(user.email),
+    isAuthenticated,
     tempPassword,
     isNewUser,
   }
@@ -187,8 +164,9 @@ const urgencyColors: Record<string, string> = {
 }
 
 export const UserServiceRequests = () => {
-  const { requests, isLoading, error, refresh, userInfo, tempPassword, isNewUser } =
+  const { requests, isLoading, error, refresh, isAuthenticated, tempPassword, isNewUser } =
     useServiceRequests()
+  const { user } = useAuth()
 
   const [showTempPassword, setShowTempPassword] = useState(false)
 
@@ -200,7 +178,7 @@ export const UserServiceRequests = () => {
   }, [isNewUser, tempPassword])
 
   // If user is not authenticated or has no requests, don't render anything
-  if (!userInfo.authenticated) {
+  if (!isAuthenticated || !user) {
     return null
   }
 
@@ -341,6 +319,19 @@ export const UserServiceRequests = () => {
                     </Badge>
                   </div>
                 </div>
+
+                {request.quotes && request.quotes.length > 0 && (
+                  <div className="flex items-start gap-2">
+                    <DollarSign className="h-4 w-4 mt-0.5 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium">Quotes</p>
+                      <p className="text-sm text-muted-foreground">
+                        {request.quotes.length} quote{request.quotes.length !== 1 ? 's' : ''}{' '}
+                        received
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
 
