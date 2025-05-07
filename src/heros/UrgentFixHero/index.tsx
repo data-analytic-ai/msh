@@ -1,15 +1,14 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { FormBlock } from '@/blocks/Form/Component'
-import { Page, User } from '@/payload-types'
+import { Page } from '@/payload-types'
 import type { Form } from '@payloadcms/plugin-form-builder/types'
-import { getMe } from '@/lib/auth'
 import ServiceCard from '@/components/ServiceCard'
 import { useRouter } from 'next/navigation'
-import { useServiceRequest } from '@/context/ServiceRequestContext'
 import MapComponent, { LocationType } from '@/components/ui/MapComponent'
-import { ServiceType } from '@/context/ServiceRequestContext'
+import { ServiceType, useServiceRequest } from '@/hooks/useServiceRequest'
+import { useAuth } from '@/providers/AuthProvider'
 
 /**
  * UrgentFixHero - Main hero component for service selection
@@ -21,8 +20,8 @@ import { ServiceType } from '@/context/ServiceRequestContext'
  * @returns {JSX.Element} - The rendered hero component
  */
 const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
-  const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
+  const { user, isAuthenticated } = useAuth()
 
   // Usar el contexto compartido con la nueva propiedad de array
   const {
@@ -33,22 +32,13 @@ const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
     setLocation,
     setFormattedAddress,
     resetServiceAndLocation,
+    setCurrentStep,
   } = useServiceRequest()
 
   // Inicializar el componente: limpiar estado y obtener usuario
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const { user: currentUser } = await getMe(false)
-        if (currentUser) {
-          setUser(currentUser)
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error)
-      }
-    }
-
-    fetchUser()
+    // Marcar el paso actual en el contexto
+    setCurrentStep('service')
 
     // Sólo resetear servicios y ubicación en una carga inicial desde otra página
     // o cuando se vuelve a la página principal después de completar una solicitud
@@ -63,16 +53,16 @@ const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
       // Limpiar la bandera de solicitud completada
       sessionStorage.removeItem('fromCompletedRequest')
     }
-  }, [resetServiceAndLocation])
+  }, [resetServiceAndLocation, setCurrentStep])
 
   // Standard services offered by UrgentFix
   const services = [
-    { type: 'plumbing' as ServiceType, icon: '🚿', name: 'Plumbing' },
-    { type: 'electrical' as ServiceType, icon: '⚡', name: 'Electricity' },
-    { type: 'glass' as ServiceType, icon: '🪟', name: 'Windows' },
-    { type: 'hvac' as ServiceType, icon: '🔥', name: 'HVAC' },
-    { type: 'pests' as ServiceType, icon: '🐜', name: 'Pest' },
-    { type: 'locksmith' as ServiceType, icon: '🔑', name: 'Locksmith' },
+    { type: 'plumbing' as unknown as ServiceType, icon: '🚿', name: 'Plumbing' },
+    { type: 'electrical' as unknown as ServiceType, icon: '⚡', name: 'Electricity' },
+    { type: 'glass' as unknown as ServiceType, icon: '🪟', name: 'Windows' },
+    { type: 'hvac' as unknown as ServiceType, icon: '🔥', name: 'HVAC' },
+    { type: 'pests' as unknown as ServiceType, icon: '🐜', name: 'Pest' },
+    { type: 'locksmith' as unknown as ServiceType, icon: '🔑', name: 'Locksmith' },
   ]
 
   const handleServiceSelect = (serviceType: ServiceType) => {
@@ -99,13 +89,28 @@ const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
 
   const handleContinue = () => {
     if (selectedServices.length > 0 && location) {
+      // Actualizar el paso actual antes de navegar
+      setCurrentStep('details')
+
+      // Log para depuración
+      console.log('Navegando a detalles con:', {
+        selectedServices,
+        location,
+        formattedAddress,
+      })
+
       // Navegar a la página de detalles
       router.push('/request-service/details')
+    } else {
+      // Mostrar mensaje de error si falta información
+      console.error('Falta seleccionar servicio o ubicación')
+      alert('Por favor selecciona al menos un servicio y una ubicación')
     }
   }
 
   const handleSetLocation = (newLocation: LocationType | null) => {
     setLocation(newLocation)
+    console.log('Location set:', newLocation)
   }
 
   return (
@@ -114,7 +119,7 @@ const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
         {/* Greeting and title */}
         <div className="space-y-2">
           <h2 className="text-xl sm:text-2xl font-bold">
-            {user ? `Hello, ${user.name}` : 'Welcome'}
+            {isAuthenticated && user ? `Hello, ${user.name}` : 'Welcome'}
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground">
             What kind of emergency do you have today?
@@ -135,7 +140,7 @@ const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
                 <ServiceCard
                   icon={service.icon}
                   name={service.name}
-                  type={service.type}
+                  type={service.type as unknown as string}
                   useServiceLinks={false}
                   isSelected={selectedServices.includes(service.type)}
                   onClick={() => handleServiceSelect(service.type)}
