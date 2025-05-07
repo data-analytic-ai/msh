@@ -18,7 +18,6 @@ export interface Config {
     users: User;
     'service-requests': ServiceRequest;
     services: Service;
-    'contractor-directory': ContractorDirectory;
     contractors: Contractor;
     redirects: Redirect;
     forms: Form;
@@ -38,7 +37,6 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     'service-requests': ServiceRequestsSelect<false> | ServiceRequestsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
-    'contractor-directory': ContractorDirectorySelect<false> | ContractorDirectorySelect<true>;
     contractors: ContractorsSelect<false> | ContractorsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -986,165 +984,6 @@ export interface Service {
   createdAt: string;
 }
 /**
- * Directory of contractors in New York for UrgentFix services
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contractor-directory".
- */
-export interface ContractorDirectory {
-  id: string;
-  /**
-   * Name of the contractor business
-   */
-  businessName: string;
-  /**
-   * First name of business contact or owner
-   */
-  firstName?: string | null;
-  /**
-   * Last name of business contact or owner
-   */
-  lastName?: string | null;
-  /**
-   * Services offered by this contractor
-   */
-  services: ('plumbing' | 'electrical' | 'glass' | 'hvac' | 'pests' | 'locksmith' | 'roofing' | 'siding' | 'general')[];
-  /**
-   * Whether this contractor is currently available for new jobs
-   */
-  isAvailable?: boolean | null;
-  /**
-   * Whether this contractor has been verified by UrgentFix
-   */
-  isVerified?: boolean | null;
-  /**
-   * Google Maps Place ID for this business
-   */
-  placeId?: string | null;
-  /**
-   * Business location details
-   */
-  location: {
-    /**
-     * Complete formatted address from Google Maps
-     */
-    formattedAddress: string;
-    /**
-     * Geographic coordinates
-     */
-    coordinates: {
-      lat: number;
-      lng: number;
-    };
-    /**
-     * City extracted from address
-     */
-    city?: string | null;
-    /**
-     * State/province extracted from address
-     */
-    state?: string | null;
-    /**
-     * Postal code extracted from address
-     */
-    zipCode?: string | null;
-    /**
-     * Neighborhood or district in New York
-     */
-    neighborhood?: string | null;
-  };
-  /**
-   * Contact information
-   */
-  contactInfo?: {
-    email?: string | null;
-    phone?: string | null;
-    website?: string | null;
-  };
-  /**
-   * Business details and metrics
-   */
-  businessDetails?: {
-    description?: string | null;
-    yearsInBusiness?: number | null;
-    employeeCount?: number | null;
-    licenses?:
-      | {
-          licenseType?: string | null;
-          licenseNumber?: string | null;
-          expirationDate?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    certifications?:
-      | {
-          name?: string | null;
-          issuedBy?: string | null;
-          year?: number | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  /**
-   * Data from Google Maps
-   */
-  googleData?: {
-    rating?: number | null;
-    reviewCount?: number | null;
-    openingHours?:
-      | {
-          day?: ('monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday') | null;
-          open?: string | null;
-          close?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    categories?:
-      | {
-          category?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  /**
-   * UrgentFix platform metrics
-   */
-  urgentFixMetrics?: {
-    responseTime?: ('under15' | '15to30' | '30to60' | 'over60') | null;
-    completionRate?: number | null;
-    onTimeRate?: number | null;
-    platformRating?: number | null;
-    jobsCompleted?: number | null;
-  };
-  /**
-   * Business photos and media
-   */
-  media?: {
-    logo?: (string | null) | Media;
-    photos?:
-      | {
-          photo?: (string | null) | Media;
-          caption?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  /**
-   * Metadata about web scraping
-   */
-  scrapingData?: {
-    lastScraped?: string | null;
-    dataSource?: string | null;
-    scrapingStatus?: ('pending' | 'complete' | 'failed' | 'needs-update') | null;
-  };
-  /**
-   * User account associated with this contractor (if any)
-   */
-  user?: (string | null) | User;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contractors".
  */
@@ -1405,10 +1244,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'services';
         value: string | Service;
-      } | null)
-    | ({
-        relationTo: 'contractor-directory';
-        value: string | ContractorDirectory;
       } | null)
     | ({
         relationTo: 'contractors';
@@ -1926,115 +1761,6 @@ export interface ServicesSelect<T extends boolean = true> {
       };
   publishedAt?: T;
   _status?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contractor-directory_select".
- */
-export interface ContractorDirectorySelect<T extends boolean = true> {
-  businessName?: T;
-  firstName?: T;
-  lastName?: T;
-  services?: T;
-  isAvailable?: T;
-  isVerified?: T;
-  placeId?: T;
-  location?:
-    | T
-    | {
-        formattedAddress?: T;
-        coordinates?:
-          | T
-          | {
-              lat?: T;
-              lng?: T;
-            };
-        city?: T;
-        state?: T;
-        zipCode?: T;
-        neighborhood?: T;
-      };
-  contactInfo?:
-    | T
-    | {
-        email?: T;
-        phone?: T;
-        website?: T;
-      };
-  businessDetails?:
-    | T
-    | {
-        description?: T;
-        yearsInBusiness?: T;
-        employeeCount?: T;
-        licenses?:
-          | T
-          | {
-              licenseType?: T;
-              licenseNumber?: T;
-              expirationDate?: T;
-              id?: T;
-            };
-        certifications?:
-          | T
-          | {
-              name?: T;
-              issuedBy?: T;
-              year?: T;
-              id?: T;
-            };
-      };
-  googleData?:
-    | T
-    | {
-        rating?: T;
-        reviewCount?: T;
-        openingHours?:
-          | T
-          | {
-              day?: T;
-              open?: T;
-              close?: T;
-              id?: T;
-            };
-        categories?:
-          | T
-          | {
-              category?: T;
-              id?: T;
-            };
-      };
-  urgentFixMetrics?:
-    | T
-    | {
-        responseTime?: T;
-        completionRate?: T;
-        onTimeRate?: T;
-        platformRating?: T;
-        jobsCompleted?: T;
-      };
-  media?:
-    | T
-    | {
-        logo?: T;
-        photos?:
-          | T
-          | {
-              photo?: T;
-              caption?: T;
-              id?: T;
-            };
-      };
-  scrapingData?:
-    | T
-    | {
-        lastScraped?: T;
-        dataSource?: T;
-        scrapingStatus?: T;
-      };
-  user?: T;
   updatedAt?: T;
   createdAt?: T;
 }
