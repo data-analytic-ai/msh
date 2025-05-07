@@ -1,9 +1,11 @@
 /**
- * useServiceRequest - Adapter hook
+ * useServiceRequest - Service request hook interface
  *
- * This adapter hook provides backward compatibility for components
- * that are still using the old useServiceRequest hook from the context.
- * Internally, it uses the new Zustand store.
+ * A custom hook that provides a simplified interface to access service request
+ * state from the Zustand store. Acts as a bridge between components and the store,
+ * exposing only the necessary properties and functions.
+ *
+ * @returns {Object} Service request state and methods
  */
 'use client'
 
@@ -32,6 +34,29 @@ export const useServiceRequest = () => {
   // Get all state and actions from Zustand store
   const store = useServiceRequestStore()
 
+  // Extract only the properties and functions needed by components
+  const {
+    requestId,
+    selectedServices,
+    location,
+    formattedAddress,
+    formData,
+    requestStatus,
+    selectedContractor,
+    currentStep,
+    setCurrentStep,
+    updateFormData,
+    setSelectedContractor,
+    userEmail,
+    isAuthenticated,
+    setRequestId,
+    setLocation,
+    setFormattedAddress,
+    setUserEmail,
+    submitServiceRequest,
+    resetServiceAndLocation,
+  } = store
+
   // Adapter for goToStep to make it compatible with the old API
   const goToStep = (step: any) => {
     store.setCurrentStep(step)
@@ -53,9 +78,27 @@ export const useServiceRequest = () => {
     }
   }
 
-  // Return the same API shape as the old context
   return {
-    ...store,
+    requestId,
+    selectedServices,
+    location,
+    formattedAddress,
+    formData,
+    requestStatus,
+    selectedContractor,
+    currentStep,
+    setCurrentStep,
+    updateFormData,
+    setSelectedContractor,
     goToStep,
+    userEmail,
+    isAuthenticated,
+    setRequestId,
+    hasEssentialData: store.hasEssentialData,
+    setLocation,
+    setFormattedAddress,
+    setUserEmail,
+    submitServiceRequest,
+    resetServiceAndLocation,
   }
 }
