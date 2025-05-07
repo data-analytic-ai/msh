@@ -1,14 +1,14 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import type { Header } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
 import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
-import { useServiceRequest } from '@/context/ServiceRequestContext'
 import Link from 'next/link'
 import { User, LogOut } from 'lucide-react'
-import { getMe } from '@/lib/auth'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/providers/AuthProvider'
 
 /**
  * HeaderNav - Main navigation component for the header
@@ -25,36 +25,13 @@ export const HeaderNav: React.FC<{ data: Header; isMobile?: boolean }> = ({
   isMobile = false,
 }) => {
   const navItems = data?.navItems || []
-  const { isAuthenticated, logout } = useServiceRequest()
-  const [userName, setUserName] = useState<string | null>(null)
-
-  // Fetch user details if authenticated
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      if (isAuthenticated) {
-        try {
-          // Usar getMe para obtener detalles del usuario en vez de hacer una nueva petición
-          // Ya que getMe está cacheado, esto evita peticiones adicionales
-          const { user } = await getMe()
-          if (user) {
-            setUserName(user.name)
-          }
-        } catch (error) {
-          console.error('Failed to fetch user details:', error)
-        }
-      } else {
-        // Si no está autenticado, limpiar el nombre
-        setUserName(null)
-      }
-    }
-
-    fetchUserDetails()
-  }, [isAuthenticated])
+  const { isAuthenticated, logout, user } = useAuth()
+  const router = useRouter()
 
   const handleLogout = () => {
     logout()
-    // Redirect to home page or refresh
-    window.location.href = '/'
+    // Redirect to home page using Next.js useRouter
+    router.push('/')
   }
 
   return (
@@ -88,7 +65,7 @@ export const HeaderNav: React.FC<{ data: Header; isMobile?: boolean }> = ({
         <div className={`flex items-center gap-2 ${isMobile ? 'mt-4 flex-col w-full' : 'ml-auto'}`}>
           <div className="flex items-center gap-1 text-xs sm:text-sm font-medium text-foreground">
             <User size={isMobile ? 18 : 16} className="text-primary" />
-            <span className="truncate max-w-[120px]">Hi, {userName || 'User'}</span>
+            <span className="truncate max-w-[120px]">Hi, {user?.name || 'User'}</span>
           </div>
 
           <Button

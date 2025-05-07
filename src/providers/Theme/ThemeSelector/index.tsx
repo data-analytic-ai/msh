@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Moon, Sun, Monitor } from 'lucide-react'
 
 import type { Theme } from './types'
@@ -24,26 +24,35 @@ import { themeLocalStorageKey } from './types'
  * @returns {JSX.Element} - The rendered theme selector component
  */
 export const ThemeSelector: React.FC = () => {
-  const { setTheme } = useTheme()
-  const [value, setValue] = useState('')
+  const { theme, setTheme } = useTheme()
+  const [value, setValue] = useState<string>('auto')
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  // Inicializar el valor del selector basado en localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const preference = window.localStorage.getItem(themeLocalStorageKey)
+      setValue(preference ?? 'auto')
+      setIsInitialized(true)
+    }
+  }, [])
 
   const onThemeChange = (themeToSet: Theme & 'auto') => {
     if (themeToSet === 'auto') {
       setTheme(null)
-      setValue('auto')
     } else {
       setTheme(themeToSet)
-      setValue(themeToSet)
     }
+    setValue(themeToSet)
   }
 
-  React.useEffect(() => {
-    const preference = window.localStorage.getItem(themeLocalStorageKey)
-    setValue(preference ?? 'auto')
-  }, [])
+  // Solo renderizar cuando ya se ha inicializado el valor
+  if (!isInitialized) {
+    return null
+  }
 
   return (
-    <Select onValueChange={onThemeChange} value={value}>
+    <Select onValueChange={onThemeChange} value={value} defaultValue={value}>
       <SelectTrigger
         aria-label="Select a theme"
         className=" bg-background text-foreground gap-2 pl-0 md:pl-3 border-none hover:bg-secondary/50 rounded-md"
