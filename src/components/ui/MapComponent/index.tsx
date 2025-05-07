@@ -103,14 +103,22 @@ const MapComponent: React.FC<MapComponentProps> = ({
   // Actualizar searchAddress cuando cambia formattedAddress en props
   useEffect(() => {
     if (formattedAddress && formattedAddress !== searchAddress) {
-      setSearchAddress(formattedAddress)
+      // Añadir una bandera para evitar actualizar cuando el cambio proviene de este componente
+      if (!formattedAddress.startsWith('_internal_')) {
+        setSearchAddress(formattedAddress)
+      }
     }
   }, [formattedAddress])
 
   // Actualizar formattedAddress en el contexto cuando cambia searchAddress
   useEffect(() => {
     if (setFormattedAddress && searchAddress && searchAddress !== formattedAddress) {
-      setFormattedAddress(searchAddress)
+      // Marcar la actualización como interna para evitar bucles
+      if (searchAddress.startsWith('_internal_')) {
+        setFormattedAddress(searchAddress.replace('_internal_', ''))
+      } else {
+        setFormattedAddress(`_internal_${searchAddress}`)
+      }
     }
   }, [searchAddress, setFormattedAddress, formattedAddress])
 
@@ -148,6 +156,16 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
           // Centrar con el pin en el tercio inferior
           centerMapWithPinInLowerThird(latitude, longitude)
+
+          // Obtener la dirección desde las coordenadas (Geocodificación inversa)
+          if (isLoaded && window.google) {
+            const geocoder = new google.maps.Geocoder()
+            geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
+              if (status === google.maps.GeocoderStatus.OK && results?.[0]) {
+                setSearchAddress(results[0].formatted_address)
+              }
+            })
+          }
 
           setIsGettingLocation(false)
         },
@@ -333,10 +351,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
         <>
           {/* Action buttons at the top */}
           <div className="absolute top-2 left-7 z-10">
-            <div className="flex gap-2 justify-end">
+            <div className="flex gap-2 justify-end items-center">
               <Button
                 onClick={handleSetFriendLocation}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-background/90 hover:bg-accent hover:text-accent-foreground"
                 size="sm"
                 variant="outline"
               >
@@ -347,7 +365,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
               {location && (
                 <Button
                   onClick={handleClearLocation}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 bg-accent/90 hover:bg-red-500 hover:text-accent-foreground"
                   size="sm"
                   variant="destructive"
                 >
@@ -364,10 +382,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
               <form onSubmit={handleSearchPlace} className="flex gap-2">
                 <div className="relative flex-grow">
                   <div
-                    className={`flex items-center h-10 bg-background/90 rounded-md pr-8 pl-2 ${location ? 'border-success border-2' : 'border border-input'}`}
+                    className={`flex items-center h-10 bg-background/90 rounded-md pr-8 pl-2 ${location ? 'border-accent border-2' : 'border border-input'}`}
                   >
                     <MapPin
-                      className={`h-4 w-4 mr-2 ${location ? 'text-success' : 'text-muted-foreground'}`}
+                      className={`h-4 w-4 mr-2 ${location ? 'text-accent' : 'text-muted-foreground'}`}
                     />
 
                     <Input
@@ -375,7 +393,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
                       placeholder={
                         location ? shortenAddress(searchAddress) : 'Search for an address'
                       }
-                      className="h-full bg-transparent border-0 shadow-none text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+                      className="text-card-foreground dark:text-accent h-full bg-transparent border-0 shadow-none text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
                       value={searchAddress}
                       onChange={(e) => {
                         if (e.target.value !== searchAddress) {
@@ -392,12 +410,16 @@ const MapComponent: React.FC<MapComponentProps> = ({
                       className="absolute right-2 top-1/2 transform -translate-y-1/2 text-secondary hover:text-primary"
                       onClick={() => setSearchAddress('')}
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3 w-3 text-muted-foreground" />
                     </button>
                   )}
                 </div>
 
-                <Button type="submit" size="sm" className="h-10 px-3 bg-background/90 text-primary">
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="h-10 px-3 bg-background/90 text-primary hover:bg-accent hover:text-accent-foreground"
+                >
                   <Search className="h-4 w-4" />
                 </Button>
               </form>
@@ -408,7 +430,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
                   <Button
                     onClick={handleGetLocation}
                     disabled={isGettingLocation}
-                    className="flex bg-secondary text-primary items-center gap-2 w-full hover:bg-accent"
+                    className="flex bg-secondary text-primary items-center gap-2 w-full hover:bg-accent hover:text-accent-foreground"
                     size="sm"
                   >
                     <MapPin className="h-3 w-3" />
@@ -420,7 +442,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
           </div>
         </>
       ) : readOnly && location ? (
-        <div className="absolute bottom-0 left-0 right-0 bg-background/80 p-2">
+        <div className="absolute bottom-0 left-0 right-0 bg-background/90 p-2">
           <div className="flex items-center justify-center text-sm">
             <MapPin className="h-4 w-4 mr-2 text-primary" />
             <span className="font-medium truncate">{shortenAddress(searchAddress)}</span>
@@ -428,7 +450,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
         </div>
       ) : (
         <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center p-4 pointer-events-none">
-          <p className="text-white bg-error/60 p-3 rounded-md font-medium">
+          <p className="text-white bg-error/70 p-3 rounded-md font-medium">
             Select a service to continue
           </p>
         </div>
@@ -437,7 +459,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
       {/* Botón de continuar (siempre abajo) */}
       {location && hasSelectedServices() && !readOnly && (
         <div className="absolute py-2 bottom-0 left-1/2 transform -translate-x-1/2 ">
-          <Button onClick={onContinue} className="bg-success text-primary hover:bg-accent">
+          <Button
+            onClick={onContinue}
+            className="bg-accent/90 text-accent-foreground hover:bg-red-500"
+          >
             Continue
           </Button>
         </div>
