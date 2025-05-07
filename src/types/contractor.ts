@@ -40,6 +40,15 @@ export interface Contractor {
     url: string
   }
   specialties?: string[]
+  workingHours?: {
+    monday?: string
+    tuesday?: string
+    wednesday?: string
+    thursday?: string
+    friday?: string
+    saturday?: string
+    sunday?: string
+  }
   verified: boolean
 }
 

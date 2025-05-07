@@ -10,16 +10,8 @@
 
 import React, { use, Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, MapPin, Phone, Mail, Globe, Star, Clock, Check } from 'lucide-react'
-import Link from 'next/link'
-import { ServiceRequestProvider } from '@/context/ServiceRequestContext'
-import { useServiceRequestStore } from '@/store/serviceRequestStore'
-import { Contractor } from '@/types/contractor'
-import { Separator } from '@/components/ui/separator'
 import ContractorDetailContent from '@/app/(frontend)/request-service/find-contractor/[contractor]/ContractorDetailContent'
+import { ServiceRequestStateProvider } from '@/providers/ServiceRequestStateProvider'
 
 // Types for our params
 type ContractorPageProps = {
@@ -125,8 +117,8 @@ function ContractorDetail({ paramsPromise }: { paramsPromise: Promise<{ contract
   }
 
   return (
-    <ServiceRequestProvider>
+    <ServiceRequestStateProvider>
       <ContractorDetailContent contractorId={contractorId} slug={slugParam} />
-    </ServiceRequestProvider>
+    </ServiceRequestStateProvider>
   )
 }

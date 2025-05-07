@@ -293,11 +293,17 @@ export default function ContractorDetailContent({
           <div>
             <h3 className="font-medium mb-2">Servicios ofrecidos</h3>
             <div className="flex flex-wrap gap-2">
-              {contractor.servicesOffered.map((service) => (
-                <Badge key={service} variant="secondary">
-                  {serviceLabels[service] || service}
-                </Badge>
-              ))}
+              {contractor.servicesOffered.map((service, index) => {
+                // Obtener la clave del servicio (string) independientemente del tipo
+                const serviceKey =
+                  typeof service === 'string' ? service : service.id || service.slug || ''
+                return (
+                  <Badge key={index} variant="secondary">
+                    {serviceLabels[serviceKey] ||
+                      (typeof service === 'string' ? service : service.name || serviceKey)}
+                  </Badge>
+                )
+              })}
             </div>
           </div>
 
