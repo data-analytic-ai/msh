@@ -12,13 +12,12 @@ import { ArrowLeft } from 'lucide-react'
 
 export const RequestHeader: React.FC = () => {
   return (
-    <header className="sticky top-0 z-10 border-b bg-background">
+    <header className="sticky top-0 z-10 border-b bg-background dark:text-white">
       <div className="flex h-16 items-center px-4">
         <Link href="/" className="flex items-center gap-2 text-sm font-medium">
           <ArrowLeft className="h-4 w-4" />
           Back to home
         </Link>
-        <h1 className="ml-4 text-lg font-semibold">Request Submitted</h1>
       </div>
     </header>
   )

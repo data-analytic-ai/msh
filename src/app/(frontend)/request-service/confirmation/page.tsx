@@ -35,7 +35,6 @@ export default function ConfirmationPage() {
     requestId,
     userEmail,
     setCurrentStep,
-    hasEssentialData,
     setRequestId,
     goToStep,
     isAuthenticated,
@@ -279,16 +278,21 @@ export default function ConfirmationPage() {
           {/* Componente para gestionar la cuenta de usuario */}
           <UserAccountHandler userEmail={userEmail} requestId={requestId} />
 
-          <NextStepsInfo />
+          {/* Mostrar NextStepsInfo y FindContractorsButton solo si el usuario está autenticado */}
+          {authContextAuthenticated && (
+            <>
+              <NextStepsInfo />
 
-          <FindContractorsButton
-            selectedServices={selectedServices}
-            location={location}
-            requestId={requestId}
-            isAuthenticated={isAuthenticated}
-            userEmail={userEmail}
-            goToStep={goToStep}
-          />
+              <FindContractorsButton
+                selectedServices={selectedServices}
+                location={location}
+                requestId={requestId}
+                isAuthenticated={isAuthenticated}
+                userEmail={userEmail}
+                goToStep={goToStep}
+              />
+            </>
+          )}
         </div>
       </main>
     </div>

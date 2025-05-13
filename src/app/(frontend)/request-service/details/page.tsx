@@ -197,7 +197,7 @@ export default function RequestServiceDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col dark:bg-background">
       <header className="sticky top-0 z-10 border-b bg-background">
         <div className="flex h-16 items-center px-4">
           <Link href="/" className="flex items-center gap-2 text-sm font-medium">
@@ -224,9 +224,9 @@ export default function RequestServiceDetailsPage() {
           </div>
 
           {/* Summary of previous selection */}
-          <div className="bg-primary/20 text-orange-900 p-4 rounded-lg">
+          <div className="bg-primary/20 dark:text-white p-4 rounded-lg">
             <h2 className="font-semibold text-lg">Selected Service</h2>
-            <p className="font-medium text-orange-950">
+            <p className="font-medium dark:text-white">
               {selectedServices.length > 0
                 ? selectedServices
                     .map((service) => {
@@ -237,13 +237,13 @@ export default function RequestServiceDetailsPage() {
                     .join(', ')
                 : 'Not specified'}
             </p>
-            <p className="text-sm mt-1 text-orange-950 ">
+            <p className="text-sm mt-1 dark:text-white">
               Location: {formattedAddress || 'Loading address...'}
             </p>
           </div>
 
           {/* Customer information */}
-          <div className="space-y-4">
+          <div className="space-y-4 dark:text-white">
             <h2 className="font-semibold text-lg">Your Information</h2>
 
             <div className="space-y-2">
@@ -286,7 +286,7 @@ export default function RequestServiceDetailsPage() {
           </div>
 
           {/* Request details */}
-          <div className="space-y-4">
+          <div className="space-y-4 dark:text-white ">
             <h2 className="font-semibold text-lg">Request Details</h2>
 
             <div className="space-y-2">

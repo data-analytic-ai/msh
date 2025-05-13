@@ -15,16 +15,14 @@ import { Label } from '@/components/ui/label'
 import { User, KeyRound, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/providers/AuthProvider'
-import { useRouter } from 'next/navigation'
 
 interface UserAccountHandlerProps {
   userEmail: string | null
   requestId: string | null
 }
 
-export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({ userEmail, requestId }) => {
-  const router = useRouter()
-  const { login, isAuthenticated, user } = useAuth()
+export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({ userEmail }) => {
+  const { login, isAuthenticated } = useAuth()
   const [isCreatingAccount, setIsCreatingAccount] = useState(false)
   const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [isCheckingUser, setIsCheckingUser] = useState(true)

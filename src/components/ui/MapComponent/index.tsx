@@ -4,8 +4,8 @@ import React, { useCallback, useRef, useState, useEffect } from 'react'
 import { GoogleMap, useLoadScript, Marker, Libraries } from '@react-google-maps/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { MapPin, Search, Users, X } from 'lucide-react'
-import { ServiceType } from '@/context/ServiceRequestContext'
+import { MapPin, Search, X } from 'lucide-react'
+import { ServiceType } from '@/hooks/useServiceRequest'
 // Configuración de bibliotecas de Google Maps
 const libraries: Libraries = ['places']
 
@@ -44,6 +44,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const mapRef = useRef<google.maps.Map | null>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
+  // Bandera para controlar la dirección de la sincronización
+  const isInternalUpdate = useRef(false)
 
   // Cargar el script de Google Maps
   const { isLoaded, loadError } = useLoadScript({
@@ -79,6 +81,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
         const lng = place.geometry.location.lng()
 
         setLocation({ lat, lng })
+        isInternalUpdate.current = true
         setSearchAddress(place.formatted_address || '')
 
         // Usar centerMapWithPinInLowerThird en lugar de panTo directo
@@ -103,22 +106,18 @@ const MapComponent: React.FC<MapComponentProps> = ({
   // Actualizar searchAddress cuando cambia formattedAddress en props
   useEffect(() => {
     if (formattedAddress && formattedAddress !== searchAddress) {
-      // Añadir una bandera para evitar actualizar cuando el cambio proviene de este componente
-      if (!formattedAddress.startsWith('_internal_')) {
+      if (!isInternalUpdate.current) {
         setSearchAddress(formattedAddress)
       }
+      isInternalUpdate.current = false
     }
-  }, [formattedAddress])
+  }, [formattedAddress, searchAddress])
 
   // Actualizar formattedAddress en el contexto cuando cambia searchAddress
   useEffect(() => {
     if (setFormattedAddress && searchAddress && searchAddress !== formattedAddress) {
-      // Marcar la actualización como interna para evitar bucles
-      if (searchAddress.startsWith('_internal_')) {
-        setFormattedAddress(searchAddress.replace('_internal_', ''))
-      } else {
-        setFormattedAddress(`_internal_${searchAddress}`)
-      }
+      isInternalUpdate.current = true
+      setFormattedAddress(searchAddress)
     }
   }, [searchAddress, setFormattedAddress, formattedAddress])
 
@@ -162,6 +161,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             const geocoder = new google.maps.Geocoder()
             geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
               if (status === google.maps.GeocoderStatus.OK && results?.[0]) {
+                isInternalUpdate.current = true
                 setSearchAddress(results[0].formatted_address)
               }
             })
@@ -203,22 +203,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
     }
   }
 
-  // Establecer ubicación de un amigo
-  const handleSetFriendLocation = () => {
-    if (mapRef.current) {
-      // Centrar el mapa en un punto diferente (un poco desplazado del centro actual)
-      const currentCenter = mapRef.current.getCenter()
-      if (currentCenter) {
-        const newLat = currentCenter.lat() + 0.01 // Pequeño desplazamiento
-        const newLng = currentCenter.lng() + 0.01
-        setCenter({ lat: newLat, lng: newLng })
-        mapRef.current.panTo({ lat: newLat, lng: newLng })
-
-        // Notificar al usuario que puede seleccionar la ubicación en el mapa
-        alert('Select other location on the map')
-      }
-    }
-  }
 
   // Helper function to check if we have services selected
   const hasSelectedServices = () => {
@@ -242,6 +226,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
         const geocoder = new google.maps.Geocoder()
         geocoder.geocode({ location: { lat, lng } }, (results, status) => {
           if (status === google.maps.GeocoderStatus.OK && results?.[0]) {
+            isInternalUpdate.current = true
             setSearchAddress(results[0].formatted_address)
           }
         })
@@ -269,6 +254,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
           const lng = results[0].geometry.location.lng()
 
           setLocation({ lat, lng })
+          isInternalUpdate.current = true
           setSearchAddress(results[0].formatted_address || searchInputRef.current?.value || '')
 
           // Usar centerMapWithPinInLowerThird en lugar de panTo directo
@@ -296,6 +282,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
       setLocation(null)
 
       // Limpiar el campo de dirección
+      isInternalUpdate.current = true
       setSearchAddress('')
     }
   }
@@ -320,7 +307,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   }
 
   return (
-    <div className="h-full relative bg-background text-primary">
+    <div className="h-full relative bg-background dark:text-white text-primary">
       {/* Google Map - Siempre visible */}
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
@@ -352,16 +339,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
           {/* Action buttons at the top */}
           <div className="absolute top-2 left-7 z-10">
             <div className="flex gap-2 justify-end items-center">
-              <Button
-                onClick={handleSetFriendLocation}
-                className="flex items-center gap-2 bg-background/90 hover:bg-accent hover:text-accent-foreground"
-                size="sm"
-                variant="outline"
-              >
-                <Users className="h-4 w-4" />
-                Other location?
-              </Button>
-
               {location && (
                 <Button
                   onClick={handleClearLocation}
@@ -397,6 +374,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
                       value={searchAddress}
                       onChange={(e) => {
                         if (e.target.value !== searchAddress) {
+                          isInternalUpdate.current = true
                           setSearchAddress(e.target.value)
                         }
                       }}
@@ -408,7 +386,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
                     <button
                       type="button"
                       className="absolute right-2 top-1/2 transform -translate-y-1/2 text-secondary hover:text-primary"
-                      onClick={() => setSearchAddress('')}
+                      onClick={() => {
+                        isInternalUpdate.current = true
+                        setSearchAddress('')
+                      }}
                     >
                       <X className="h-3 w-3 text-muted-foreground" />
                     </button>
