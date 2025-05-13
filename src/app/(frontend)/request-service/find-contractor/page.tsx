@@ -18,7 +18,6 @@ import { ArrowLeft, MapPin, Star, Clock, Lock } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import MapComponent from '@/components/ui/MapComponent'
-import { ServiceType } from '@/hooks/useServiceRequest'
 import { ContractorWithDistance, Service } from '@/types/contractor'
 import { useAuth } from '@/providers/AuthProvider'
 
@@ -44,10 +43,8 @@ export default function ContractorsListPage() {
     setFormattedAddress,
     setSelectedContractor,
     setCurrentStep,
-    requestId,
     isAuthenticated: storeIsAuthenticated,
     userEmail,
-    hasEssentialData,
   } = useServiceRequest()
 
   // Obtener el estado de autenticación del AuthProvider

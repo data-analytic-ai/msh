@@ -258,11 +258,11 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({ userEmai
               : 'Crea una cuenta para seguir el estado de tus solicitudes, recibir actualizaciones y conectar con contratistas.'}
           </p>
 
-          {loginError && !showLoginForm && (
+          {loginError && (
             <div className="bg-red-50 text-red-800 p-3 rounded-md text-sm">{loginError}</div>
           )}
 
-          {tempPassword && !showLoginForm ? (
+          {tempPassword ? (
             <div className="bg-primary/10 p-4 rounded-md space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -304,11 +304,15 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({ userEmai
                 Puedes cambiar esta contraseña después de iniciar sesión por primera vez.
               </p>
 
-              <Button onClick={handleShowLoginForm} className="w-full mt-2">
-                Iniciar sesión ahora
-              </Button>
+              {!showLoginForm && (
+                <Button onClick={handleShowLoginForm} className="w-full mt-2">
+                  Iniciar sesión ahora
+                </Button>
+              )}
             </div>
-          ) : showLoginForm ? (
+          ) : null}
+
+          {showLoginForm ? (
             renderLoginForm()
           ) : userExists ? (
             <div className="space-y-3">

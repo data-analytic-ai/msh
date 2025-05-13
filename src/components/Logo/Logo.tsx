@@ -29,8 +29,10 @@ export const Logo = (props: Props) => {
 
   return (
     <div className={logoClasses}>
-      <span className="text-foreground dark:text-white">Urgent</span>
-      <span className="text-primary">Fix</span>
+      <span className="text-foreground dark:text-white">Emergency</span>
+      <br />
+      <span className="text-primary">Repair</span>
+      <span className="text-primary">24</span>
     </div>
   )
 }
