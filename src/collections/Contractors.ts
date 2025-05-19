@@ -7,6 +7,7 @@
  *
  * Relationships:
  * - Relates to the Services collection through servicesOffered field
+ * - Can be sourced from manual entry or external APIs like Google Places
  */
 
 import { CollectionConfig } from 'payload'
@@ -15,7 +16,7 @@ const Contractors: CollectionConfig = {
   slug: 'contractors',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'rating', 'verified'],
+    defaultColumns: ['name', 'rating', 'verified', 'dataSource'],
     group: 'Service Management',
   },
   access: {
@@ -31,19 +32,19 @@ const Contractors: CollectionConfig = {
     {
       name: 'description',
       type: 'textarea',
-      required: true,
+      required: false,
       label: 'Description',
     },
     {
       name: 'contactEmail',
       type: 'email',
-      required: true,
+      required: false,
       label: 'Contact Email',
     },
     {
       name: 'contactPhone',
       type: 'text',
-      required: true,
+      required: false,
       label: 'Contact Phone',
     },
     {
@@ -82,20 +83,20 @@ const Contractors: CollectionConfig = {
       type: 'relationship',
       relationTo: 'services',
       hasMany: true,
-      required: true,
+      required: false,
       label: 'Services Offered',
     },
     {
       name: 'yearsExperience',
       type: 'number',
-      required: true,
+      required: false,
       label: 'Years of Experience',
       min: 0,
     },
     {
       name: 'rating',
       type: 'number',
-      required: true,
+      required: false,
       label: 'Rating',
       min: 0,
       max: 5,
@@ -103,7 +104,7 @@ const Contractors: CollectionConfig = {
     {
       name: 'reviewCount',
       type: 'number',
-      required: true,
+      required: false,
       label: 'Number of Reviews',
       min: 0,
     },
@@ -188,6 +189,12 @@ const Contractors: CollectionConfig = {
       ],
     },
     {
+      name: 'openNow',
+      type: 'checkbox',
+      label: 'Open Now',
+      defaultValue: false,
+    },
+    {
       name: 'socialMedia',
       type: 'group',
       label: 'Social Media Links',
@@ -251,7 +258,7 @@ const Contractors: CollectionConfig = {
       required: false,
       label: 'Data Source ID',
       admin: {
-        description: 'ID or reference in the external data source',
+        description: 'ID or reference in the external data source (e.g., Google Place ID)',
       },
     },
     {
@@ -261,6 +268,115 @@ const Contractors: CollectionConfig = {
       label: 'Last Scraped',
       admin: {
         description: 'When this data was last updated from external source',
+      },
+    },
+    {
+      name: 'googleTypes',
+      type: 'array',
+      label: 'Google Place Types',
+      admin: {
+        description: 'Category types from Google Places API',
+      },
+      fields: [
+        {
+          name: 'type',
+          type: 'text',
+          required: true,
+        },
+      ],
+    },
+    {
+      name: 'responseTime',
+      type: 'text',
+      label: 'Response Time',
+      required: false,
+      admin: {
+        description: 'Estimated response time for service requests',
+      },
+    },
+    {
+      name: 'businessStatus',
+      type: 'select',
+      options: [
+        {
+          label: 'Operational',
+          value: 'OPERATIONAL',
+        },
+        {
+          label: 'Closed Temporarily',
+          value: 'CLOSED_TEMPORARILY',
+        },
+        {
+          label: 'Closed Permanently',
+          value: 'CLOSED_PERMANENTLY',
+        },
+      ],
+      required: false,
+      label: 'Business Status',
+    },
+    {
+      name: 'viewport',
+      type: 'group',
+      label: 'Viewport Coordinates',
+      fields: [
+        {
+          name: 'south',
+          type: 'number',
+          required: false,
+          label: 'South',
+        },
+        {
+          name: 'west',
+          type: 'number',
+          required: false,
+          label: 'West',
+        },
+        {
+          name: 'north',
+          type: 'number',
+          required: false,
+          label: 'North',
+        },
+        {
+          name: 'east',
+          type: 'number',
+          required: false,
+          label: 'East',
+        },
+      ],
+    },
+    {
+      name: 'invitationStatus',
+      type: 'select',
+      options: [
+        {
+          label: 'Not Invited',
+          value: 'not_invited',
+        },
+        {
+          label: 'Invitation Sent',
+          value: 'invited',
+        },
+        {
+          label: 'Registered',
+          value: 'registered',
+        },
+        {
+          label: 'Declined',
+          value: 'declined',
+        },
+      ],
+      defaultValue: 'not_invited',
+      required: true,
+      label: 'Invitation Status',
+    },
+    {
+      name: 'invitationDate',
+      type: 'date',
+      required: false,
+      label: 'Invitation Date',
+      admin: {
+        description: 'When the invitation was sent to this contractor',
       },
     },
   ],

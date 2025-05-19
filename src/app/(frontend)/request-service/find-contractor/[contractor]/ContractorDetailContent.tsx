@@ -247,7 +247,7 @@ export default function ContractorDetailContent({
       {/* Breadcrumb y navegación */}
       <Link
         href="/request-service/find-contractor"
-        className="flex items-center gap-2 text-sm font-medium mb-4"
+        className="flex items-center gap-2 text-sm font-medium mb-4 dark:text-white"
       >
         <ArrowLeft className="h-4 w-4" />
         Volver a la lista de contratistas

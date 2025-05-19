@@ -990,19 +990,19 @@ export interface Service {
 export interface Contractor {
   id: string;
   name: string;
-  description: string;
-  contactEmail: string;
-  contactPhone: string;
+  description?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
   website?: string | null;
   address: string;
   location: {
     lat: number;
     lng: number;
   };
-  servicesOffered: (string | Service)[];
-  yearsExperience: number;
-  rating: number;
-  reviewCount: number;
+  servicesOffered?: (string | Service)[] | null;
+  yearsExperience?: number | null;
+  rating?: number | null;
+  reviewCount?: number | null;
   profileImage?: (string | null) | Media;
   coverImage?: (string | null) | Media;
   specialties?:
@@ -1026,6 +1026,7 @@ export interface Contractor {
     saturday?: string | null;
     sunday?: string | null;
   };
+  openNow?: boolean | null;
   socialMedia?: {
     facebook?: string | null;
     instagram?: string | null;
@@ -1035,13 +1036,38 @@ export interface Contractor {
   verified?: boolean | null;
   dataSource: 'manual' | 'google_maps' | 'yelp' | 'external_api';
   /**
-   * ID or reference in the external data source
+   * ID or reference in the external data source (e.g., Google Place ID)
    */
   dataSourceId?: string | null;
   /**
    * When this data was last updated from external source
    */
   lastScraped?: string | null;
+  /**
+   * Category types from Google Places API
+   */
+  googleTypes?:
+    | {
+        type: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Estimated response time for service requests
+   */
+  responseTime?: string | null;
+  businessStatus?: ('OPERATIONAL' | 'CLOSED_TEMPORARILY' | 'CLOSED_PERMANENTLY') | null;
+  viewport?: {
+    south?: number | null;
+    west?: number | null;
+    north?: number | null;
+    east?: number | null;
+  };
+  invitationStatus: 'not_invited' | 'invited' | 'registered' | 'declined';
+  /**
+   * When the invitation was sent to this contractor
+   */
+  invitationDate?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1810,6 +1836,7 @@ export interface ContractorsSelect<T extends boolean = true> {
         saturday?: T;
         sunday?: T;
       };
+  openNow?: T;
   socialMedia?:
     | T
     | {
@@ -1822,6 +1849,24 @@ export interface ContractorsSelect<T extends boolean = true> {
   dataSource?: T;
   dataSourceId?: T;
   lastScraped?: T;
+  googleTypes?:
+    | T
+    | {
+        type?: T;
+        id?: T;
+      };
+  responseTime?: T;
+  businessStatus?: T;
+  viewport?:
+    | T
+    | {
+        south?: T;
+        west?: T;
+        north?: T;
+        east?: T;
+      };
+  invitationStatus?: T;
+  invitationDate?: T;
   updatedAt?: T;
   createdAt?: T;
 }

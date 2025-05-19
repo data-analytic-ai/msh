@@ -120,7 +120,8 @@ export default function ContractorsListPage() {
       params.append('lat', location.lat.toString())
       params.append('lng', location.lng.toString())
 
-      const response = await fetch(`/api/contractors?${params.toString()}`)
+      // Usar la nueva ruta API para obtener los contratistas de Google Places
+      const response = await fetch(`/api/google-contractors?${params.toString()}`)
 
       if (!response.ok) {
         throw new Error(`Error al buscar contratistas: ${response.statusText}`)
@@ -278,7 +279,7 @@ export default function ContractorsListPage() {
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Navegación */}
-      <div className="mb-6">
+      <div className="mb-6 dark:text-white">
         <Link href="/request-service" className="flex items-center gap-2 text-sm font-medium">
           <ArrowLeft className="h-4 w-4" />
           Volver a selección de servicio
@@ -286,11 +287,11 @@ export default function ContractorsListPage() {
       </div>
 
       {/* Título de la página */}
-      <div className="mb-6">
+      <div className="mb-6 dark:text-white">
         <h1 className="text-2xl font-bold">Contratistas disponibles</h1>
         <p className="text-muted-foreground">
           {selectedServices?.length > 0
-            ? `Para: ${selectedServices.map((s) => serviceLabels[s.id]).join(', ')}`
+            ? `Para: ${selectedServices.map((s) => serviceLabels[s.id] || s.id).join(', ')}`
             : 'Seleccione un servicio para ver contratistas'}
         </p>
       </div>
@@ -305,15 +306,22 @@ export default function ContractorsListPage() {
             </div>
           ) : error ? (
             <div className="py-12 text-center">
-              <p className="text-muted-foreground">{error}</p>
+              <p className="text-muted-foreground mb-2">{error}</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Estamos mejorando nuestro sistema de búsqueda de contratistas. Por favor, inténtalo
+                nuevamente en unos momentos.
+              </p>
               <Button className="mt-4" onClick={fetchContractors}>
                 Intentar nuevamente
               </Button>
             </div>
           ) : contractors.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mb-2">
                 No se encontraron contratistas para los servicios seleccionados.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Prueba cambiando los servicios seleccionados o la ubicación.
               </p>
             </div>
           ) : (

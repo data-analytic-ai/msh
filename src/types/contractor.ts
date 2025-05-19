@@ -50,6 +50,21 @@ export interface Contractor {
     sunday?: string
   }
   verified: boolean
+  businessStatus?: string
+  openNow?: boolean
+  viewport?: {
+    south: number
+    west: number
+    north: number
+    east: number
+  }
+  googleTypes?: { type: string }[]
+  responseTime?: string
+  dataSource?: string
+  dataSourceId?: string
+  lastScraped?: string
+  invitationStatus?: string
+  invitationDate?: string
 }
 
 // Extended contractor information for UI with distance

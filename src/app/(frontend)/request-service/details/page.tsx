@@ -197,7 +197,7 @@ export default function RequestServiceDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col dark:bg-background">
+    <div className="min-h-screen flex flex-col dark:bg-background dark:text-white">
       <header className="sticky top-0 z-10 border-b bg-background">
         <div className="flex h-16 items-center px-4">
           <Link href="/" className="flex items-center gap-2 text-sm font-medium">
