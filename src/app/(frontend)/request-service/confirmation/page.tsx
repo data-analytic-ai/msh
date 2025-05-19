@@ -266,15 +266,6 @@ export default function ConfirmationPage() {
             />
           </div>
 
-          <RequestSummary
-            requestId={requestId}
-            selectedServices={selectedServices}
-            formattedAddress={formattedAddress}
-            formData={formData}
-            handleEditDetails={handleEditDetails}
-            handleSaveField={handleSaveField}
-          />
-
           {/* Componente para gestionar la cuenta de usuario */}
           <UserAccountHandler userEmail={userEmail} requestId={requestId} />
 
@@ -293,6 +284,15 @@ export default function ConfirmationPage() {
               />
             </>
           )}
+
+          <RequestSummary
+            requestId={requestId}
+            selectedServices={selectedServices}
+            formattedAddress={formattedAddress}
+            formData={formData}
+            handleEditDetails={handleEditDetails}
+            handleSaveField={handleSaveField}
+          />
         </div>
       </main>
     </div>
