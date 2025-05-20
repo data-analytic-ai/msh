@@ -1,0 +1,217 @@
+[
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": {
+        "lat": 12.1207148,
+        "lng": -86.25385299999999
+      },
+      "viewport": {
+        "south": 12.11941182010728,
+        "west": -86.25520207989273,
+        "north": 12.12211147989272,
+        "east": -86.25250242010728
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+    "icon_background_color": "#7B9EB0",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+    "name": "FUMIPGREEN Desinfección y Control de Plagas",
+    "opening_hours": {
+      "open_now": true
+    },
+    "photos": [
+      {
+        "height": 576,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/114697651984840040070\">A Google User</a>"
+        ],
+        "width": 1024
+      }
+    ],
+    "place_id": "ChIJ0Z---h3_c48RTp_oQKD_w7g",
+    "plus_code": {
+      "compound_code": "4PCW+7F Managua",
+      "global_code": "764M4PCW+7F"
+    },
+    "rating": 5,
+    "reference": "ChIJ0Z---h3_c48RTp_oQKD_w7g",
+    "scope": "GOOGLE",
+    "types": ["point_of_interest", "establishment"],
+    "user_ratings_total": 9,
+    "vicinity": "Semáforos de la Vicky 2C Norte 1/2 Este, Altamira, Managua, Managua",
+    "html_attributions": []
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": {
+        "lat": 12.1155441,
+        "lng": -86.2517439
+      },
+      "viewport": {
+        "south": 12.11425477010728,
+        "west": -86.25314162989271,
+        "north": 12.11695442989272,
+        "east": -86.25044197010727
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+    "icon_background_color": "#7B9EB0",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+    "name": "FUMIG CONTROL",
+    "opening_hours": {
+      "open_now": true
+    },
+    "photos": [
+      {
+        "height": 400,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/107515069034103998442\">A Google User</a>"
+        ],
+        "width": 400
+      }
+    ],
+    "place_id": "ChIJXXvqfgX_c48RDH_XMTZIlT4",
+    "plus_code": {
+      "compound_code": "4P8X+68 Managua",
+      "global_code": "764M4P8X+68"
+    },
+    "rating": 5,
+    "reference": "ChIJXXvqfgX_c48RDH_XMTZIlT4",
+    "scope": "GOOGLE",
+    "types": ["point_of_interest", "establishment"],
+    "user_ratings_total": 1,
+    "vicinity": "Plaza Julio Martínez, 6c Abajo, Managua",
+    "html_attributions": []
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": {
+        "lat": 12.1273065,
+        "lng": -86.2748153
+      },
+      "viewport": {
+        "south": 12.12594517010728,
+        "west": -86.27626752989272,
+        "north": 12.12864482989272,
+        "east": -86.27356787010729
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+    "icon_background_color": "#7B9EB0",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+    "name": "FUMIGACIONES DE NICARAGUA,S.A",
+    "opening_hours": {
+      "open_now": true
+    },
+    "photos": [
+      {
+        "height": 1123,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/116852291179435844166\">A Google User</a>"
+        ],
+        "width": 794
+      }
+    ],
+    "place_id": "ChIJAQaI31pVcY8R7J8qdK6crg0",
+    "plus_code": {
+      "compound_code": "4PGG+W3 Managua",
+      "global_code": "764M4PGG+W3"
+    },
+    "rating": 4.3,
+    "reference": "ChIJAQaI31pVcY8R7J8qdK6crg0",
+    "scope": "GOOGLE",
+    "types": ["point_of_interest", "establishment"],
+    "user_ratings_total": 18,
+    "vicinity": "Semáforos de enel central 300 mts al Norte",
+    "html_attributions": []
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": {
+        "lat": 12.1202608,
+        "lng": -86.2621451
+      },
+      "viewport": {
+        "south": 12.11898577010728,
+        "west": -86.26340757989271,
+        "north": 12.12168542989272,
+        "east": -86.26070792010727
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+    "icon_background_color": "#7B9EB0",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+    "name": "FUMIPGREEN",
+    "opening_hours": {
+      "open_now": true
+    },
+    "photos": [
+      {
+        "height": 1152,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/118387989944640582754\">A Google User</a>"
+        ],
+        "width": 864
+      }
+    ],
+    "place_id": "ChIJVUeoXI8FdI8REInqTSdLtng",
+    "plus_code": {
+      "compound_code": "4PCQ+44 Managua",
+      "global_code": "764M4PCQ+44"
+    },
+    "rating": 5,
+    "reference": "ChIJVUeoXI8FdI8REInqTSdLtng",
+    "scope": "GOOGLE",
+    "types": ["point_of_interest", "establishment"],
+    "user_ratings_total": 2,
+    "vicinity": "Planes de Altamira, Donde Fue la Vicky 2c Norte Media C al Este, Managua",
+    "html_attributions": []
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": {
+        "lat": 12.142603,
+        "lng": -86.2404128
+      },
+      "viewport": {
+        "south": 12.14126432010728,
+        "west": -86.24174947989273,
+        "north": 12.14396397989272,
+        "east": -86.23904982010728
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+    "icon_background_color": "#7B9EB0",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+    "name": "Fumigadora Alfa y Omega",
+    "opening_hours": {
+      "open_now": true
+    },
+    "photos": [
+      {
+        "height": 741,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/106499400475101719441\">A Google User</a>"
+        ],
+        "width": 750
+      }
+    ],
+    "place_id": "ChIJcw4ESgD9c48RM1JOttS5Cuo",
+    "plus_code": {
+      "compound_code": "4QV5+2R Managua",
+      "global_code": "764M4QV5+2R"
+    },
+    "rating": 5,
+    "reference": "ChIJcw4ESgD9c48RM1JOttS5Cuo",
+    "scope": "GOOGLE",
+    "types": ["point_of_interest", "establishment"],
+    "user_ratings_total": 1,
+    "vicinity": "Managua",
+    "html_attributions": []
+  }
+]
