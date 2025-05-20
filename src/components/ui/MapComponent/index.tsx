@@ -55,8 +55,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
   // Configurar el centro del mapa
   const [center, setCenter] = useState<google.maps.LatLngLiteral>({
-    lat: location?.lat || 40.7128, // Coordenadas de Nueva York
-    lng: location?.lng || -74.006,
+    lat: location?.lat || 38.9977, // Coordenadas de Sterling, Virginia (anteriormente NY: 40.7128)
+    lng: location?.lng || -77.4288, // Coordenadas de Sterling, Virginia (anteriormente NY: -74.006)
   })
 
   // Actualizar el centro cuando cambia la ubicación
@@ -203,7 +203,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
     }
   }
 
-
   // Helper function to check if we have services selected
   const hasSelectedServices = () => {
     if (!selectedService) return false
@@ -307,13 +306,13 @@ const MapComponent: React.FC<MapComponentProps> = ({
   }
 
   return (
-    <div className="h-full relative bg-background dark:text-white text-primary">
+    <div className="h-full relative bg-background dark:text-white text-primary rounded-lg">
       {/* Google Map - Siempre visible */}
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
-        mapContainerClassName=" bg-background text-secondary"
+        mapContainerClassName=" bg-background text-secondary rounded-xl "
         center={center}
-        zoom={13}
+        zoom={11}
         onClick={readOnly ? undefined : handleMapClick}
         onLoad={onMapLoad}
         options={{
