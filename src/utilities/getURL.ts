@@ -24,7 +24,7 @@ export const getServerSideURL = (): string => {
 
   // Para el entorno de Railway QA
   if (process.env.NODE_ENV === 'production') {
-    return 'https://urgent-fix-qa.up.railway.app'
+    return 'https://er24-qa.up.railway.app'
   }
 
   // Fallback para desarrollo local
