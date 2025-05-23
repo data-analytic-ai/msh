@@ -151,6 +151,7 @@ const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
         </div>
 
         {/* Map component */}
+        <h3 className="text-base sm:text-lg font-semibold mb-2">Select your location</h3>
         <div className="h-72 3xs:h-100 sx:h-84 sm:h-72 md:h-72 lg:h-84 xl:h-96 bg-card relative shadow-sm rounded-lg">
           <MapComponent
             selectedService={selectedServices}

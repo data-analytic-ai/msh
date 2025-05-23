@@ -3,20 +3,21 @@
     "business_status": "OPERATIONAL",
     "geometry": {
       "location": {
-        "lat": 12.1207148,
-        "lng": -86.25385299999999
+        "lat": 39.0062,
+        "lng": -77.4286
       },
       "viewport": {
-        "south": 12.11941182010728,
-        "west": -86.25520207989273,
-        "north": 12.12211147989272,
-        "east": -86.25250242010728
+        "south": 38.9978,
+        "west": -77.4375,
+        "north": 39.0145,
+        "east": -77.4197
       }
     },
     "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
     "icon_background_color": "#7B9EB0",
     "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
-    "name": "FUMIPGREEN Desinfección y Control de Plagas",
+    "name": "Sterling Pest Control Services",
+    "category": "Control de Plagas",
     "opening_hours": {
       "open_now": true
     },
@@ -31,35 +32,36 @@
     ],
     "place_id": "ChIJ0Z---h3_c48RTp_oQKD_w7g",
     "plus_code": {
-      "compound_code": "4PCW+7F Managua",
-      "global_code": "764M4PCW+7F"
+      "compound_code": "VJ5H+F7 Sterling, VA",
+      "global_code": "87C4VJ5H+F7"
     },
-    "rating": 5,
+    "rating": 4.8,
     "reference": "ChIJ0Z---h3_c48RTp_oQKD_w7g",
     "scope": "GOOGLE",
     "types": ["point_of_interest", "establishment"],
-    "user_ratings_total": 9,
-    "vicinity": "Semáforos de la Vicky 2C Norte 1/2 Este, Altamira, Managua, Managua",
+    "user_ratings_total": 42,
+    "vicinity": "45965 Nokes Blvd #150, Sterling, VA",
     "html_attributions": []
   },
   {
     "business_status": "OPERATIONAL",
     "geometry": {
       "location": {
-        "lat": 12.1155441,
-        "lng": -86.2517439
+        "lat": 39.0187,
+        "lng": -77.4305
       },
       "viewport": {
-        "south": 12.11425477010728,
-        "west": -86.25314162989271,
-        "north": 12.11695442989272,
-        "east": -86.25044197010727
+        "south": 39.0104,
+        "west": -77.4394,
+        "north": 39.0271,
+        "east": -77.4216
       }
     },
     "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
     "icon_background_color": "#7B9EB0",
     "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
-    "name": "FUMIG CONTROL",
+    "name": "Virginia Extermination Experts",
+    "category": "Control de Plagas",
     "opening_hours": {
       "open_now": true
     },
@@ -74,35 +76,36 @@
     ],
     "place_id": "ChIJXXvqfgX_c48RDH_XMTZIlT4",
     "plus_code": {
-      "compound_code": "4P8X+68 Managua",
-      "global_code": "764M4P8X+68"
+      "compound_code": "VJ9H+FR Sterling, VA",
+      "global_code": "87C4VJ9H+FR"
     },
-    "rating": 5,
+    "rating": 4.7,
     "reference": "ChIJXXvqfgX_c48RDH_XMTZIlT4",
     "scope": "GOOGLE",
     "types": ["point_of_interest", "establishment"],
-    "user_ratings_total": 1,
-    "vicinity": "Plaza Julio Martínez, 6c Abajo, Managua",
+    "user_ratings_total": 38,
+    "vicinity": "22446 Davis Dr, Sterling, VA",
     "html_attributions": []
   },
   {
     "business_status": "OPERATIONAL",
     "geometry": {
       "location": {
-        "lat": 12.1273065,
-        "lng": -86.2748153
+        "lat": 39.0234,
+        "lng": -77.3898
       },
       "viewport": {
-        "south": 12.12594517010728,
-        "west": -86.27626752989272,
-        "north": 12.12864482989272,
-        "east": -86.27356787010729
+        "south": 39.0151,
+        "west": -77.3987,
+        "north": 39.0318,
+        "east": -77.3809
       }
     },
     "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
     "icon_background_color": "#7B9EB0",
     "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
-    "name": "FUMIGACIONES DE NICARAGUA,S.A",
+    "name": "Sterling Termite & Pest Solutions",
+    "category": "Control de Plagas",
     "opening_hours": {
       "open_now": true
     },
@@ -117,35 +120,36 @@
     ],
     "place_id": "ChIJAQaI31pVcY8R7J8qdK6crg0",
     "plus_code": {
-      "compound_code": "4PGG+W3 Managua",
-      "global_code": "764M4PGG+W3"
+      "compound_code": "VMB3+9W Sterling, VA",
+      "global_code": "87C4VMB3+9W"
     },
-    "rating": 4.3,
+    "rating": 4.5,
     "reference": "ChIJAQaI31pVcY8R7J8qdK6crg0",
     "scope": "GOOGLE",
     "types": ["point_of_interest", "establishment"],
-    "user_ratings_total": 18,
-    "vicinity": "Semáforos de enel central 300 mts al Norte",
+    "user_ratings_total": 53,
+    "vicinity": "21405 Davis Dr, Sterling, VA",
     "html_attributions": []
   },
   {
     "business_status": "OPERATIONAL",
     "geometry": {
       "location": {
-        "lat": 12.1202608,
-        "lng": -86.2621451
+        "lat": 39.0058,
+        "lng": -77.4102
       },
       "viewport": {
-        "south": 12.11898577010728,
-        "west": -86.26340757989271,
-        "north": 12.12168542989272,
-        "east": -86.26070792010727
+        "south": 38.9974,
+        "west": -77.4191,
+        "north": 39.0141,
+        "east": -77.4013
       }
     },
     "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
     "icon_background_color": "#7B9EB0",
     "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
-    "name": "FUMIPGREEN",
+    "name": "EcoPest Virginia",
+    "category": "Control de Plagas",
     "opening_hours": {
       "open_now": true
     },
@@ -160,35 +164,36 @@
     ],
     "place_id": "ChIJVUeoXI8FdI8REInqTSdLtng",
     "plus_code": {
-      "compound_code": "4PCQ+44 Managua",
-      "global_code": "764M4PCQ+44"
+      "compound_code": "VJ5Q+8W Sterling, VA",
+      "global_code": "87C4VJ5Q+8W"
     },
-    "rating": 5,
+    "rating": 4.9,
     "reference": "ChIJVUeoXI8FdI8REInqTSdLtng",
     "scope": "GOOGLE",
     "types": ["point_of_interest", "establishment"],
-    "user_ratings_total": 2,
-    "vicinity": "Planes de Altamira, Donde Fue la Vicky 2c Norte Media C al Este, Managua",
+    "user_ratings_total": 67,
+    "vicinity": "21525 Ridgetop Circle, Sterling, VA",
     "html_attributions": []
   },
   {
     "business_status": "OPERATIONAL",
     "geometry": {
       "location": {
-        "lat": 12.142603,
-        "lng": -86.2404128
+        "lat": 39.0368,
+        "lng": -77.4021
       },
       "viewport": {
-        "south": 12.14126432010728,
-        "west": -86.24174947989273,
-        "north": 12.14396397989272,
-        "east": -86.23904982010728
+        "south": 39.0284,
+        "west": -77.411,
+        "north": 39.0451,
+        "east": -77.3932
       }
     },
     "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
     "icon_background_color": "#7B9EB0",
     "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
-    "name": "Fumigadora Alfa y Omega",
+    "name": "Loudoun County Pest Management",
+    "category": "Control de Plagas",
     "opening_hours": {
       "open_now": true
     },
@@ -203,15 +208,15 @@
     ],
     "place_id": "ChIJcw4ESgD9c48RM1JOttS5Cuo",
     "plus_code": {
-      "compound_code": "4QV5+2R Managua",
-      "global_code": "764M4QV5+2R"
+      "compound_code": "VMH2+PX Sterling, VA",
+      "global_code": "87C4VMH2+PX"
     },
-    "rating": 5,
+    "rating": 4.6,
     "reference": "ChIJcw4ESgD9c48RM1JOttS5Cuo",
     "scope": "GOOGLE",
     "types": ["point_of_interest", "establishment"],
-    "user_ratings_total": 1,
-    "vicinity": "Managua",
+    "user_ratings_total": 29,
+    "vicinity": "47100 Community Plaza, Sterling, VA",
     "html_attributions": []
   }
 ]

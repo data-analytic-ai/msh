@@ -93,10 +93,9 @@ export async function POST(request: NextRequest) {
 
     // Consulta usando la API de PayloadCMS
     const contractorsResponse = await payload.find({
-      collection: 'contractor-directory',
+      collection: 'contractors',
       where: {
-        services: { in: services },
-        isAvailable: { equals: true },
+        servicesOffered: { in: services },
         // Si PayloadCMS soporta consultas geoespaciales:
         // 'location.coordinates': {
         //   near: {

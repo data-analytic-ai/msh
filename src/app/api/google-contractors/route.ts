@@ -28,6 +28,10 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
 
 // Convert Google Places result to our Contractor format
 const convertGooglePlaceToContractor = (place: any, serviceIds: string[]): Contractor => {
+  // Only create photo URL if we have both photo reference and API key
+  const hasPhoto = place.photos?.[0]?.photo_reference
+  const hasApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+
   return {
     id: place.place_id,
     name: place.name,
@@ -40,12 +44,13 @@ const convertGooglePlaceToContractor = (place: any, serviceIds: string[]): Contr
     servicesOffered: serviceIds,
     rating: place.rating || 0,
     reviewCount: place.user_ratings_total || 0,
-    profileImage: place.photos?.[0]?.html_attributions
-      ? {
-          id: 'google-image',
-          url: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}`,
-        }
-      : undefined,
+    profileImage:
+      hasPhoto && hasApiKey
+        ? {
+            id: 'google-image',
+            url: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`,
+          }
+        : undefined,
     verified: place.business_status === 'OPERATIONAL',
     businessStatus: place.business_status || 'OPERATIONAL',
     openNow: place.opening_hours?.open_now || false,

@@ -119,7 +119,10 @@ export const useServiceRequestStore = create<ServiceRequestStore>()(
 
       // Basic setters
       setRequestId: (id) => set({ requestId: id }),
-      setSelectedServices: (services) => set({ selectedServices: services }),
+      setSelectedServices: (services) => {
+        console.log('🔄 Store: setSelectedServices called with:', services)
+        set({ selectedServices: services })
+      },
       setLocation: (location) => set({ location }),
       setFormattedAddress: (address) => set({ formattedAddress: address }),
       updateFormData: (data) =>
