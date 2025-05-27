@@ -114,7 +114,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="container mx-auto py-12 max-w-md">
+    <div className="container mx-auto py-12 max-w-md dark:text-white dark:bg-background">
       <div className="bg-card rounded-lg border p-8 shadow-sm">
         <h1 className="text-2xl font-bold mb-6">Crear una cuenta</h1>
 
@@ -206,7 +206,7 @@ export default function RegisterPage() {
 
         <p className="text-sm text-muted-foreground text-center mt-4">
           ¿Ya tienes una cuenta?{' '}
-          <Link href="/login" className="text-primary hover:underline">
+          <Link href="/contractor/login" className="text-primary hover:underline">
             Inicia sesión aquí
           </Link>
         </p>

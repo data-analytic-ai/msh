@@ -19,9 +19,9 @@ export const Logo = (props: Props) => {
   // Combina las clases predeterminadas con las clases personalizadas
   const logoClasses = clsx(
     'font-bold',
-    'text-2xl',
-    'sm:text-3xl',
-    'md:text-4xl',
+    'text-xl',
+    'sm:text-xl',
+    'md:text-xl',
     'transition-colors',
     'duration-200',
     className,

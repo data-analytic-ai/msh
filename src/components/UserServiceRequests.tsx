@@ -258,11 +258,11 @@ export const UserServiceRequests = () => {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between dark:text-white">
         <h2 className="text-2xl font-bold">Your Service Requests</h2>
         <div className="flex gap-2">
           <Button variant="outline" size="icon" onClick={() => refresh()} title="Refresh">
-            <Loader2 className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <Loader2 className={`h-4 w-4 text-white ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
           <Link href="/request-service">
             <Button>New Request</Button>
@@ -270,7 +270,7 @@ export const UserServiceRequests = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 pb-12 px-4">
         {requests.map((request) => (
           <Card key={request.id} className="overflow-hidden">
             <CardHeader className="pb-3">

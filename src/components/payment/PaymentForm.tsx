@@ -110,7 +110,7 @@ function PaymentForm({
   }
 
   return (
-    <Card className="w-full max-w-[500px] mx-auto">
+    <Card className="w-full max-w-[500px] mx-auto dark:text-white bg-background">
       <CardHeader>
         <CardTitle>Pago de Servicio</CardTitle>
         <CardDescription>
@@ -142,7 +142,7 @@ function PaymentForm({
               <div className="p-3 bg-red-50 text-red-700 rounded-md text-sm">{errorMessage}</div>
             )}
 
-            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-md">
+            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-md dark:bg-slate-800">
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-primary" />
                 <span className="text-sm">Tus datos de pago están seguros y encriptados</span>
@@ -157,7 +157,7 @@ function PaymentForm({
           type="submit"
           onClick={handleSubmit}
           disabled={!stripe || isProcessing}
-          className="w-full"
+          className="w-full bg-primary hover:bg-primary/50 text-white"
         >
           {isProcessing ? 'Procesando...' : 'Pagar y confirmar'}
         </Button>

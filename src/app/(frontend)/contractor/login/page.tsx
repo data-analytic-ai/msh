@@ -109,7 +109,7 @@ export default function ContractorLoginPage() {
   }
 
   return (
-    <div className="container mx-auto py-12 max-w-md">
+    <div className="container mx-auto py-12 max-w-md dark:text-white">
       <div className="bg-card rounded-lg border p-8 shadow-sm">
         <div className="flex items-center justify-center mb-6">
           <Wrench className="h-8 w-8 text-primary mr-2" />

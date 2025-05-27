@@ -176,7 +176,7 @@ export default function ContractorRegisterPage() {
   }
 
   return (
-    <div className="container mx-auto py-12 max-w-2xl">
+    <div className="container mx-auto py-12 max-w-2xl dark:text-white dark:bg-background">
       <div className="bg-card rounded-lg border p-8 shadow-sm">
         <div className="flex items-center justify-center mb-6">
           <Wrench className="h-8 w-8 text-primary mr-2" />
