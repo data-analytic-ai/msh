@@ -114,7 +114,7 @@ export default function PaymentPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6 dark:text-white">
       {/* Navegación */}
       <div className="mb-6">
         <Link
@@ -135,7 +135,7 @@ export default function PaymentPage() {
       </div>
 
       {/* Contenido principal */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-secondary rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-background rounded-lg dark:bg-background ">
         <div className="md:col-span-2">
           {isLoading ? (
             <div className="flex justify-center py-12">
@@ -197,7 +197,7 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-200">
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
               <p className="text-sm">
                 El pago se retendrá hasta que confirmes que el servicio ha sido completado
                 satisfactoriamente.

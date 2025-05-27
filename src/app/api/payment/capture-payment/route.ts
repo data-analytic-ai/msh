@@ -7,7 +7,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import payload from 'payload'
+import { ServiceRequestsStore } from '@/lib/service-requests-store'
+import { createPaymentNotification } from '../../contractor/notifications/route'
+import { releasePayment } from '../../contractor/jobs/route'
 
 // Inicializar Stripe con la clave secreta
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -26,55 +28,87 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verificar que el servicio está completado antes de capturar el pago
+    // Verificar que la solicitud de servicio existe
+    const serviceRequest = ServiceRequestsStore.get(serviceRequestId)
+
+    if (!serviceRequest) {
+      console.log(`❌ Solicitud de servicio no encontrada: ${serviceRequestId}`)
+      console.log(
+        '📋 Solicitudes disponibles:',
+        ServiceRequestsStore.getAllEntries().map(([id]) => id),
+      )
+
+      // Para desarrollo, permitir capturar el pago aunque no tengamos la solicitud
+      console.log('🔄 Procediendo con captura de pago para desarrollo...')
+    } else {
+      console.log(`✅ Solicitud de servicio encontrada: ${serviceRequestId}`, serviceRequest)
+    }
+
     try {
-      const serviceRequest = await payload.findByID({
-        collection: 'service-requests',
-        id: serviceRequestId,
-      })
-
-      if (!serviceRequest) {
-        return NextResponse.json({ error: 'Solicitud de servicio no encontrada' }, { status: 404 })
-      }
-
-      if (serviceRequest.status !== 'completed') {
-        return NextResponse.json(
-          { error: 'No se puede capturar el pago porque el servicio no está completado' },
-          { status: 400 },
-        )
-      }
-
       // Capturar el pago (liberar los fondos retenidos)
       const paymentIntent = await stripe.paymentIntents.capture(paymentIntentId)
 
-      // Actualizar el estado del pago en la solicitud de servicio
-      await payload.update({
-        collection: 'service-requests',
-        id: serviceRequestId,
-        data: {
+      console.log(`💰 Pago capturado exitosamente: ${paymentIntentId}`)
+
+      // Actualizar el estado usando el store compartido
+      if (serviceRequest) {
+        ServiceRequestsStore.update(serviceRequestId, {
           paymentStatus: 'captured',
-        },
-      })
+          status: 'completed',
+        })
+
+        // Notificar al contratista sobre el pago liberado
+        if (serviceRequest.contractorId) {
+          createPaymentNotification(
+            serviceRequest.contractorId,
+            serviceRequestId,
+            serviceRequest.amount,
+          )
+
+          // Intentar liberar el pago en el sistema del contratista
+          try {
+            await releasePayment(serviceRequest.contractorId, serviceRequestId)
+          } catch (error) {
+            console.log('⚠️ No se pudo actualizar el estado en el sistema del contratista:', error)
+          }
+        }
+      }
 
       return NextResponse.json({
         success: true,
         status: paymentIntent.status,
+        message: 'Pago capturado exitosamente',
       })
-    } catch (payloadError: any) {
-      console.error('Error con Payload CMS:', payloadError)
-      if (payloadError.message && payloadError.message.includes("can't be found")) {
-        return NextResponse.json(
-          { error: 'Error de configuración: La colección service-requests no está disponible.' },
-          { status: 500 },
-        )
+    } catch (stripeError: any) {
+      console.error('❌ Error de Stripe al capturar pago:', stripeError)
+
+      // Actualizar estado como fallido si existe la solicitud
+      if (serviceRequest) {
+        ServiceRequestsStore.update(serviceRequestId, {
+          paymentStatus: 'failed',
+        })
       }
-      throw payloadError // Re-lanzar para que sea capturado por el catch exterior
+
+      return NextResponse.json(
+        { error: `Error al capturar el pago: ${stripeError.message}` },
+        { status: 500 },
+      )
     }
   } catch (error: any) {
-    console.error('Error al capturar el pago:', error)
+    console.error('❌ Error general al capturar el pago:', error)
     return NextResponse.json(
       { error: error.message || 'Error al capturar el pago' },
       { status: 500 },
     )
   }
+}
+
+// Función auxiliar para obtener una solicitud de servicio
+export function getServiceRequest(id: string) {
+  return ServiceRequestsStore.get(id)
+}
+
+// Función auxiliar para listar todas las solicitudes (para debugging)
+export function getAllServiceRequests() {
+  return ServiceRequestsStore.getAllEntries()
 }

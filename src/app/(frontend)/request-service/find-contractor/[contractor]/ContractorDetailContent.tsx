@@ -12,7 +12,7 @@
  * @returns {JSX.Element} Contractor details UI
  */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -36,6 +36,16 @@ export default function ContractorDetailContent({
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Memoizar la función para evitar re-renders innecesarios
+  const updateSelectedContractor = useCallback(
+    (contractorData: any) => {
+      if (!selectedContractor || selectedContractor.id !== contractorData.id) {
+        setSelectedContractor(contractorData)
+      }
+    },
+    [selectedContractor, setSelectedContractor],
+  )
+
   // Cargar detalles del contratista desde la API o del contexto
   useEffect(() => {
     const fetchContractorDetails = async () => {
@@ -50,8 +60,8 @@ export default function ContractorDetailContent({
           const data = await response.json()
           setContractor(data.contractor)
 
-          // Actualizar el contratista seleccionado en el contexto
-          setSelectedContractor({
+          // Actualizar el contratista seleccionado en el contexto solo si es diferente
+          const currentContractor = {
             id: data.contractor.id,
             name: data.contractor.name,
             lastName: '',
@@ -60,7 +70,9 @@ export default function ContractorDetailContent({
               : [data.contractor.servicesOffered].filter(Boolean),
             phoneNumber: data.contractor.contactPhone || '',
             rating: data.contractor.rating || 0,
-          })
+          }
+
+          updateSelectedContractor(currentContractor)
         } else {
           // Si la API falla, usar datos del contexto si están disponibles
           if (selectedContractor && selectedContractor.id === contractorId) {
@@ -139,15 +151,17 @@ export default function ContractorDetailContent({
 
             setContractor(mockContractor)
 
-            // Actualizar el contratista seleccionado en el contexto
-            setSelectedContractor({
+            // Actualizar el contratista seleccionado en el contexto solo si es diferente
+            const mockSelectedContractor = {
               id: mockContractor.id,
               name: mockContractor.name,
               lastName: '',
               services: mockContractor.servicesOffered,
               phoneNumber: mockContractor.contactPhone,
               rating: mockContractor.rating,
-            })
+            }
+
+            updateSelectedContractor(mockSelectedContractor)
           }
         }
       } catch (error) {
@@ -159,7 +173,7 @@ export default function ContractorDetailContent({
     }
 
     fetchContractorDetails()
-  }, [contractorId, selectedContractor, setSelectedContractor])
+  }, [contractorId, updateSelectedContractor]) // Ahora incluye la función memoizada
 
   // Manejar la solicitud de servicio con este contratista
   const handleRequestService = () => {

@@ -2,59 +2,57 @@
  * API Route: /api/contractors/[id]
  *
  * This endpoint returns detailed information about a specific contractor.
+ * It searches in Google Places data first, then provides mock data as fallback.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import payload from 'payload'
 import { Contractor } from '@/types/contractor'
-import { Contractor as PayloadContractor, Media } from '@/payload-types'
+import contractorsFromGoogleData from '@/data/contractors.json'
 
-// Function to convert PayloadContractor to Contractor type for API response
-function mapToContractor(contractor: any): Contractor {
-  // Función auxiliar para extraer URL de un campo Media de Payload
-  const getMediaUrl = (media: string | Media | null | undefined): string | undefined => {
-    if (!media) return undefined
-    if (typeof media === 'string') return media
-    return media.url || undefined
-  }
+// Convert Google Places result to our Contractor format (same as in google-contractors API)
+const convertGooglePlaceToContractor = (place: any): Contractor => {
+  const hasPhoto = place.photos?.[0]?.photo_reference
+  const hasApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
   return {
-    id: contractor.id,
-    name: contractor.name || contractor.businessName,
-    description: contractor.description || contractor.businessDetails?.description || '',
-    contactEmail: contractor.contactEmail || contractor.contactInfo?.email || '',
-    contactPhone: contractor.contactPhone || contractor.contactInfo?.phone || '',
-    website: contractor.website || contractor.contactInfo?.website || undefined,
-    address: contractor.address || contractor.location?.formattedAddress || '',
+    id: place.place_id,
+    name: place.name,
+    description: place.vicinity || 'Professional contractor services with experience in the area.',
+    contactEmail: 'contact@contractor.example',
+    contactPhone:
+      place.formatted_phone_number || place.international_phone_number || '+1 (555) 123-4567',
+    website: place.website || 'https://contractor.example',
+    address: place.vicinity || 'Professional Service Address',
     location: {
-      lat: contractor.location?.lat || contractor.location?.coordinates?.lat || 0,
-      lng: contractor.location?.lng || contractor.location?.coordinates?.lng || 0,
+      lat: place.geometry?.location?.lat || 0,
+      lng: place.geometry?.location?.lng || 0,
     },
-    servicesOffered: contractor.servicesOffered || contractor.services || [],
-    yearsExperience: contractor.yearsExperience || contractor.businessDetails?.yearsInBusiness || 0,
-    rating: contractor.rating || contractor.googleData?.rating || 0,
-    reviewCount: contractor.reviewCount || contractor.googleData?.reviewCount || 0,
-    profileImage: getMediaUrl(contractor.profileImage || contractor.media?.logo),
-    coverImage: getMediaUrl(contractor.coverImage || contractor.media?.photos?.[0]?.photo),
-    specialties:
-      contractor.specialties?.map((spec: any) =>
-        typeof spec === 'string' ? spec : spec.specialty,
-      ) ||
-      contractor.businessDetails?.certifications?.map((cert: any) => cert.name) ||
-      [],
-    workingHours: contractor.workingHours || {
-      monday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'monday')?.open,
-      tuesday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'tuesday')?.open,
-      wednesday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'wednesday')
-        ?.open,
-      thursday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'thursday')
-        ?.open,
-      friday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'friday')?.open,
-      saturday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'saturday')
-        ?.open,
-      sunday: contractor.googleData?.openingHours?.find((day: any) => day.day === 'sunday')?.open,
+    servicesOffered: ['general'],
+    yearsExperience: 5,
+    rating: place.rating || 4.5,
+    reviewCount: place.user_ratings_total || 25,
+    profileImage:
+      hasPhoto && hasApiKey
+        ? {
+            id: 'google-image',
+            url: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`,
+          }
+        : undefined,
+    specialties: ['Emergency Repairs', 'Commercial Installations'],
+    workingHours: {
+      monday: '9:00 AM - 5:00 PM',
+      tuesday: '9:00 AM - 5:00 PM',
+      wednesday: '9:00 AM - 5:00 PM',
+      thursday: '9:00 AM - 5:00 PM',
+      friday: '9:00 AM - 5:00 PM',
+      saturday: '10:00 AM - 2:00 PM',
+      sunday: 'Closed',
     },
-    verified: contractor.verified || contractor.isVerified || false,
+    verified: place.business_status === 'OPERATIONAL',
+    businessStatus: place.business_status || 'OPERATIONAL',
+    openNow: place.opening_hours?.open_now || false,
+    dataSource: 'google_maps',
+    dataSourceId: place.place_id,
   }
 }
 
@@ -72,25 +70,20 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Contractor ID is required' }, { status: 400 })
     }
 
-    // First try to fetch from our contractors collection
+    // First try to find it in Google Places data
     try {
-      const contractor = await payload.findByID({
-        collection: 'contractors',
-        id,
-        depth: 2, // Load nested relationships
-      })
+      const googleContractor = contractorsFromGoogleData.find((place: any) => place.place_id === id)
 
-      if (contractor) {
-        const mappedContractor = mapToContractor(contractor as any)
+      if (googleContractor) {
+        const mappedContractor = convertGooglePlaceToContractor(googleContractor)
         return NextResponse.json({ contractor: mappedContractor })
       }
-    } catch (payloadError) {
-      console.log('Contractor not found in PayloadCMS:', payloadError)
+    } catch (error) {
+      console.log('Error searching in Google Places data:', error)
     }
 
-    // If not found in PayloadCMS and it looks like a Google Place ID,
-    // create a mock contractor based on the ID
-    if (id.startsWith('ChIJ') || id.includes('place')) {
+    // If it looks like a Google Place ID or mock ID, create a mock contractor
+    if (id.startsWith('ChIJ') || id.includes('place') || id.startsWith('mock')) {
       const mockContractor: Contractor = {
         id: id,
         name: 'Contractor Professional',
@@ -114,6 +107,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           wednesday: '9:00 AM - 5:00 PM',
           thursday: '9:00 AM - 5:00 PM',
           friday: '9:00 AM - 5:00 PM',
+          saturday: '10:00 AM - 2:00 PM',
+          sunday: 'Closed',
         },
         verified: true,
       }

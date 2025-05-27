@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import payload from 'payload'
+import { ServiceRequestsStore } from '@/lib/service-requests-store'
 
 // Inicializar Stripe con la clave secreta
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -40,20 +40,16 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Actualizar la solicitud de servicio con el ID de la intención de pago
-    try {
-      await payload.update({
-        collection: 'service-requests',
-        id: serviceRequestId,
-        data: {
-          paymentStatus: 'pending',
-          paymentIntentId: paymentIntent.id,
-        },
-      })
-    } catch (error) {
-      console.warn('No se pudo actualizar la colección service-requests:', error)
-      // Continuar el proceso aún si falla la actualización
-    }
+    // Almacenar la solicitud de servicio usando el store compartido
+    ServiceRequestsStore.create({
+      id: serviceRequestId,
+      contractorId,
+      customerId,
+      amount,
+      paymentStatus: 'pending',
+      paymentIntentId: paymentIntent.id,
+      status: 'created',
+    })
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
