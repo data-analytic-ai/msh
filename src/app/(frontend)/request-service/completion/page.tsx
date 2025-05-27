@@ -34,7 +34,7 @@ import { Textarea } from '@/components/ui/textarea'
 
 export default function CompletionPage() {
   const router = useRouter()
-  const { selectedContractor, clearServiceRequest } = useServiceRequest()
+  const { selectedContractor, resetServiceAndLocation } = useServiceRequest()
   const [rating, setRating] = useState(0)
   const [review, setReview] = useState('')
   const [isSubmittingReview, setIsSubmittingReview] = useState(false)
@@ -88,7 +88,7 @@ export default function CompletionPage() {
 
   // Manejar solicitud de nuevo servicio
   const handleNewService = () => {
-    clearServiceRequest()
+    resetServiceAndLocation()
     router.push('/')
   }
 
