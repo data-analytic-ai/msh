@@ -35,6 +35,7 @@ import {
   MessageSquare,
 } from 'lucide-react'
 import Link from 'next/link'
+import { formatCurrency } from '@/lib/payment-config'
 
 interface ServiceHistoryItem {
   id: string
@@ -276,11 +277,11 @@ export default function UserHistoryPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Total gastado</p>
                 <p className="text-2xl font-bold">
-                  $
-                  {serviceHistory
-                    .filter((s) => s.paymentStatus === 'paid')
-                    .reduce((sum, s) => sum + s.amount, 0)
-                    .toFixed(2)}
+                  {formatCurrency(
+                    serviceHistory
+                      .filter((s) => s.paymentStatus === 'paid')
+                      .reduce((sum, s) => sum + s.amount, 0),
+                  )}
                 </p>
               </div>
               <DollarSign className="w-8 h-8 text-green-600" />
@@ -323,7 +324,7 @@ export default function UserHistoryPage() {
                       )}
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-lg">${service.amount}</p>
+                      <p className="font-bold text-lg">{formatCurrency(service.amount)}</p>
                       <div className="flex gap-2 mt-1">
                         <Badge className={getStatusBadge(service.status).color}>
                           {getStatusBadge(service.status).text}

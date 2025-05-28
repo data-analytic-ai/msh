@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { ServiceRequestsStore } from '@/lib/service-requests-store'
+import { PAYMENT_CONFIG, convertToSmallestUnit } from '@/lib/payment-config'
 
 // Inicializar Stripe con la clave secreta
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -29,9 +30,9 @@ export async function POST(request: NextRequest) {
     // Crear la intención de pago con captura manual
     // Esto permite retener los fondos pero no transferirlos hasta confirmación
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convertir a centavos
-      currency: 'mxn',
-      capture_method: 'manual', // Importante: permite retener el pago
+      amount: convertToSmallestUnit(amount), // Convertir a centavos usando configuración
+      currency: PAYMENT_CONFIG.DEFAULT_CURRENCY,
+      capture_method: PAYMENT_CONFIG.CAPTURE_METHOD, // Importante: permite retener el pago
       description: description || `Servicio #${serviceRequestId}`,
       metadata: {
         serviceRequestId,

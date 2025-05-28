@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { v4 as uuidv4 } from 'uuid'
+import { formatCurrency } from '@/lib/payment-config'
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -34,7 +35,7 @@ export default function PaymentPage() {
   }, [setCurrentStep])
 
   // Precio estimado (podría venir del contratista o ser estimado según el servicio)
-  const estimatedPrice = 450 // En pesos mexicanos (MXN)
+  const estimatedPrice = 450 // En dólares estadounidenses (USD)
 
   // Tiempo estimado de llegada
   const estimatedArrivalTime = '10-15 minutos'
@@ -181,7 +182,7 @@ export default function PaymentPage() {
 
             <div>
               <h3 className="text-sm font-medium text-muted-foreground">Precio estimado</h3>
-              <p className="font-medium">${estimatedPrice.toFixed(2)}</p>
+              <p className="font-medium">{formatCurrency(estimatedPrice)}</p>
               <p className="text-xs text-muted-foreground">
                 El precio final puede variar según el trabajo realizado
               </p>

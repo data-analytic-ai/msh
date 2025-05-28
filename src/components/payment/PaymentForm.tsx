@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Clock, Info, Shield } from 'lucide-react'
+import { formatCurrency } from '@/lib/payment-config'
 
 // Wrapper que proporciona el provider de Stripe
 export const PaymentFormWrapper = ({
@@ -126,7 +127,7 @@ function PaymentForm({
             </div>
             <div className="text-right">
               <span className="text-sm text-muted-foreground">Monto</span>
-              <p className="font-medium text-lg">${amount.toFixed(2)}</p>
+              <p className="font-medium text-lg">{formatCurrency(amount)}</p>
             </div>
           </div>
 

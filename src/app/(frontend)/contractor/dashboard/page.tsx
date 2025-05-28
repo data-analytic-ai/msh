@@ -36,6 +36,7 @@ import {
   LogOut,
 } from 'lucide-react'
 import Link from 'next/link'
+import { formatCurrency } from '@/lib/payment-config'
 
 // Tipos para el contratista
 interface ContractorProfile {
@@ -266,7 +267,7 @@ export default function ContractorDashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Saldo disponible</p>
                   <p className="text-2xl font-bold text-green-600">
-                    ${paymentSummary.availableBalance.toFixed(2)}
+                    {formatCurrency(paymentSummary.availableBalance)}
                   </p>
                 </div>
                 <DollarSign className="w-8 h-8 text-green-600" />
@@ -280,7 +281,7 @@ export default function ContractorDashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Pagos retenidos</p>
                   <p className="text-2xl font-bold text-yellow-600">
-                    ${paymentSummary.heldPayments.toFixed(2)}
+                    {formatCurrency(paymentSummary.heldPayments)}
                   </p>
                 </div>
                 <Clock className="w-8 h-8 text-yellow-600" />
@@ -294,7 +295,7 @@ export default function ContractorDashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Este mes</p>
                   <p className="text-2xl font-bold">
-                    ${paymentSummary.thisMonthEarnings.toFixed(2)}
+                    {formatCurrency(paymentSummary.thisMonthEarnings)}
                   </p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-blue-600" />
@@ -307,7 +308,9 @@ export default function ContractorDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total ganado</p>
-                  <p className="text-2xl font-bold">${paymentSummary.totalEarnings.toFixed(2)}</p>
+                  <p className="text-2xl font-bold">
+                    {formatCurrency(paymentSummary.totalEarnings)}
+                  </p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
