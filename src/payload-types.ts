@@ -479,6 +479,11 @@ export interface Form {
             blockName?: string | null;
             blockType: 'textarea';
           }
+        | PhoneNumberField
+        | ImageUploadField
+        | LocationField
+        | ColorPickerField
+        | UrgencyLevelField
       )[]
     | null;
   submitButtonLabel?: string | null;
@@ -538,6 +543,80 @@ export interface Form {
     | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PhoneNumberField".
+ */
+export interface PhoneNumberField {
+  name: string;
+  label?: string | null;
+  /**
+   * Width of the field in the form layout
+   */
+  width?: number | null;
+  required?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'phoneNumber';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageUploadField".
+ */
+export interface ImageUploadField {
+  name: string;
+  label?: string | null;
+  width?: number | null;
+  required?: boolean | null;
+  maxFiles?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageUpload';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LocationField".
+ */
+export interface LocationField {
+  name: string;
+  label?: string | null;
+  width?: number | null;
+  required?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'location';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ColorPickerField".
+ */
+export interface ColorPickerField {
+  name: string;
+  label?: string | null;
+  width?: number | null;
+  required?: boolean | null;
+  /**
+   * Default color value (hex format)
+   */
+  defaultValue?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'colorPicker';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "UrgencyLevelField".
+ */
+export interface UrgencyLevelField {
+  name: string;
+  label?: string | null;
+  width?: number | null;
+  required?: boolean | null;
+  defaultValue?: ('low' | 'medium' | 'high' | 'emergency') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'urgencyLevel';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1994,6 +2073,11 @@ export interface FormsSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        phoneNumber?: T | PhoneNumberFieldSelect<T>;
+        imageUpload?: T | ImageUploadFieldSelect<T>;
+        location?: T | LocationFieldSelect<T>;
+        colorPicker?: T | ColorPickerFieldSelect<T>;
+        urgencyLevel?: T | UrgencyLevelFieldSelect<T>;
       };
   submitButtonLabel?: T;
   confirmationType?: T;
@@ -2017,6 +2101,69 @@ export interface FormsSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PhoneNumberField_select".
+ */
+export interface PhoneNumberFieldSelect<T extends boolean = true> {
+  name?: T;
+  label?: T;
+  width?: T;
+  required?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageUploadField_select".
+ */
+export interface ImageUploadFieldSelect<T extends boolean = true> {
+  name?: T;
+  label?: T;
+  width?: T;
+  required?: T;
+  maxFiles?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LocationField_select".
+ */
+export interface LocationFieldSelect<T extends boolean = true> {
+  name?: T;
+  label?: T;
+  width?: T;
+  required?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ColorPickerField_select".
+ */
+export interface ColorPickerFieldSelect<T extends boolean = true> {
+  name?: T;
+  label?: T;
+  width?: T;
+  required?: T;
+  defaultValue?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "UrgencyLevelField_select".
+ */
+export interface UrgencyLevelFieldSelect<T extends boolean = true> {
+  name?: T;
+  label?: T;
+  width?: T;
+  required?: T;
+  defaultValue?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

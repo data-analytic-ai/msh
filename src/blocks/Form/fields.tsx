@@ -8,6 +8,10 @@ import { State } from './State'
 import { Text } from './Text'
 import { Textarea } from './Textarea'
 import { ColorPicker } from './ColorPicker'
+import { PhoneNumber } from './PhoneNumber'
+import { Location } from './Location'
+import { ImageUpload } from './ImageUpload'
+import { UrgencyLevel } from './UrgencyLevel'
 
 export const fields = {
   checkbox: Checkbox,
@@ -20,4 +24,8 @@ export const fields = {
   text: Text,
   textarea: Textarea,
   colorPicker: ColorPicker,
+  phoneNumber: PhoneNumber,
+  location: Location,
+  imageUpload: ImageUpload,
+  urgencyLevel: UrgencyLevel,
 }

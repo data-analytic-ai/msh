@@ -79,17 +79,17 @@ export default function ExploreRequests() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-background dark:bg-background">
       {/* Sidebar */}
       <ContractorSidebar activePath="/contractor/dashboard/explore" />
 
       {/* Main content */}
       <div className="flex-1 p-8">
         <div className="max-w-6xl mx-auto">
-          <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+          <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 text-foreground dark:text-white">
             <div>
               <h1 className="text-2xl font-bold">Explorar solicitudes</h1>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 Encuentra solicitudes de servicio y presenta tus ofertas
               </p>
             </div>
@@ -109,7 +109,7 @@ export default function ExploreRequests() {
 
           {/* Lista de solicitudes */}
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-xl font-semibold text-foreground dark:text-white">
               Solicitudes disponibles ({filteredRequests.length})
             </h2>
 

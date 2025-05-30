@@ -302,6 +302,7 @@ export const useServiceRequestStore = create<ServiceRequestStore>()(
             serviceType: serviceTypes,
             description: formData.description || '',
             urgencyLevel: formData.urgency || 'emergency',
+            // Estructura correcta según el schema de PayloadCMS
             customerInfo: {
               fullName: formData.fullName || '',
               phone: formData.phone || '',

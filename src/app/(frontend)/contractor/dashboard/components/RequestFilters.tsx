@@ -73,10 +73,10 @@ export const RequestFilters: React.FC<RequestFiltersProps> = ({
   ]
 
   return (
-    <div className="bg-white rounded-lg border p-4 mb-6">
+    <div className="bg-background dark:bg-background rounded-lg border p-4 mb-6 text-foreground dark:text-foreground">
       <div className="flex flex-col md:flex-row md:items-center gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4" />
           <Input
             placeholder="Buscar solicitudes..."
             className="pl-8"
@@ -85,7 +85,7 @@ export const RequestFilters: React.FC<RequestFiltersProps> = ({
           />
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 dark:text-white">
           {/* Filtro de servicios */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
