@@ -23,7 +23,9 @@ import { RequestHeader } from './components/RequestHeader'
 import { RequestSummary } from './components/RequestSummary'
 import { UserAccountHandler } from './components/UserAccountHandler'
 import { NextStepsInfo } from './components/NextStepsInfo'
-import { FindContractorsButton } from './components/FindContractorsButton'
+import QuotesInbox from './components/QuotesInbox'
+import TestQuotesButton from './components/TestQuotesButton'
+import DebugButton from './components/DebugButton'
 import MapComponent from '@/components/ui/MapComponent'
 
 export default function ConfirmationPage() {
@@ -160,7 +162,7 @@ export default function ConfirmationPage() {
 
       console.log('Actualizando campo:', fieldName, 'con valor:', value)
 
-      // Enviar la actualización a la API
+      // Use PayloadCMS native API endpoint instead of custom route
       const response = await fetch(`/api/service-requests/${requestId}`, {
         method: 'PATCH',
         headers: {
@@ -269,21 +271,14 @@ export default function ConfirmationPage() {
           {/* Componente para gestionar la cuenta de usuario */}
           <UserAccountHandler userEmail={userEmail} requestId={requestId} />
 
-          {/* Mostrar NextStepsInfo y FindContractorsButton solo si el usuario está autenticado */}
-          {authContextAuthenticated && (
-            <>
-              <NextStepsInfo />
+          {/* Mostrar información de próximos pasos */}
+          {authContextAuthenticated && <NextStepsInfo />}
 
-              <FindContractorsButton
-                selectedServices={selectedServices}
-                location={location}
-                requestId={requestId}
-                isAuthenticated={isAuthenticated}
-                userEmail={userEmail}
-                goToStep={goToStep}
-              />
-            </>
-          )}
+          {/* NUEVO: Sistema de licitaciones - QuotesInbox reemplaza FindContractorsButton */}
+          <QuotesInbox
+            requestId={requestId}
+            isAuthenticated={authContextAuthenticated || isAuthenticated}
+          />
 
           <RequestSummary
             requestId={requestId}

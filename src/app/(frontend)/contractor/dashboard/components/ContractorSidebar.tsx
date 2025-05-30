@@ -35,13 +35,13 @@ export const ContractorSidebar: React.FC<ContractorSidebarProps> = ({ activePath
   }
 
   return (
-    <div className="w-64 bg-white shadow-sm p-4 hidden md:block">
+    <div className="w-64 bg-background dark:bg-background shadow-sm p-4 hidden md:block text-foreground dark:text-foreground">
       <div className="flex items-center space-x-2 pb-4 mb-4 border-b">
         <Wrench className="h-6 w-6 text-primary" />
         <h1 className="font-bold text-xl">Portal Contratista</h1>
       </div>
 
-      <nav className="space-y-2">
+      <nav className="space-y-2 text-primary dark:text-foreground">
         <Link
           href="/contractor/dashboard"
           className={`flex items-center space-x-2 p-2 rounded-md ${
@@ -58,7 +58,7 @@ export const ContractorSidebar: React.FC<ContractorSidebarProps> = ({ activePath
           href="/contractor/dashboard/explore"
           className={`flex items-center space-x-2 p-2 rounded-md ${
             activePath === '/contractor/dashboard/explore'
-              ? 'bg-primary/10 text-primary font-medium'
+              ? 'bg-primary/10 text-primary dark:text-white font-medium'
               : 'hover:bg-gray-100 text-gray-700'
           }`}
         >
@@ -70,7 +70,7 @@ export const ContractorSidebar: React.FC<ContractorSidebarProps> = ({ activePath
           href="/contractor/dashboard/profile"
           className={`flex items-center space-x-2 p-2 rounded-md ${
             activePath === '/contractor/dashboard/profile'
-              ? 'bg-primary/10 text-primary font-medium'
+              ? 'bg-primary/10 text-primary dark:text-white font-medium'
               : 'hover:bg-gray-100 text-gray-700'
           }`}
         >

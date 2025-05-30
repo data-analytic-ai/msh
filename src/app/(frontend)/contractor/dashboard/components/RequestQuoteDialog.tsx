@@ -122,7 +122,7 @@ export const RequestQuoteDialog: React.FC<RequestQuoteDialogProps> = ({
 
   return (
     <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-background dark:bg-background text-foreground dark:text-foreground">
         <DialogHeader>
           <DialogTitle>Enviar cotización</DialogTitle>
           <DialogDescription>
@@ -198,6 +198,7 @@ export const RequestQuoteDialog: React.FC<RequestQuoteDialogProps> = ({
             variant="outline"
             onClick={() => handleDialogOpenChange(false)}
             disabled={bidSubmitting}
+            className="bg-secondary text-primary hover:bg-secondary/50"
           >
             Cancelar
           </Button>
