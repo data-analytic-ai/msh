@@ -223,4 +223,76 @@ html[data-theme='light'] {
     background-color: var(--info-light);
     color: var(--info-light-foreground);
   }
+
+  /* Service Request Form Field Styles */
+  .optional-field {
+    opacity: 0.9;
+  }
+
+  .optional-field:hover {
+    opacity: 1;
+  }
+
+  /* Radio button styles for urgency level */
+  input[type="radio"]:checked + * .radio-checked\:opacity-100 {
+    opacity: 1;
+  }
+
+  /* Image upload preview animations */
+  .image-preview-enter {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  .image-preview-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 200ms, transform 200ms;
+  }
+
+  .image-preview-exit {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .image-preview-exit-active {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 150ms, transform 150ms;
+  }
+
+  /* Phone number input formatting */
+  .phone-input {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* Location input with geolocation button */
+  .location-input-group {
+    position: relative;
+  }
+
+  .location-input-group .geolocation-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* Form step indicator enhancements */
+  .form-step-indicator {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .form-step-indicator::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, var(--primary) var(--progress, 0%), transparent var(--progress, 0%));
+    transition: --progress 300ms ease-in-out;
+  }
 }

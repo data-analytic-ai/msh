@@ -1,0 +1,122 @@
+{
+  "title": "Service Request Form",
+  "confirmationMessage": {
+    "root": {
+      "children": [
+        {
+          "children": [
+            {
+              "detail": 0,
+              "format": 0,
+              "mode": "normal",
+              "style": "",
+              "text": "Thank you for your service request!",
+              "type": "text",
+              "version": 1
+            }
+          ],
+          "direction": "ltr",
+          "format": "",
+          "indent": 0,
+          "type": "heading",
+          "version": 1,
+          "tag": "h2"
+        },
+        {
+          "children": [
+            {
+              "detail": 0,
+              "format": 0,
+              "mode": "normal",
+              "style": "",
+              "text": "We have received your request and will connect you with verified professionals in your area.",
+              "type": "text",
+              "version": 1
+            }
+          ],
+          "direction": "ltr",
+          "format": "",
+          "indent": 0,
+          "type": "paragraph",
+          "version": 1
+        }
+      ],
+      "direction": "ltr",
+      "format": "",
+      "indent": 0,
+      "type": "root",
+      "version": 1
+    }
+  },
+  "confirmationType": "redirect",
+  "redirect": {
+    "url": "/request-service/confirmation"
+  },
+  "submitButtonLabel": "Submit Request",
+  "fields": [
+    {
+      "blockType": "text",
+      "name": "fullName",
+      "label": "Full Name",
+      "required": true,
+      "width": 100,
+      "id": "fullName"
+    },
+    {
+      "blockType": "email",
+      "name": "email",
+      "label": "Email Address",
+      "required": true,
+      "width": 50,
+      "id": "email"
+    },
+    {
+      "blockType": "text",
+      "name": "phone",
+      "label": "Phone Number",
+      "required": true,
+      "width": 50,
+      "id": "phone"
+    },
+    {
+      "blockType": "select",
+      "name": "urgencyLevel",
+      "label": "Urgency Level",
+      "required": true,
+      "width": 100,
+      "defaultValue": "emergency",
+      "options": [
+        {
+          "label": "Low - Within a week",
+          "value": "low",
+          "id": "urgency-low"
+        },
+        {
+          "label": "Medium - Within 48 hours",
+          "value": "medium",
+          "id": "urgency-medium"
+        },
+        {
+          "label": "High - Within 24 hours",
+          "value": "high",
+          "id": "urgency-high"
+        },
+        {
+          "label": "Emergency - As soon as possible",
+          "value": "emergency",
+          "id": "urgency-emergency"
+        }
+      ],
+      "id": "urgencyLevel"
+    },
+    {
+      "blockType": "textarea",
+      "name": "description",
+      "label": "Describe your problem",
+      "required": true,
+      "width": 100,
+      "defaultValue": "",
+      "id": "description"
+    }
+  ]
+}
