@@ -53,8 +53,8 @@ export const UrgencyLevel: React.FC<
       examples: 'Fuga de gas, corte eléctrico total, inundación',
     },
     {
-      value: 'urgent',
-      label: 'Urgente',
+      value: 'high',
+      label: 'Alta',
       description: 'Problema serio que necesita atención rápida',
       timeframe: 'Dentro de 24 horas',
       icon: Zap,
@@ -64,8 +64,8 @@ export const UrgencyLevel: React.FC<
       examples: 'Calefacción no funciona, problema eléctrico importante',
     },
     {
-      value: 'normal',
-      label: 'Normal',
+      value: 'medium',
+      label: 'Media',
       description: 'Problema que puede esperar unos días',
       timeframe: 'Dentro de 2-3 días',
       icon: Clock,
@@ -136,10 +136,10 @@ export const UrgencyLevel: React.FC<
                       <strong>Emergencia:</strong> Riesgo inmediato de seguridad
                     </p>
                     <p>
-                      <strong>Urgente:</strong> Afecta funciones esenciales del hogar
+                      <strong>Alta:</strong> Afecta funciones esenciales del hogar
                     </p>
                     <p>
-                      <strong>Normal:</strong> Problema molesto pero no crítico
+                      <strong>Media:</strong> Problema molesto pero no crítico
                     </p>
                     <p>
                       <strong>Baja:</strong> Mejoras o mantenimiento opcional

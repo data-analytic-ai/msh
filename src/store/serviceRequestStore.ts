@@ -298,13 +298,15 @@ export const useServiceRequestStore = create<ServiceRequestStore>()(
           // Crear un objeto con el formato exacto que espera PayloadCMS
           const requestData = {
             ...(requestId ? { id: requestId } : {}),
-            requestTitle: formData.title || 'Service Request',
+            requestTitle:
+              `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 'Service Request',
             serviceType: serviceTypes,
             description: formData.description || '',
             urgencyLevel: formData.urgency || 'emergency',
-            // Estructura correcta según el schema de PayloadCMS
+            // Estructura correcta según el schema de PayloadCMS - usar firstName y lastName por separado
             customerInfo: {
-              fullName: formData.fullName || '',
+              firstName: formData.firstName || '',
+              lastName: formData.lastName || '',
               phone: formData.phone || '',
               email: userEmail || formData.email || '',
               preferredContact: 'email',

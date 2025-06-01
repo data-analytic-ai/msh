@@ -143,10 +143,15 @@ export default function ConfirmationPage() {
       // Determinar la estructura correcta según el campo
       if (fieldName === 'description') {
         updateData.description = value
-      } else if (fieldName === 'fullName') {
+      } else if (fieldName === 'firstName') {
         updateData.customerInfo = {
           ...(formData?.customerInfo || {}),
-          fullName: value,
+          firstName: value,
+        }
+      } else if (fieldName === 'lastName') {
+        updateData.customerInfo = {
+          ...(formData?.customerInfo || {}),
+          lastName: value,
         }
       } else if (fieldName === 'phone') {
         updateData.customerInfo = {
@@ -181,8 +186,10 @@ export default function ConfirmationPage() {
         const updatedFormData = { ...formData }
         if (fieldName === 'description') {
           updatedFormData.description = value
-        } else if (fieldName === 'fullName') {
-          updatedFormData.fullName = value
+        } else if (fieldName === 'firstName') {
+          updatedFormData.firstName = value
+        } else if (fieldName === 'lastName') {
+          updatedFormData.lastName = value
         } else if (fieldName === 'phone') {
           updatedFormData.phone = value
         } else if (fieldName === 'email') {
@@ -257,7 +264,7 @@ export default function ConfirmationPage() {
           )}
 
           {/* Mapa en modo solo lectura */}
-          <div className="w-full h-48 rounded-lg overflow-hidden">
+          <div className="w-full h-48 rounded-lg overflow-hidden sm:hidden">
             <MapComponent
               selectedService={selectedServices}
               location={location}

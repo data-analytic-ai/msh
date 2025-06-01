@@ -79,15 +79,16 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
 
       // Map form fields to the expected structure
       const mappedData = {
-        // Combine firstName and lastName to create fullName
-        fullName: `${data.firstName || ''} ${data.lastName || ''}`.trim(),
-        email: data.email as string,
-        // Map phoneNumberClient to phone
-        phone: data.phoneNumberClient as string,
-        description: data.description as string,
-        // Map urgencyLevelServiceRequestTag to urgency
-        urgency: data.urgencyLevelServiceRequestTag as string,
-        // Handle images (if uploaded)
+        // Use firstName and lastName directly from the form
+        firstName: (data.firstName as string) || '',
+        lastName: (data.lastName as string) || '',
+        email: (data.email as string) || '',
+        // Use the correct phone field name from PayloadCMS
+        phone: (data.phoneNumberClient as string) || '',
+        description: (data.description as string) || '',
+        // Use the correct urgency field name from PayloadCMS
+        urgency: (data.urgencyLevelServiceRequestTag as string) || '',
+        // Use the correct images field name from PayloadCMS
         images: data.costumerServiceRequestImages || [],
         // Keep original form data for debugging
         originalFormData: data,
@@ -95,21 +96,29 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
 
       console.log('ServiceRequestForm: Mapped data for submission:', mappedData)
 
-      // Validate required fields
-      if (!mappedData.fullName.trim()) {
-        console.error('Missing required field: fullName')
+      // Validate required fields with defensive checks
+      if (!mappedData.firstName || !mappedData.firstName.trim()) {
+        console.error('Missing required field: firstName')
         return false
       }
-      if (!mappedData.email) {
+      if (!mappedData.lastName || !mappedData.lastName.trim()) {
+        console.error('Missing required field: lastName')
+        return false
+      }
+      if (!mappedData.email || !mappedData.email.trim()) {
         console.error('Missing required field: email')
         return false
       }
-      if (!mappedData.phone) {
+      if (!mappedData.phone || !mappedData.phone.trim()) {
         console.error('Missing required field: phone')
         return false
       }
-      if (!mappedData.description) {
+      if (!mappedData.description || !mappedData.description.trim()) {
         console.error('Missing required field: description')
+        return false
+      }
+      if (!mappedData.urgency || !mappedData.urgency.trim()) {
+        console.error('Missing required field: urgency')
         return false
       }
 

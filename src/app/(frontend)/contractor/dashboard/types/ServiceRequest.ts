@@ -12,7 +12,8 @@ export interface ServiceRequest {
   status: 'pending' | 'assigned' | 'in-progress' | 'completed' | 'cancelled'
   urgencyLevel: string
   customerInfo: {
-    fullName: string
+    firstName: string
+    lastName: string
     phone: string
     email: string
   }

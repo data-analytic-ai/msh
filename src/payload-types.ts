@@ -945,7 +945,8 @@ export interface ServiceRequest {
    * Customer contact information
    */
   customerInfo: {
-    fullName: string;
+    firstName: string;
+    lastName: string;
     email: string;
     phone: string;
     preferredContact: 'phone' | 'email' | 'sms';
@@ -1800,7 +1801,8 @@ export interface ServiceRequestsSelect<T extends boolean = true> {
   customerInfo?:
     | T
     | {
-        fullName?: T;
+        firstName?: T;
+        lastName?: T;
         email?: T;
         phone?: T;
         preferredContact?: T;

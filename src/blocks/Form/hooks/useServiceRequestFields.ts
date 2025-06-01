@@ -12,10 +12,17 @@ import type { FormFieldBlock } from '@payloadcms/plugin-form-builder/types'
 export const useServiceRequestFields = () => {
   const serviceRequestFieldConfigs = useMemo(
     () => ({
-      fullName: {
+      firstName: {
         blockType: 'text',
-        name: 'fullName',
-        label: 'Full Name',
+        name: 'firstName',
+        label: 'First Name',
+        required: true,
+        width: 50,
+      },
+      lastName: {
+        blockType: 'text',
+        name: 'lastName',
+        label: 'Last Name',
         required: true,
         width: 50,
       },
