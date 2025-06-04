@@ -19,6 +19,8 @@ export interface Config {
     'service-requests': ServiceRequest;
     services: Service;
     contractors: Contractor;
+    leadAccess: LeadAccess;
+    leadChats: LeadChat;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -38,6 +40,8 @@ export interface Config {
     'service-requests': ServiceRequestsSelect<false> | ServiceRequestsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     contractors: ContractorsSelect<false> | ContractorsSelect<true>;
+    leadAccess: LeadAccessSelect<false> | LeadAccessSelect<true>;
+    leadChats: LeadChatsSelect<false> | LeadChatsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -328,33 +332,73 @@ export interface Category {
 export interface User {
   id: string;
   role: 'superadmin' | 'admin' | 'contractor' | 'client';
-  name: string;
+  firstName: string;
   lastName: string;
-  phoneNumber: string;
+  phone?: string | null;
   phoneVerified?: boolean | null;
+  avatar?: (string | null) | Media;
   location?: {
     address?: string | null;
     lat?: number | null;
     lng?: number | null;
   };
-  contractorFields?: {
-    services: (
-      | 'plumbing'
-      | 'electrical'
-      | 'glass'
-      | 'hvac'
-      | 'pests'
-      | 'locksmith'
-      | 'roofing'
-      | 'siding'
-      | 'general'
-    )[];
-    yearsExperience: number;
-    hasLicense?: boolean | null;
-    rating?: number | null;
-    reviewCount?: number | null;
-    isVerified?: boolean | null;
+  businessName?: string | null;
+  businessType?: ('sole_proprietorship' | 'partnership' | 'llc' | 'corporation') | null;
+  businessLicense?: string | null;
+  businessAddress?: string | null;
+  businessCity?: string | null;
+  businessState?: string | null;
+  businessZip?: string | null;
+  taxId?: string | null;
+  yearsOfExperience?: number | null;
+  services?:
+    | (
+        | 'plumbing'
+        | 'electrical'
+        | 'hvac'
+        | 'roofing'
+        | 'painting'
+        | 'flooring'
+        | 'carpentry'
+        | 'landscaping'
+        | 'cleaning'
+        | 'locksmith'
+        | 'glass'
+        | 'pests'
+        | 'general'
+      )[]
+    | null;
+  specializations?:
+    | {
+        specialization: string;
+        id?: string | null;
+      }[]
+    | null;
+  serviceRadius?: number | null;
+  hourlyRate?: number | null;
+  minimumJobValue?: number | null;
+  stripeAccountId?: string | null;
+  bankAccountVerified?: boolean | null;
+  paymentMethodsAccepted?: ('card' | 'bank_transfer' | 'paypal' | 'cash')[] | null;
+  isAvailable?: boolean | null;
+  autoAcceptJobs?: boolean | null;
+  notificationPreferences?: {
+    email?: boolean | null;
+    sms?: boolean | null;
+    push?: boolean | null;
+    newJobs?: boolean | null;
+    jobUpdates?: boolean | null;
+    payments?: boolean | null;
   };
+  rating?: number | null;
+  reviewCount?: number | null;
+  completedJobs?: number | null;
+  verified?: boolean | null;
+  /**
+   * ID from Google Places API if this contractor was imported
+   */
+  googlePlaceId?: string | null;
+  dataSource?: ('manual' | 'google_maps' | 'invitation') | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -1069,6 +1113,10 @@ export interface Service {
  */
 export interface Contractor {
   id: string;
+  /**
+   * User account associated with this contractor profile
+   */
+  userId?: (string | null) | User;
   name: string;
   description?: string | null;
   contactEmail?: string | null;
@@ -1114,7 +1162,7 @@ export interface Contractor {
     linkedin?: string | null;
   };
   verified?: boolean | null;
-  dataSource: 'manual' | 'google_maps' | 'yelp' | 'external_api';
+  dataSource: 'manual' | 'google_maps' | 'yelp' | 'external_api' | 'user_registration';
   /**
    * ID or reference in the external data source (e.g., Google Place ID)
    */
@@ -1148,6 +1196,133 @@ export interface Contractor {
    * When the invitation was sent to this contractor
    */
   invitationDate?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Premium lead access records for contractors
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leadAccess".
+ */
+export interface LeadAccess {
+  id: string;
+  /**
+   * Contractor who purchased lead access
+   */
+  contractor: string | User;
+  /**
+   * Service request this access applies to
+   */
+  serviceRequest: string | ServiceRequest;
+  /**
+   * Whether contractor has access to customer contact information
+   */
+  hasAccessToContactInfo?: boolean | null;
+  /**
+   * Price paid for this lead access (USD)
+   */
+  leadPrice: number;
+  /**
+   * Status of the payment for this lead
+   */
+  paymentStatus: 'pending' | 'completed' | 'failed' | 'refunded';
+  /**
+   * Stripe Payment Intent ID for this purchase
+   */
+  paymentIntentId?: string | null;
+  /**
+   * When this lead access was purchased
+   */
+  purchasedAt?: string | null;
+  /**
+   * When this lead access expires (optional)
+   */
+  expiresAt?: string | null;
+  /**
+   * Type and pricing tier of the lead
+   */
+  leadType?: ('basic' | 'premium' | 'specialized') | null;
+  /**
+   * Number of times contractor contacted the customer
+   */
+  contactAttempts?: number | null;
+  /**
+   * Whether chat is enabled for this lead
+   */
+  chatEnabled?: boolean | null;
+  /**
+   * Internal notes about this lead access
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Chat messages for premium leads
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leadChats".
+ */
+export interface LeadChat {
+  id: string;
+  /**
+   * Service request this chat belongs to
+   */
+  serviceRequest: string | ServiceRequest;
+  /**
+   * Lead access record that enables this chat
+   */
+  leadAccess: string | LeadAccess;
+  /**
+   * User who sent this message
+   */
+  sender: string | User;
+  /**
+   * Type of user who sent the message
+   */
+  senderType: 'customer' | 'contractor' | 'system';
+  /**
+   * Chat message content
+   */
+  message: string;
+  /**
+   * Type of message
+   */
+  messageType?: ('text' | 'quote' | 'schedule' | 'contact' | 'system') | null;
+  /**
+   * Whether message has been read by recipient
+   */
+  isRead?: boolean | null;
+  /**
+   * When message was read
+   */
+  readAt?: string | null;
+  /**
+   * File attachments for this message
+   */
+  attachments?:
+    | {
+        file: string | Media;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Quote information if this is a quote message
+   */
+  quoteInfo?: {
+    /**
+     * Quoted amount in USD
+     */
+    amount?: number | null;
+    /**
+     * Quote expiration date
+     */
+    validUntil?: string | null;
+    includesLabor?: boolean | null;
+    includesMaterials?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1354,6 +1529,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contractors';
         value: string | Contractor;
+      } | null)
+    | ({
+        relationTo: 'leadAccess';
+        value: string | LeadAccess;
+      } | null)
+    | ({
+        relationTo: 'leadChats';
+        value: string | LeadChat;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1742,10 +1925,11 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   role?: T;
-  name?: T;
+  firstName?: T;
   lastName?: T;
-  phoneNumber?: T;
+  phone?: T;
   phoneVerified?: T;
+  avatar?: T;
   location?:
     | T
     | {
@@ -1753,16 +1937,46 @@ export interface UsersSelect<T extends boolean = true> {
         lat?: T;
         lng?: T;
       };
-  contractorFields?:
+  businessName?: T;
+  businessType?: T;
+  businessLicense?: T;
+  businessAddress?: T;
+  businessCity?: T;
+  businessState?: T;
+  businessZip?: T;
+  taxId?: T;
+  yearsOfExperience?: T;
+  services?: T;
+  specializations?:
     | T
     | {
-        services?: T;
-        yearsExperience?: T;
-        hasLicense?: T;
-        rating?: T;
-        reviewCount?: T;
-        isVerified?: T;
+        specialization?: T;
+        id?: T;
       };
+  serviceRadius?: T;
+  hourlyRate?: T;
+  minimumJobValue?: T;
+  stripeAccountId?: T;
+  bankAccountVerified?: T;
+  paymentMethodsAccepted?: T;
+  isAvailable?: T;
+  autoAcceptJobs?: T;
+  notificationPreferences?:
+    | T
+    | {
+        email?: T;
+        sms?: T;
+        push?: T;
+        newJobs?: T;
+        jobUpdates?: T;
+        payments?: T;
+      };
+  rating?: T;
+  reviewCount?: T;
+  completedJobs?: T;
+  verified?: T;
+  googlePlaceId?: T;
+  dataSource?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -1876,6 +2090,7 @@ export interface ServicesSelect<T extends boolean = true> {
  * via the `definition` "contractors_select".
  */
 export interface ContractorsSelect<T extends boolean = true> {
+  userId?: T;
   name?: T;
   description?: T;
   contactEmail?: T;
@@ -1948,6 +2163,57 @@ export interface ContractorsSelect<T extends boolean = true> {
       };
   invitationStatus?: T;
   invitationDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leadAccess_select".
+ */
+export interface LeadAccessSelect<T extends boolean = true> {
+  contractor?: T;
+  serviceRequest?: T;
+  hasAccessToContactInfo?: T;
+  leadPrice?: T;
+  paymentStatus?: T;
+  paymentIntentId?: T;
+  purchasedAt?: T;
+  expiresAt?: T;
+  leadType?: T;
+  contactAttempts?: T;
+  chatEnabled?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leadChats_select".
+ */
+export interface LeadChatsSelect<T extends boolean = true> {
+  serviceRequest?: T;
+  leadAccess?: T;
+  sender?: T;
+  senderType?: T;
+  message?: T;
+  messageType?: T;
+  isRead?: T;
+  readAt?: T;
+  attachments?:
+    | T
+    | {
+        file?: T;
+        description?: T;
+        id?: T;
+      };
+  quoteInfo?:
+    | T
+    | {
+        amount?: T;
+        validUntil?: T;
+        includesLabor?: T;
+        includesMaterials?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

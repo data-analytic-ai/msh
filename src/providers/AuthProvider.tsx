@@ -16,7 +16,7 @@ interface AuthContextType {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
-  login: (token: string) => Promise<void>
+  login: (token?: string) => Promise<void>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
 }
@@ -87,11 +87,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Login method - sets token in cookie (handled by Payload) and updates user state
-  const login = async (token: string) => {
+  // Login method - PayloadCMS handles cookies automatically, we just need to refresh user state
+  const login = async (token?: string) => {
     try {
-      // After login, the token is already stored in cookies by Payload
-      // We just need to refresh the user data
+      // PayloadCMS handles cookies automatically, so we just need to refresh user data
       invalidateUserCache()
       await refreshUser()
 

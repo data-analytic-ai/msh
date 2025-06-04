@@ -1,7 +1,7 @@
 'use client'
 import type { Form as FormType, FormFieldBlock } from '@payloadcms/plugin-form-builder/types'
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useState, useMemo } from 'react'
+import React, { useCallback, useState, useMemo, useEffect, useRef } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
@@ -40,6 +40,7 @@ export type ServiceRequestFormProps = {
   onServiceRequestSubmit?: (data: Data) => Promise<boolean>
   customSubmitLabel?: string
   hideProgressBar?: boolean
+  initialValues?: Record<string, any>
 }
 
 /**
@@ -66,11 +67,19 @@ export const FormBlock: React.FC<
     onServiceRequestSubmit,
     customSubmitLabel,
     hideProgressBar = false,
+    initialValues = {},
   } = props
+
+  // Combine buildInitialFormState with provided initialValues
+  const defaultFormState = buildInitialFormState(formFromProps.fields)
+  const mergedInitialValues = useMemo(
+    () => ({ ...defaultFormState, ...initialValues }),
+    [defaultFormState, initialValues],
+  )
 
   // Usamos buildInitialFormState para obtener los defaultValues
   const formMethods = useForm({
-    defaultValues: buildInitialFormState(formFromProps.fields),
+    defaultValues: mergedInitialValues,
     shouldUnregister: false,
     mode: 'onChange',
   })
@@ -88,6 +97,26 @@ export const FormBlock: React.FC<
   const [error, setError] = useState<{ message: string; status?: string } | undefined>()
   const [step, setStep] = useState(0)
   const router = useRouter()
+
+  // Use ref to track last reset values to prevent infinite loops
+  const lastResetValues = useRef<string>('')
+
+  // Use useEffect to monitor changes to initialValues and reset form when they change
+  useEffect(() => {
+    const currentValuesString = JSON.stringify(initialValues)
+
+    // Only reset if we have meaningful initial values, form is not loading/submitted, and values actually changed
+    if (
+      Object.keys(initialValues).length > 0 &&
+      !isLoading &&
+      !hasSubmitted &&
+      currentValuesString !== lastResetValues.current
+    ) {
+      console.log('Resetting form with new initial values:', initialValues)
+      formMethods.reset(mergedInitialValues, { keepDefaultValues: false })
+      lastResetValues.current = currentValuesString
+    }
+  }, [initialValues, isLoading, hasSubmitted, formMethods, mergedInitialValues])
 
   // --- LÓGICA MULTIPASOS ---
   // Obtenemos todos los campos (se asume que vienen de la base de datos)

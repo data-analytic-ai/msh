@@ -13,7 +13,7 @@ let meCache: {
 // Tiempo de expiración de la caché (5 minutos)
 const CACHE_EXPIRY = 5 * 60 * 1000
 
-// Function to get the currently authenticated user
+// Function to get the currently authenticated user using PayloadCMS native API
 export const getMe = async (skipCache: boolean = false): Promise<MeResponse> => {
   // Si tenemos una caché válida y no se solicita omitirla, la usamos
   if (!skipCache && meCache && Date.now() - meCache.timestamp < CACHE_EXPIRY) {
@@ -22,8 +22,9 @@ export const getMe = async (skipCache: boolean = false): Promise<MeResponse> => 
   }
 
   try {
-    // Get the user from the /api/users/me endpoint
+    // Use PayloadCMS native API endpoint for getting current user
     const response = await fetch('/api/users/me', {
+      method: 'GET',
       credentials: 'include', // Include cookies for authentication
       headers: {
         'Content-Type': 'application/json',
@@ -36,10 +37,14 @@ export const getMe = async (skipCache: boolean = false): Promise<MeResponse> => 
       return { user: null }
     }
 
-    const userJson = await response.json()
+    const data = await response.json()
+
+    // PayloadCMS native API returns user data directly or in a user property
+    const user = data.user || data || null
+
     // Almacenar en caché el resultado
-    meCache = { user: userJson.user || null, timestamp: Date.now() }
-    return { user: userJson.user || null }
+    meCache = { user, timestamp: Date.now() }
+    return { user }
   } catch (error) {
     console.error('Error fetching authenticated user:', error)
     // En caso de error, actualizamos la caché pero con una vida más corta

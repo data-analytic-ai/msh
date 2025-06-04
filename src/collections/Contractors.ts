@@ -4,9 +4,11 @@
  * Stores information about service contractors available on the platform.
  * This collection represents businesses or individuals who provide services
  * to customers. It includes contact information, service offerings, and location data.
+ * Contractors are automatically synced from Users collection when role is 'contractor'.
  *
  * Relationships:
  * - Relates to the Services collection through servicesOffered field
+ * - Links to Users collection through userId field
  * - Can be sourced from manual entry or external APIs like Google Places
  */
 
@@ -23,6 +25,22 @@ const Contractors: CollectionConfig = {
     read: () => true,
   },
   fields: [
+    {
+      name: 'userId',
+      type: 'relationship',
+      relationTo: 'users',
+      hasMany: false,
+      required: false,
+      label: 'Linked User Account',
+      admin: {
+        description: 'User account associated with this contractor profile',
+      },
+      filterOptions: {
+        role: {
+          equals: 'contractor',
+        },
+      },
+    },
     {
       name: 'name',
       type: 'text',
@@ -246,6 +264,10 @@ const Contractors: CollectionConfig = {
         {
           label: 'External API',
           value: 'external_api',
+        },
+        {
+          label: 'User Registration',
+          value: 'user_registration',
         },
       ],
       defaultValue: 'manual',

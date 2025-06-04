@@ -19,9 +19,13 @@ import { useAuth } from '@/providers/AuthProvider'
 interface UserAccountHandlerProps {
   userEmail: string | null
   requestId: string | null
+  onAuthenticationComplete?: () => void
 }
 
-export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({ userEmail }) => {
+export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({
+  userEmail,
+  onAuthenticationComplete,
+}) => {
   const { login, isAuthenticated } = useAuth()
   const [isCreatingAccount, setIsCreatingAccount] = useState(false)
   const [isLoggingIn, setIsLoggingIn] = useState(false)
@@ -74,6 +78,14 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({ userEmai
     }
   }, [userEmail, isAuthenticated])
 
+  // Llamar al callback cuando el usuario se autentica exitosamente
+  useEffect(() => {
+    if (isAuthenticated && onAuthenticationComplete) {
+      console.log('User authenticated, calling onAuthenticationComplete')
+      onAuthenticationComplete()
+    }
+  }, [isAuthenticated, onAuthenticationComplete])
+
   // Mostrar formulario de login interno
   const handleShowLoginForm = () => {
     setShowLoginForm(true)
@@ -103,17 +115,39 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({ userEmai
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.errors?.[0]?.message || 'Error al iniciar sesión')
+        // Try to parse error response only if there's content
+        let errorMessage = 'Error al iniciar sesión'
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.errors?.[0]?.message || errorData.message || errorMessage
+        } catch (jsonError) {
+          // If JSON parsing fails, use default message
+          console.warn('Failed to parse error response as JSON:', jsonError)
+        }
+        throw new Error(errorMessage)
       }
 
-      const userData = await response.json()
+      // Try to parse JSON response, but handle empty responses
+      let userData = null
+      try {
+        const responseText = await response.text()
+        if (responseText && responseText.trim() !== '') {
+          userData = JSON.parse(responseText)
+        } else {
+          // Empty response is OK for PayloadCMS cookie-based auth
+          userData = { success: true }
+        }
+      } catch (jsonError) {
+        console.warn('Failed to parse login response as JSON, assuming success:', jsonError)
+        userData = { success: true }
+      }
 
-      // Actualizar estado de autenticación usando el provider
-      await login(userData.token)
+      // PayloadCMS handles authentication with cookies automatically
+      await login() // No need to pass token
 
-      // No necesitamos sessionStorage aquí porque ya estamos en la página correcta
       console.log('Inicio de sesión exitoso')
+
+      // El useEffect de arriba manejará el callback cuando isAuthenticated cambie
     } catch (err: unknown) {
       setLoginError(err instanceof Error ? err.message : 'Error al iniciar sesión')
     } finally {
@@ -135,6 +169,7 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({ userEmai
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Importante para recibir cookies
       })
 
       if (!response.ok) {
@@ -144,22 +179,49 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({ userEmai
       }
 
       const data = await response.json()
+      console.log('Account creation response:', data)
 
       // Verificar si se recibió información de usuario y token
       if (data.userToken && data.isNewUser && data.tempPassword) {
-        // Guardar token y actualizar estado de autenticación global
-        await login(data.userToken)
+        console.log('New user created, logging in automatically...')
 
         // Mostrar contraseña temporal
         setTempPassword(data.tempPassword)
 
-        // Mostrar también el formulario de login después de crear la cuenta
+        // Intentar login automático con la contraseña temporal
+        try {
+          await fetch('/api/users/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              email: userEmail,
+              password: data.tempPassword,
+            }),
+          })
+
+          // Después del login exitoso, actualizar el AuthProvider
+          await login()
+
+          console.log('Automatic login successful')
+
+          // El useEffect de arriba manejará el callback cuando isAuthenticated cambie
+        } catch (loginError) {
+          console.error('Error with automatic login:', loginError)
+          // Si el login automático falla, mostrar el formulario de login
+          setShowLoginForm(true)
+          setEmail(userEmail)
+          setPassword(data.tempPassword)
+        }
+      } else if (data.user && !data.isNewUser) {
+        console.log('User already exists, showing login form')
+        setUserExists(true)
         setShowLoginForm(true)
         setEmail(userEmail)
-
-        console.log('Cuenta creada exitosamente:', data)
       } else {
-        console.log('Resultado inesperado:', data)
+        console.log('Unexpected result:', data)
         setUserExists(true)
         setShowLoginForm(true)
       }

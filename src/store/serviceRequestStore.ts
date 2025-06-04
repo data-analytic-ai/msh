@@ -26,6 +26,7 @@ export type StepType =
   | 'location'
   | 'details'
   | 'confirmation'
+  | 'dashboard'
   | 'find-contractor'
   | 'payment'
   | 'tracking'
