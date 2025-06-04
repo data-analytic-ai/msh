@@ -59,10 +59,10 @@ export default function RegisterPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: name,
+          firstName: name,
           lastName: lastName,
           email: email,
-          phoneNumber: phoneNumber,
+          phone: phoneNumber,
           password: password,
           confirmPassword: confirmPassword,
         }),
@@ -89,11 +89,24 @@ export default function RegisterPage() {
       })
 
       if (loginResponse.ok) {
-        // Obtener el token del login
-        const loginData = await loginResponse.json()
+        // PayloadCMS handles authentication with cookies automatically
+        // Try to parse JSON response, but handle empty responses
+        try {
+          const responseText = await loginResponse.text()
+          if (responseText && responseText.trim() !== '') {
+            // Parse response if available
+            JSON.parse(responseText)
+          }
+          // Whether we have response data or not, login was successful
+        } catch (jsonError) {
+          console.warn(
+            'Failed to parse login response as JSON, but login was successful:',
+            jsonError,
+          )
+        }
 
-        // Actualizar estado de autenticación usando el provider
-        await login(loginData.token)
+        // No need to extract token, just refresh user data
+        await login('') // Pass empty string since we don't need token with cookies
 
         // Redirigir a la página principal
         router.push('/')
