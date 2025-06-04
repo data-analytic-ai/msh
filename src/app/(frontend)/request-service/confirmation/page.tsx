@@ -21,7 +21,6 @@ import { ArrowLeft } from 'lucide-react'
 // Componentes extraídos
 import { RequestHeader } from './components/RequestHeader'
 import { RequestSummary } from './components/RequestSummary'
-import { UserAccountHandler } from './components/UserAccountHandler'
 import { NextStepsInfo } from './components/NextStepsInfo'
 import QuotesInbox from './components/QuotesInbox'
 import TestQuotesButton from './components/TestQuotesButton'
@@ -58,7 +57,7 @@ export default function ConfirmationPage() {
       })
 
       // Mostrar un mensaje de error temporal
-      setRedirectError('Hubo un problema con tu sesión. Confirma tu cuenta para continuar.')
+      setRedirectError('Hubo un problema con tu sesión. Por favor, inicia sesión nuevamente.')
 
       // Limpiar el mensaje después de 5 segundos
       const timer = setTimeout(() => {
@@ -68,6 +67,15 @@ export default function ConfirmationPage() {
       return () => clearTimeout(timer)
     }
   }, [isAuthenticated, authContextAuthenticated])
+
+  // Redirigir a detalles si el usuario no está autenticado
+  useEffect(() => {
+    if (!authContextAuthenticated && !isAuthenticated) {
+      console.log('User not authenticated, redirecting to details for account setup')
+      router.push('/request-service/details')
+      return
+    }
+  }, [authContextAuthenticated, isAuthenticated, router])
 
   // Marcar el paso actual en el contexto
   useEffect(() => {
@@ -143,10 +151,15 @@ export default function ConfirmationPage() {
       // Determinar la estructura correcta según el campo
       if (fieldName === 'description') {
         updateData.description = value
-      } else if (fieldName === 'fullName') {
+      } else if (fieldName === 'firstName') {
         updateData.customerInfo = {
           ...(formData?.customerInfo || {}),
-          fullName: value,
+          firstName: value,
+        }
+      } else if (fieldName === 'lastName') {
+        updateData.customerInfo = {
+          ...(formData?.customerInfo || {}),
+          lastName: value,
         }
       } else if (fieldName === 'phone') {
         updateData.customerInfo = {
@@ -181,8 +194,10 @@ export default function ConfirmationPage() {
         const updatedFormData = { ...formData }
         if (fieldName === 'description') {
           updatedFormData.description = value
-        } else if (fieldName === 'fullName') {
-          updatedFormData.fullName = value
+        } else if (fieldName === 'firstName') {
+          updatedFormData.firstName = value
+        } else if (fieldName === 'lastName') {
+          updatedFormData.lastName = value
         } else if (fieldName === 'phone') {
           updatedFormData.phone = value
         } else if (fieldName === 'email') {
@@ -257,7 +272,7 @@ export default function ConfirmationPage() {
           )}
 
           {/* Mapa en modo solo lectura */}
-          <div className="w-full h-48 rounded-lg overflow-hidden">
+          <div className="w-full h-48 rounded-lg overflow-hidden hidden">
             <MapComponent
               selectedService={selectedServices}
               location={location}
@@ -268,9 +283,6 @@ export default function ConfirmationPage() {
             />
           </div>
 
-          {/* Componente para gestionar la cuenta de usuario */}
-          <UserAccountHandler userEmail={userEmail} requestId={requestId} />
-
           {/* Mostrar información de próximos pasos */}
           {authContextAuthenticated && <NextStepsInfo />}
 
@@ -280,14 +292,14 @@ export default function ConfirmationPage() {
             isAuthenticated={authContextAuthenticated || isAuthenticated}
           />
 
-          <RequestSummary
+          {/*<RequestSummary
             requestId={requestId}
             selectedServices={selectedServices}
             formattedAddress={formattedAddress}
             formData={formData}
             handleEditDetails={handleEditDetails}
             handleSaveField={handleSaveField}
-          />
+          />*/}
         </div>
       </main>
     </div>

@@ -155,11 +155,21 @@ export const RequestSummary: React.FC<RequestSummaryProps> = ({
             />
           )}
 
-          {formData?.fullName && (
+          {formData?.firstName && (
             <EditableField
-              label="Full Name"
-              value={formData.fullName}
-              fieldName="fullName"
+              label="First Name"
+              value={formData.firstName}
+              fieldName="firstName"
+              requestId={requestId || ''}
+              onSave={handleSaveField}
+            />
+          )}
+
+          {formData?.lastName && (
+            <EditableField
+              label="Last Name"
+              value={formData.lastName}
+              fieldName="lastName"
               requestId={requestId || ''}
               onSave={handleSaveField}
             />

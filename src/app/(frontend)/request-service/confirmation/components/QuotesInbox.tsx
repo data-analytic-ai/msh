@@ -2,10 +2,10 @@
  * QuotesInbox - Real-time quotes display for customers
  *
  * Shows incoming contractor quotes in real-time with ability to:
- * - View quote details
- * - Accept/reject quotes
- * - Communicate with contractors
- * - Track quote status
+ * - View quote details in internal navigation
+ * - Accept quotes directly from the interface
+ * - Contact contractors through different views
+ * - Track quote status and updates
  *
  * @param {string} requestId - ID of the service request
  * @param {boolean} isAuthenticated - Whether user is authenticated
@@ -19,20 +19,30 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Clock,
   Star,
   MapPin,
   Phone,
   MessageCircle,
-  Check,
-  X,
   AlertCircle,
   User,
   DollarSign,
   Calendar,
   ExternalLink,
   Bell,
+  Eye,
+  CheckCircle,
+  ArrowLeft,
+  ThumbsUp,
+  Shield,
+  Award,
+  Image,
+  FileText,
+  Phone as PhoneIcon,
+  Mail,
+  Navigation,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -46,7 +56,11 @@ interface Quote {
     profileImage?: { url: string }
     location?: string
     phone?: string
+    email?: string
     verified: boolean
+    specialties?: string[]
+    experience?: string
+    completedJobs?: number
   }
   amount: number
   description: string
@@ -55,12 +69,21 @@ interface Quote {
   estimatedDuration?: string
   warranty?: string
   materials?: string[]
+  priceBreakdown?: {
+    labor: number
+    materials: number
+    additional: number
+  }
+  availability?: string
+  portfolio?: Array<{ url: string; description: string }>
 }
 
 interface QuotesInboxProps {
   requestId: string | null
   isAuthenticated: boolean
 }
+
+type ViewMode = 'list' | 'detail'
 
 export const QuotesInbox: React.FC<QuotesInboxProps> = ({ requestId, isAuthenticated }) => {
   const [quotes, setQuotes] = useState<Quote[]>([])
@@ -69,6 +92,9 @@ export const QuotesInbox: React.FC<QuotesInboxProps> = ({ requestId, isAuthentic
   const [hasNewQuotes, setHasNewQuotes] = useState(false)
   const [timeElapsed, setTimeElapsed] = useState(0)
   const [showNotification, setShowNotification] = useState(false)
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
+  const [acceptingQuote, setAcceptingQuote] = useState<string | null>(null)
 
   // Timer para contar tiempo transcurrido desde la solicitud
   useEffect(() => {
@@ -151,43 +177,50 @@ export const QuotesInbox: React.FC<QuotesInboxProps> = ({ requestId, isAuthentic
     return () => clearInterval(interval)
   }, [requestId, isAuthenticated, fetchQuotes])
 
-  // Función para aceptar/rechazar cotización
-  const handleQuoteAction = async (quoteIndex: number, action: 'accept' | 'reject') => {
-    if (!requestId) return
-
-    try {
-      const response = await fetch(`/api/quotes`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          requestId,
-          quoteIndex,
-          status: action === 'accept' ? 'accepted' : 'rejected',
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Error al ${action === 'accept' ? 'aceptar' : 'rechazar'} cotización`)
-      }
-
-      const updatedRequest = await response.json()
-
-      // Update quotes with the response from the API
-      setQuotes(updatedRequest.quotes || [])
-    } catch (err: any) {
-      console.error('Error al actualizar cotización:', err)
-      setError(err.message || 'Error al actualizar cotización')
-    }
-  }
-
   // Formatear tiempo transcurrido
   const formatTimeElapsed = (minutes: number) => {
     if (minutes < 60) return `${minutes} min`
     const hours = Math.floor(minutes / 60)
     const remainingMinutes = minutes % 60
     return `${hours}h ${remainingMinutes}m`
+  }
+
+  // Función para ver detalles de una cotización
+  const handleViewDetails = (quote: Quote) => {
+    setSelectedQuote(quote)
+    setViewMode('detail')
+  }
+
+  // Función para volver a la lista
+  const handleBackToList = () => {
+    setViewMode('list')
+    setSelectedQuote(null)
+  }
+
+  // Función para aceptar cotización
+  const handleAcceptQuote = async (quoteId: string) => {
+    setAcceptingQuote(quoteId)
+
+    try {
+      // Aquí iría la lógica para aceptar la cotización
+      // Por ahora simularemos la aceptación
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      // Actualizar el estado local
+      setQuotes((prev) =>
+        prev.map((quote) =>
+          quote.id === quoteId ? { ...quote, status: 'accepted' as const } : quote,
+        ),
+      )
+
+      // Volver a la vista de lista
+      handleBackToList()
+    } catch (error) {
+      console.error('Error accepting quote:', error)
+      // Aquí podrías mostrar una notificación de error
+    } finally {
+      setAcceptingQuote(null)
+    }
   }
 
   // Si no está autenticado, mostrar mensaje
@@ -209,6 +242,248 @@ export const QuotesInbox: React.FC<QuotesInboxProps> = ({ requestId, isAuthentic
     )
   }
 
+  // Vista de detalle de cotización
+  if (viewMode === 'detail' && selectedQuote) {
+    return (
+      <div className="space-y-4">
+        {/* Header con navegación */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBackToList}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Volver a cotizaciones
+              </Button>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Información del contratista */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-start gap-4">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src={selectedQuote.contractor.profileImage?.url} />
+                <AvatarFallback>
+                  <User className="h-8 w-8" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <h2 className="text-xl font-semibold">{selectedQuote.contractor.name}</h2>
+                  {selectedQuote.contractor.verified && (
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      <Shield className="h-3 w-3" />
+                      Verificado
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                    {selectedQuote.contractor.rating} ({selectedQuote.contractor.reviewCount}{' '}
+                    reseñas)
+                  </div>
+                  {selectedQuote.contractor.completedJobs && (
+                    <div className="flex items-center gap-1">
+                      <Award className="h-4 w-4 text-blue-500" />
+                      {selectedQuote.contractor.completedJobs} trabajos completados
+                    </div>
+                  )}
+                </div>
+                {selectedQuote.contractor.specialties && (
+                  <div className="flex flex-wrap gap-1">
+                    {selectedQuote.contractor.specialties.map((specialty, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {specialty}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-green-600">
+                  ${selectedQuote.amount.toLocaleString()}
+                </div>
+                <Badge
+                  variant={selectedQuote.status === 'accepted' ? 'default' : 'outline'}
+                  className={selectedQuote.status === 'accepted' ? 'bg-green-600' : ''}
+                >
+                  {selectedQuote.status === 'pending' && 'Pendiente'}
+                  {selectedQuote.status === 'accepted' && 'Aceptada'}
+                  {selectedQuote.status === 'rejected' && 'Rechazada'}
+                </Badge>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Detalles de la cotización */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Detalles de la cotización</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h4 className="font-medium mb-2">Descripción del trabajo:</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {selectedQuote.description}
+              </p>
+            </div>
+
+            {selectedQuote.priceBreakdown && (
+              <div>
+                <h4 className="font-medium mb-2">Desglose de precios:</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Mano de obra:</span>
+                    <span>${selectedQuote.priceBreakdown.labor.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Materiales:</span>
+                    <span>${selectedQuote.priceBreakdown.materials.toLocaleString()}</span>
+                  </div>
+                  {selectedQuote.priceBreakdown.additional > 0 && (
+                    <div className="flex justify-between">
+                      <span>Adicionales:</span>
+                      <span>${selectedQuote.priceBreakdown.additional.toLocaleString()}</span>
+                    </div>
+                  )}
+                  <Separator />
+                  <div className="flex justify-between font-medium">
+                    <span>Total:</span>
+                    <span>${selectedQuote.amount.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              {selectedQuote.estimatedDuration && (
+                <div>
+                  <h4 className="font-medium mb-1">Duración estimada:</h4>
+                  <p className="text-sm text-muted-foreground">{selectedQuote.estimatedDuration}</p>
+                </div>
+              )}
+              {selectedQuote.availability && (
+                <div>
+                  <h4 className="font-medium mb-1">Disponibilidad:</h4>
+                  <p className="text-sm text-muted-foreground">{selectedQuote.availability}</p>
+                </div>
+              )}
+            </div>
+
+            {selectedQuote.warranty && (
+              <div>
+                <h4 className="font-medium mb-1">Garantía:</h4>
+                <p className="text-sm text-muted-foreground">{selectedQuote.warranty}</p>
+              </div>
+            )}
+
+            {selectedQuote.materials && selectedQuote.materials.length > 0 && (
+              <div>
+                <h4 className="font-medium mb-2">Materiales incluidos:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  {selectedQuote.materials.map((material, index) => (
+                    <li key={index}>• {material}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Información de contacto */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Información de contacto</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {selectedQuote.contractor.phone && (
+              <div className="flex items-center gap-3">
+                <PhoneIcon className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">{selectedQuote.contractor.phone}</span>
+                <Button size="sm" variant="outline">
+                  Llamar
+                </Button>
+              </div>
+            )}
+            {selectedQuote.contractor.email && (
+              <div className="flex items-center gap-3">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">{selectedQuote.contractor.email}</span>
+                <Button size="sm" variant="outline">
+                  Email
+                </Button>
+              </div>
+            )}
+            {selectedQuote.contractor.location && (
+              <div className="flex items-center gap-3">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">{selectedQuote.contractor.location}</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Portfolio si existe */}
+        {selectedQuote.portfolio && selectedQuote.portfolio.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Trabajos anteriores</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {selectedQuote.portfolio.map((item, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
+                      <Image className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <p className="text-xs text-muted-foreground">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Botones de acción */}
+        {selectedQuote.status === 'pending' && (
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex gap-3">
+                <Button
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  onClick={() => handleAcceptQuote(selectedQuote.id)}
+                  disabled={acceptingQuote === selectedQuote.id}
+                >
+                  {acceptingQuote === selectedQuote.id ? (
+                    'Aceptando...'
+                  ) : (
+                    <>
+                      <ThumbsUp className="h-4 w-4 mr-2" />
+                      Aceptar cotización
+                    </>
+                  )}
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Negociar precio
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    )
+  }
+
+  // Vista principal de lista
   return (
     <div className="space-y-4">
       {/* Notification for new quotes */}
@@ -228,7 +503,7 @@ export const QuotesInbox: React.FC<QuotesInboxProps> = ({ requestId, isAuthentic
               <Link href={`/request-service/quotes/${requestId}`}>
                 <Button size="sm" className="bg-green-600 hover:bg-green-700">
                   <ExternalLink className="h-4 w-4 mr-2" />
-                  Ver Todas
+                  Gestionar Todas
                 </Button>
               </Link>
             </div>
@@ -242,7 +517,7 @@ export const QuotesInbox: React.FC<QuotesInboxProps> = ({ requestId, isAuthentic
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5 text-primary" />
-              Cotizaciones de Contratistas
+              Cotizaciones Recibidas
               {hasNewQuotes && (
                 <Badge variant="default" className="animate-pulse">
                   Nueva!
@@ -292,39 +567,35 @@ export const QuotesInbox: React.FC<QuotesInboxProps> = ({ requestId, isAuthentic
                 <Link href={`/request-service/quotes/${requestId}`}>
                   <Button size="sm" variant="outline">
                     <ExternalLink className="h-4 w-4 mr-2" />
-                    Ver Todas las Cotizaciones
+                    Gestionar Cotizaciones
                   </Button>
                 </Link>
               </div>
 
-              {/* Mostrar resumen de las primeras 2 cotizaciones */}
-              {quotes.slice(0, 2).map((quote, index) => (
+              {/* Lista de cotizaciones */}
+              {quotes.map((quote, index) => (
                 <Card
                   key={quote.id}
-                  className={`transition-all ${
+                  className={`transition-all cursor-pointer ${
                     quote.status === 'accepted'
                       ? 'border-green-500 bg-green-50'
                       : quote.status === 'rejected'
                         ? 'border-gray-300 opacity-60'
-                        : 'border-border hover:border-primary'
+                        : 'border-border hover:border-primary hover:shadow-md'
                   }`}
+                  onClick={() => handleViewDetails(quote)}
                 >
                   <CardContent className="p-4">
                     <div className="space-y-3">
                       {/* Header del contratista */}
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                            {quote.contractor.profileImage?.url ? (
-                              <img
-                                src={quote.contractor.profileImage.url}
-                                alt={quote.contractor.name}
-                                className="h-full w-full rounded-full object-cover"
-                              />
-                            ) : (
-                              <User className="h-5 w-5 text-muted-foreground" />
-                            )}
-                          </div>
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={quote.contractor.profileImage?.url} />
+                            <AvatarFallback>
+                              <User className="h-5 w-5" />
+                            </AvatarFallback>
+                          </Avatar>
                           <div>
                             <div className="flex items-center gap-2">
                               <h4 className="font-medium">{quote.contractor.name}</h4>
@@ -344,8 +615,16 @@ export const QuotesInbox: React.FC<QuotesInboxProps> = ({ requestId, isAuthentic
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-lg text-green-600">${quote.amount}</span>
+                          <span className="font-bold text-lg text-green-600">
+                            ${quote.amount.toLocaleString()}
+                          </span>
                           {quote.status === 'pending' && <Badge variant="outline">Pendiente</Badge>}
+                          {quote.status === 'accepted' && (
+                            <Badge variant="default" className="bg-green-600">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Aceptada
+                            </Badge>
+                          )}
                         </div>
                       </div>
 
@@ -356,64 +635,44 @@ export const QuotesInbox: React.FC<QuotesInboxProps> = ({ requestId, isAuthentic
                         {quote.description}
                       </p>
 
-                      {/* Acciones rápidas */}
+                      {/* Acciones de aceptación directa */}
                       {quote.status === 'pending' && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 pt-2">
                           <Button
                             size="sm"
-                            onClick={() => handleQuoteAction(index, 'accept')}
-                            className="flex items-center gap-2"
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleAcceptQuote(quote.id)
+                            }}
+                            disabled={acceptingQuote === quote.id}
                           >
-                            <Check className="h-4 w-4" />
-                            Aceptar
+                            {acceptingQuote === quote.id ? (
+                              'Aceptando...'
+                            ) : (
+                              <>
+                                <ThumbsUp className="h-4 w-4 mr-1" />
+                                Aceptar
+                              </>
+                            )}
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleQuoteAction(index, 'reject')}
-                            className="flex items-center gap-2"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleViewDetails(quote)
+                            }}
                           >
-                            <X className="h-4 w-4" />
-                            Rechazar
+                            <Eye className="h-4 w-4 mr-1" />
+                            Ver detalles
                           </Button>
-                          <Button size="sm" variant="ghost" className="flex items-center gap-2">
-                            <MessageCircle className="h-4 w-4" />
-                            Preguntar
-                          </Button>
-                        </div>
-                      )}
-
-                      {/* Información para cotización aceptada */}
-                      {quote.status === 'accepted' && (
-                        <div className="bg-green-50 p-3 rounded-lg">
-                          <p className="text-sm font-medium text-green-800 mb-1">
-                            ¡Cotización aceptada!
-                          </p>
-                          <p className="text-xs text-green-600">
-                            El contratista será notificado y se pondrá en contacto contigo.
-                          </p>
                         </div>
                       )}
                     </div>
                   </CardContent>
                 </Card>
               ))}
-
-              {/* Mostrar indicador si hay más cotizaciones */}
-              {quotes.length > 2 && (
-                <Card className="border-dashed">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-sm text-muted-foreground mb-2">
-                      +{quotes.length - 2} cotización{quotes.length - 2 > 1 ? 'es' : ''} más
-                    </p>
-                    <Link href={`/request-service/quotes/${requestId}`}>
-                      <Button size="sm" variant="outline">
-                        Ver Todas las Cotizaciones
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              )}
             </div>
           )}
 

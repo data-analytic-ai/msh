@@ -73,14 +73,38 @@ export default function ContractorLoginPage() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.errors?.[0]?.message || 'Error al iniciar sesión')
+        // Try to parse error response only if there's content
+        let errorMessage = 'Error al iniciar sesión'
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.errors?.[0]?.message || errorData.message || errorMessage
+        } catch (jsonError) {
+          // If JSON parsing fails, use default message
+          console.warn('Failed to parse error response as JSON:', jsonError)
+        }
+        throw new Error(errorMessage)
       }
 
-      const userData = await response.json()
+      // Try to parse JSON response, but handle empty responses
+      let userData = { user: { role: null } }
+      try {
+        const responseText = await response.text()
+        if (responseText && responseText.trim() !== '') {
+          userData = JSON.parse(responseText)
+        } else {
+          // Empty response is OK for PayloadCMS cookie-based auth
+          console.log('Empty response from login, will verify user role after login')
+        }
+      } catch (jsonError) {
+        console.warn(
+          'Failed to parse login response as JSON, will verify user role after login:',
+          jsonError,
+        )
+      }
 
-      // Verificar si el usuario es un contratista
+      // Check user role only if we have it from response, otherwise check after login
       if (
+        userData.user?.role &&
         userData.user.role !== 'contractor' &&
         userData.user.role !== 'admin' &&
         userData.user.role !== 'superadmin'
@@ -95,7 +119,14 @@ export default function ContractorLoginPage() {
       setUserEmail(email)
       setIsAuthenticated(true)
 
-      // Redirigir según el rol
+      // If we don't have user data from response, we need to fetch it after login
+      if (!userData.user?.role) {
+        // Let the effect handle redirect based on user data from getMe()
+        // The useEffect will check authentication and redirect appropriately
+        return
+      }
+
+      // Redirigir según el rol (only if we have role data)
       if (userData.user.role === 'contractor') {
         router.push('/contractor/dashboard') // Contratistas van a su dashboard
       } else if (userData.user.role === 'admin' || userData.user.role === 'superadmin') {

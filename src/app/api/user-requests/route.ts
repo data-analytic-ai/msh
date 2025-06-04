@@ -68,9 +68,9 @@ export async function GET(request: Request) {
             email,
             password: tempPassword || 'TemporaryPassword123!',
             role: 'client',
-            name: customerInfo?.fullName?.split(' ')[0] || email.split('@')[0] || 'User',
-            lastName: customerInfo?.fullName?.split(' ').slice(1).join(' ') || '',
-            phoneNumber: customerInfo?.phone || '',
+            firstName: customerInfo?.firstName || email.split('@')[0] || 'User',
+            lastName: customerInfo?.lastName || '',
+            phone: customerInfo?.phone || '',
           },
         })
 

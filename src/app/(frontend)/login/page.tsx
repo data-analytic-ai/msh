@@ -29,7 +29,7 @@ function LoginFormSkeleton() {
   return (
     <div className="container mx-auto py-12 max-w-md">
       <div className="bg-card rounded-lg border p-8 shadow-sm">
-        <h1 className="text-2xl font-bold mb-6">Iniciar sesión</h1>
+        <h1 className="text-2xl font-bold mb-6 text-foreground dark:text-white">Iniciar sesión</h1>
         <div className="space-y-4">
           <div className="space-y-2">
             <div className="h-5 w-1/3 bg-muted rounded animate-pulse"></div>
@@ -98,14 +98,38 @@ function LoginForm() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.errors?.[0]?.message || 'Error al iniciar sesión')
+        // Try to parse error response only if there's content
+        let errorMessage = 'Error al iniciar sesión'
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.errors?.[0]?.message || errorData.message || errorMessage
+        } catch (jsonError) {
+          // If JSON parsing fails, use default message
+          console.warn('Failed to parse error response as JSON:', jsonError)
+        }
+        throw new Error(errorMessage)
       }
 
-      const userData = await response.json()
+      // Try to parse JSON response, but handle empty responses
+      let userData: any = { user: null }
+      try {
+        const responseText = await response.text()
+        if (responseText && responseText.trim() !== '') {
+          userData = JSON.parse(responseText)
+        } else {
+          // Empty response is OK for PayloadCMS cookie-based auth
+          console.log('Empty response from login, checking user data via /api/users/me')
+          // We'll get user data from getMe() after successful login
+        }
+      } catch (jsonError) {
+        console.warn(
+          'Failed to parse login response as JSON, checking user via /api/users/me:',
+          jsonError,
+        )
+      }
 
-      // Actualizar estado de autenticación usando el provider
-      await login(userData.token)
+      // PayloadCMS handles authentication with cookies automatically
+      await login() // No need to pass token
 
       // Verificar si hay una solicitud pendiente en sessionStorage
       let pendingRequest = null
@@ -125,7 +149,7 @@ function LoginForm() {
       if (pendingRequest && pendingRequest.returnPath) {
         // Si hay una ruta de retorno específica, ir allí
         router.push(pendingRequest.returnPath)
-      } else if (userData.user.role === 'admin' || userData.user.role === 'superadmin') {
+      } else if (userData.user?.role === 'admin' || userData.user?.role === 'superadmin') {
         router.push('/admin') // Roles administrativos van al panel
       } else {
         router.push('/') // Clientes van a la página principal
@@ -143,7 +167,7 @@ function LoginForm() {
   }
 
   return (
-    <div className="container mx-auto py-12 max-w-md">
+    <div className="container mx-auto py-12 max-w-md bg-background text-foreground dark:text-white">
       <div className="bg-card rounded-lg border p-8 shadow-sm">
         <h1 className="text-2xl font-bold mb-6">Iniciar sesión</h1>
 

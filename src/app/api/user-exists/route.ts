@@ -1,7 +1,8 @@
 /**
  * User Exists API Route
  *
- * Esta API verifica si un usuario existe en la base de datos basado en su email.
+ * Checks if a user exists by email address.
+ * Used to determine if we should show login or registration form.
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
@@ -9,19 +10,17 @@ import config from '@payload-config'
 
 export async function GET(request: NextRequest) {
   try {
-    // Obtener el email de la consulta
-    const searchParams = request.nextUrl.searchParams
+    const { searchParams } = new URL(request.url)
     const email = searchParams.get('email')
 
-    // Verificar que el email exista
     if (!email) {
-      return NextResponse.json({ message: 'Email is required', exists: false }, { status: 400 })
+      return NextResponse.json({ error: 'Email parameter is required' }, { status: 400 })
     }
 
-    // Inicializar Payload correctamente
+    // Get Payload instance
     const payload = await getPayload({ config })
 
-    // Buscar usuario por email
+    // Find user by email
     const users = await payload.find({
       collection: 'users',
       where: {
@@ -32,15 +31,11 @@ export async function GET(request: NextRequest) {
       limit: 1,
     })
 
-    // Verificar si el usuario existe
-    const exists = users.totalDocs > 0
-
-    return NextResponse.json({ exists })
+    return NextResponse.json({
+      exists: users.docs.length > 0,
+    })
   } catch (error) {
-    console.error('Error checking if user exists:', error)
-    return NextResponse.json(
-      { message: 'Error checking if user exists', exists: false },
-      { status: 500 },
-    )
+    console.error('Error checking user existence:', error)
+    return NextResponse.json({ error: 'Failed to check user existence' }, { status: 500 })
   }
 }
