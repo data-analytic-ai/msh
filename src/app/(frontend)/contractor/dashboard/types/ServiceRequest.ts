@@ -9,8 +9,9 @@ export interface ServiceRequest {
   requestTitle: string
   serviceType: string[]
   description: string
-  status: 'pending' | 'assigned' | 'in-progress' | 'completed' | 'cancelled'
+  status: 'pending' | 'assigned' | 'accepted' | 'in-progress' | 'completed' | 'cancelled'
   urgencyLevel: string
+  assignedContractor?: string | null
   customerInfo: {
     firstName: string
     lastName: string
