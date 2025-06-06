@@ -7,7 +7,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import payload from 'payload'
+import { ServiceRequestsStore } from '@/lib/service-requests-store'
+import { PAYMENT_CONFIG, convertToSmallestUnit } from '@/lib/payment-config'
 
 // Inicializar Stripe con la clave secreta
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -29,9 +30,9 @@ export async function POST(request: NextRequest) {
     // Crear la intención de pago con captura manual
     // Esto permite retener los fondos pero no transferirlos hasta confirmación
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convertir a centavos
-      currency: 'mxn',
-      capture_method: 'manual', // Importante: permite retener el pago
+      amount: convertToSmallestUnit(amount), // Convertir a centavos usando configuración
+      currency: PAYMENT_CONFIG.DEFAULT_CURRENCY,
+      capture_method: PAYMENT_CONFIG.CAPTURE_METHOD, // Importante: permite retener el pago
       description: description || `Servicio #${serviceRequestId}`,
       metadata: {
         serviceRequestId,
@@ -40,20 +41,16 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Actualizar la solicitud de servicio con el ID de la intención de pago
-    try {
-      await payload.update({
-        collection: 'service-requests',
-        id: serviceRequestId,
-        data: {
-          paymentStatus: 'pending',
-          paymentIntentId: paymentIntent.id,
-        },
-      })
-    } catch (error) {
-      console.warn('No se pudo actualizar la colección service-requests:', error)
-      // Continuar el proceso aún si falla la actualización
-    }
+    // Almacenar la solicitud de servicio usando el store compartido
+    ServiceRequestsStore.create({
+      id: serviceRequestId,
+      contractorId,
+      customerId,
+      amount,
+      paymentStatus: 'pending',
+      paymentIntentId: paymentIntent.id,
+      status: 'created',
+    })
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,

@@ -98,10 +98,10 @@ export default function ContractorRegisterPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: name,
+          firstName: name,
           lastName: lastName,
           email: email,
-          phoneNumber: phoneNumber,
+          phone: phoneNumber,
           password: password,
           confirmPassword: confirmPassword,
           role: 'contractor', // Asignar rol de contratista
@@ -140,6 +140,22 @@ export default function ContractorRegisterPage() {
       })
 
       if (loginResponse.ok) {
+        // PayloadCMS handles authentication with cookies automatically
+        // Try to parse JSON response, but handle empty responses
+        try {
+          const responseText = await loginResponse.text()
+          if (responseText && responseText.trim() !== '') {
+            // Parse response if available
+            JSON.parse(responseText)
+          }
+          // Whether we have response data or not, login was successful
+        } catch (jsonError) {
+          console.warn(
+            'Failed to parse login response as JSON, but login was successful:',
+            jsonError,
+          )
+        }
+
         // Registro y login exitoso
         setUserEmail(email)
         setIsAuthenticated(true)
@@ -176,7 +192,7 @@ export default function ContractorRegisterPage() {
   }
 
   return (
-    <div className="container mx-auto py-12 max-w-2xl">
+    <div className="container mx-auto py-12 max-w-2xl dark:text-white dark:bg-background">
       <div className="bg-card rounded-lg border p-8 shadow-sm">
         <div className="flex items-center justify-center mb-6">
           <Wrench className="h-8 w-8 text-primary mr-2" />

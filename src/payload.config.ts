@@ -8,6 +8,8 @@ import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
 import Contractors from './collections/Contractors'
+import { LeadAccess } from './collections/LeadAccess'
+import { LeadChats } from './collections/LeadChats'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
@@ -65,7 +67,18 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URI || '',
   }),
-  collections: [Pages, Posts, Media, Categories, Users, ServiceRequests, Services, Contractors],
+  collections: [
+    Pages,
+    Posts,
+    Media,
+    Categories,
+    Users,
+    ServiceRequests,
+    Services,
+    Contractors,
+    LeadAccess,
+    LeadChats,
+  ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   plugins: [

@@ -1,6 +1,24 @@
 import type { FormFieldBlock } from '@payloadcms/plugin-form-builder/types'
 
-export const buildInitialFormState = (fields: FormFieldBlock[]) => {
+// Extended type to include custom field types
+type ExtendedFormFieldBlock =
+  | FormFieldBlock
+  | {
+      blockType:
+        | 'phoneNumber'
+        | 'imageUpload'
+        | 'location'
+        | 'number'
+        | 'colorPicker'
+        | 'urgencyLevel'
+      name: string
+      label?: string
+      width?: number
+      required?: boolean
+      defaultValue?: any
+    }
+
+export const buildInitialFormState = (fields: ExtendedFormFieldBlock[]) => {
   return fields?.reduce((initialSchema, field) => {
     if (field.blockType === 'checkbox') {
       return {
@@ -35,7 +53,7 @@ export const buildInitialFormState = (fields: FormFieldBlock[]) => {
     if (field.blockType === 'state') {
       return {
         ...initialSchema,
-        [field.defaultValue || field.name ]: '',
+        [field.defaultValue || field.name]: '',
       }
     }
     if (field.blockType === 'country') {
@@ -45,7 +63,7 @@ export const buildInitialFormState = (fields: FormFieldBlock[]) => {
       }
     }
     if (field.blockType === 'message') {
-      return initialSchema;
+      return initialSchema
     }
     // Corregimos el manejo del campo colorPicker
     // @ts-ignore - Ignoramos el error de tipo ya que sabemos que este campo existe
@@ -56,7 +74,31 @@ export const buildInitialFormState = (fields: FormFieldBlock[]) => {
         // @ts-ignore
         [field.name]: '',
       }
-    } 
+    }
+    if (field.blockType === 'phoneNumber') {
+      return {
+        ...initialSchema,
+        [field.name]: '',
+      }
+    }
+    if (field.blockType === 'imageUpload') {
+      return {
+        ...initialSchema,
+        [field.name]: [],
+      }
+    }
+    if (field.blockType === 'location') {
+      return {
+        ...initialSchema,
+        [field.name]: '',
+      }
+    }
+    if (field.blockType === 'number') {
+      return {
+        ...initialSchema,
+        [field.name]: '',
+      }
+    }
 
     return initialSchema
   }, {})

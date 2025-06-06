@@ -36,24 +36,38 @@ export default function TrackingPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null)
+  const [serviceRequestId, setServiceRequestId] = useState<string | null>(null)
 
   // Marcar el paso actual en el contexto
   useEffect(() => {
     setCurrentStep('tracking')
   }, [setCurrentStep])
 
-  // Obtener paymentIntentId del sessionStorage o formData
+  // Obtener IDs del sessionStorage o formData
   useEffect(() => {
-    // Intentar obtener primero del sessionStorage
+    // Obtener paymentIntentId
     const storedPaymentIntentId = sessionStorage.getItem('paymentIntentId')
-
     if (storedPaymentIntentId) {
       setPaymentIntentId(storedPaymentIntentId)
     } else if (formData && formData.paymentIntentId) {
-      // Si no está en sessionStorage, intentar obtenerlo de formData
       setPaymentIntentId(formData.paymentIntentId)
     }
-  }, [formData])
+
+    // Obtener serviceRequestId
+    const storedServiceRequestId = sessionStorage.getItem('serviceRequestId')
+    if (storedServiceRequestId) {
+      setServiceRequestId(storedServiceRequestId)
+    } else if (requestId) {
+      // Usar requestId del contexto como fallback
+      setServiceRequestId(requestId)
+    }
+
+    console.log('🔍 IDs obtenidos:', {
+      paymentIntentId: storedPaymentIntentId || formData?.paymentIntentId,
+      serviceRequestId: storedServiceRequestId || requestId,
+      contextRequestId: requestId,
+    })
+  }, [formData, requestId])
 
   // Para demo, vamos a simular el progreso del servicio
   useEffect(() => {
@@ -83,30 +97,45 @@ export default function TrackingPage() {
 
   // Manejar la confirmación de finalización del servicio
   const handleConfirmCompletion = async () => {
-    if (!requestId || !paymentIntentId) {
+    const finalServiceRequestId = serviceRequestId || requestId
+
+    if (!finalServiceRequestId || !paymentIntentId) {
       setError('No se encontró información de la solicitud o del pago')
+      console.error('❌ Faltan datos:', {
+        serviceRequestId: finalServiceRequestId,
+        paymentIntentId,
+        requestId,
+      })
       return
     }
+
+    console.log('💳 Iniciando captura de pago:', {
+      paymentIntentId,
+      serviceRequestId: finalServiceRequestId,
+    })
 
     setIsLoading(true)
     setError(null)
 
     try {
       // Capturar el pago retenido
-      const result = await capturePayment(paymentIntentId, requestId)
+      const result = await capturePayment(paymentIntentId, finalServiceRequestId)
 
       if (result && result.success) {
         // Actualizar el estado
         setCurrentStatus(ServiceStatus.COMPLETED)
+        console.log('✅ Pago capturado exitosamente')
 
         // Limpiar los datos de sessionStorage
         setTimeout(() => {
           sessionStorage.removeItem('paymentIntentId')
-          // Opcional: redirigir a una página de confirmación o valoración
-          // router.push('/request-service/confirmation');
+          sessionStorage.removeItem('serviceRequestId')
+          // Redirigir a la página de finalización
+          router.push('/request-service/completion')
         }, 2000)
       } else {
         setError('No se pudo completar el pago. Contacte con soporte.')
+        console.error('❌ Error en la respuesta:', result)
       }
     } catch (err: any) {
       console.error('Error al capturar el pago:', err)
@@ -117,7 +146,7 @@ export default function TrackingPage() {
   }
 
   // Si no hay contratista seleccionado ni ID de solicitud, mostrar mensaje
-  if (!selectedContractor && !requestId) {
+  if (!selectedContractor && !requestId && !serviceRequestId) {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
@@ -140,6 +169,9 @@ export default function TrackingPage() {
   const contractorRating = selectedContractor?.rating || 4.9
   const contractorService = selectedContractor?.services?.join(', ') || 'Servicio'
 
+  // Usar el ID que esté disponible para mostrar
+  const displayRequestId = serviceRequestId || requestId
+
   // Textos para cada estado
   const statusMessages = {
     [ServiceStatus.CONFIRMED]: 'Tu solicitud ha sido confirmada y asignada a Juan Pérez.',
@@ -151,7 +183,7 @@ export default function TrackingPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6 dark:text-white">
       {/* Navegación */}
       <div className="mb-6">
         <Link href="/" className="flex items-center gap-2 text-sm font-medium">
@@ -164,9 +196,9 @@ export default function TrackingPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Seguimiento</h1>
         <p className="text-muted-foreground">Sigue el progreso de tu servicio solicitado</p>
-        {requestId && (
+        {displayRequestId && (
           <Badge variant="outline" className="mt-2">
-            ID: {requestId}
+            ID: {displayRequestId}
           </Badge>
         )}
       </div>
@@ -345,7 +377,7 @@ export default function TrackingPage() {
       </div>
 
       {/* Acción de confirmación */}
-      <div className="space-y-4">
+      <div className="space-y-4 dark:text-white">
         {currentStatus === ServiceStatus.IN_PROGRESS ? (
           <>
             <Button
@@ -368,7 +400,7 @@ export default function TrackingPage() {
             </p>
           </>
         ) : currentStatus === ServiceStatus.COMPLETED ? (
-          <div className="bg-success/10 text-success-foreground p-4 rounded-lg text-center">
+          <div className="bg-success/50 text-success-foreground p-4 rounded-lg text-center dark:text-white">
             <h3 className="text-lg font-semibold mb-2">¡Servicio completado!</h3>
             <p className="text-sm">
               El pago ha sido procesado. Gracias por utilizar nuestros servicios.

@@ -19,9 +19,9 @@ export const Logo = (props: Props) => {
   // Combina las clases predeterminadas con las clases personalizadas
   const logoClasses = clsx(
     'font-bold',
-    'text-2xl',
-    'sm:text-3xl',
-    'md:text-4xl',
+    'text-xl',
+    'sm:text-xl',
+    'md:text-xl',
     'transition-colors',
     'duration-200',
     className,
@@ -29,8 +29,10 @@ export const Logo = (props: Props) => {
 
   return (
     <div className={logoClasses}>
-      <span className="text-foreground dark:text-white">Urgent</span>
-      <span className="text-primary">Fix</span>
+      <span className="text-foreground dark:text-white">Emergency</span>
+      <br />
+      <span className="text-primary">Repair</span>
+      <span className="text-primary">24</span>
     </div>
   )
 }

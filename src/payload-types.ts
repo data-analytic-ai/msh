@@ -19,6 +19,8 @@ export interface Config {
     'service-requests': ServiceRequest;
     services: Service;
     contractors: Contractor;
+    leadAccess: LeadAccess;
+    leadChats: LeadChat;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -38,6 +40,8 @@ export interface Config {
     'service-requests': ServiceRequestsSelect<false> | ServiceRequestsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     contractors: ContractorsSelect<false> | ContractorsSelect<true>;
+    leadAccess: LeadAccessSelect<false> | LeadAccessSelect<true>;
+    leadChats: LeadChatsSelect<false> | LeadChatsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -328,33 +332,73 @@ export interface Category {
 export interface User {
   id: string;
   role: 'superadmin' | 'admin' | 'contractor' | 'client';
-  name: string;
+  firstName: string;
   lastName: string;
-  phoneNumber: string;
+  phone?: string | null;
   phoneVerified?: boolean | null;
+  avatar?: (string | null) | Media;
   location?: {
     address?: string | null;
     lat?: number | null;
     lng?: number | null;
   };
-  contractorFields?: {
-    services: (
-      | 'plumbing'
-      | 'electrical'
-      | 'glass'
-      | 'hvac'
-      | 'pests'
-      | 'locksmith'
-      | 'roofing'
-      | 'siding'
-      | 'general'
-    )[];
-    yearsExperience: number;
-    hasLicense?: boolean | null;
-    rating?: number | null;
-    reviewCount?: number | null;
-    isVerified?: boolean | null;
+  businessName?: string | null;
+  businessType?: ('sole_proprietorship' | 'partnership' | 'llc' | 'corporation') | null;
+  businessLicense?: string | null;
+  businessAddress?: string | null;
+  businessCity?: string | null;
+  businessState?: string | null;
+  businessZip?: string | null;
+  taxId?: string | null;
+  yearsOfExperience?: number | null;
+  services?:
+    | (
+        | 'plumbing'
+        | 'electrical'
+        | 'hvac'
+        | 'roofing'
+        | 'painting'
+        | 'flooring'
+        | 'carpentry'
+        | 'landscaping'
+        | 'cleaning'
+        | 'locksmith'
+        | 'glass'
+        | 'pests'
+        | 'general'
+      )[]
+    | null;
+  specializations?:
+    | {
+        specialization: string;
+        id?: string | null;
+      }[]
+    | null;
+  serviceRadius?: number | null;
+  hourlyRate?: number | null;
+  minimumJobValue?: number | null;
+  stripeAccountId?: string | null;
+  bankAccountVerified?: boolean | null;
+  paymentMethodsAccepted?: ('card' | 'bank_transfer' | 'paypal' | 'cash')[] | null;
+  isAvailable?: boolean | null;
+  autoAcceptJobs?: boolean | null;
+  notificationPreferences?: {
+    email?: boolean | null;
+    sms?: boolean | null;
+    push?: boolean | null;
+    newJobs?: boolean | null;
+    jobUpdates?: boolean | null;
+    payments?: boolean | null;
   };
+  rating?: number | null;
+  reviewCount?: number | null;
+  completedJobs?: number | null;
+  verified?: boolean | null;
+  /**
+   * ID from Google Places API if this contractor was imported
+   */
+  googlePlaceId?: string | null;
+  dataSource?: ('manual' | 'google_maps' | 'invitation') | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -479,6 +523,11 @@ export interface Form {
             blockName?: string | null;
             blockType: 'textarea';
           }
+        | PhoneNumberField
+        | ImageUploadField
+        | LocationField
+        | ColorPickerField
+        | UrgencyLevelField
       )[]
     | null;
   submitButtonLabel?: string | null;
@@ -538,6 +587,80 @@ export interface Form {
     | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PhoneNumberField".
+ */
+export interface PhoneNumberField {
+  name: string;
+  label?: string | null;
+  /**
+   * Width of the field in the form layout
+   */
+  width?: number | null;
+  required?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'phoneNumber';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageUploadField".
+ */
+export interface ImageUploadField {
+  name: string;
+  label?: string | null;
+  width?: number | null;
+  required?: boolean | null;
+  maxFiles?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageUpload';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LocationField".
+ */
+export interface LocationField {
+  name: string;
+  label?: string | null;
+  width?: number | null;
+  required?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'location';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ColorPickerField".
+ */
+export interface ColorPickerField {
+  name: string;
+  label?: string | null;
+  width?: number | null;
+  required?: boolean | null;
+  /**
+   * Default color value (hex format)
+   */
+  defaultValue?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'colorPicker';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "UrgencyLevelField".
+ */
+export interface UrgencyLevelField {
+  name: string;
+  label?: string | null;
+  width?: number | null;
+  required?: boolean | null;
+  defaultValue?: ('low' | 'medium' | 'high' | 'emergency') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'urgencyLevel';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -866,7 +989,8 @@ export interface ServiceRequest {
    * Customer contact information
    */
   customerInfo: {
-    fullName: string;
+    firstName: string;
+    lastName: string;
     email: string;
     phone: string;
     preferredContact: 'phone' | 'email' | 'sms';
@@ -989,20 +1113,24 @@ export interface Service {
  */
 export interface Contractor {
   id: string;
+  /**
+   * User account associated with this contractor profile
+   */
+  userId?: (string | null) | User;
   name: string;
-  description: string;
-  contactEmail: string;
-  contactPhone: string;
+  description?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
   website?: string | null;
   address: string;
   location: {
     lat: number;
     lng: number;
   };
-  servicesOffered: (string | Service)[];
-  yearsExperience: number;
-  rating: number;
-  reviewCount: number;
+  servicesOffered?: (string | Service)[] | null;
+  yearsExperience?: number | null;
+  rating?: number | null;
+  reviewCount?: number | null;
   profileImage?: (string | null) | Media;
   coverImage?: (string | null) | Media;
   specialties?:
@@ -1026,6 +1154,7 @@ export interface Contractor {
     saturday?: string | null;
     sunday?: string | null;
   };
+  openNow?: boolean | null;
   socialMedia?: {
     facebook?: string | null;
     instagram?: string | null;
@@ -1033,15 +1162,167 @@ export interface Contractor {
     linkedin?: string | null;
   };
   verified?: boolean | null;
-  dataSource: 'manual' | 'google_maps' | 'yelp' | 'external_api';
+  dataSource: 'manual' | 'google_maps' | 'yelp' | 'external_api' | 'user_registration';
   /**
-   * ID or reference in the external data source
+   * ID or reference in the external data source (e.g., Google Place ID)
    */
   dataSourceId?: string | null;
   /**
    * When this data was last updated from external source
    */
   lastScraped?: string | null;
+  /**
+   * Category types from Google Places API
+   */
+  googleTypes?:
+    | {
+        type: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Estimated response time for service requests
+   */
+  responseTime?: string | null;
+  businessStatus?: ('OPERATIONAL' | 'CLOSED_TEMPORARILY' | 'CLOSED_PERMANENTLY') | null;
+  viewport?: {
+    south?: number | null;
+    west?: number | null;
+    north?: number | null;
+    east?: number | null;
+  };
+  invitationStatus: 'not_invited' | 'invited' | 'registered' | 'declined';
+  /**
+   * When the invitation was sent to this contractor
+   */
+  invitationDate?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Premium lead access records for contractors
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leadAccess".
+ */
+export interface LeadAccess {
+  id: string;
+  /**
+   * Contractor who purchased lead access
+   */
+  contractor: string | User;
+  /**
+   * Service request this access applies to
+   */
+  serviceRequest: string | ServiceRequest;
+  /**
+   * Whether contractor has access to customer contact information
+   */
+  hasAccessToContactInfo?: boolean | null;
+  /**
+   * Price paid for this lead access (USD)
+   */
+  leadPrice: number;
+  /**
+   * Status of the payment for this lead
+   */
+  paymentStatus: 'pending' | 'completed' | 'failed' | 'refunded';
+  /**
+   * Stripe Payment Intent ID for this purchase
+   */
+  paymentIntentId?: string | null;
+  /**
+   * When this lead access was purchased
+   */
+  purchasedAt?: string | null;
+  /**
+   * When this lead access expires (optional)
+   */
+  expiresAt?: string | null;
+  /**
+   * Type and pricing tier of the lead
+   */
+  leadType?: ('basic' | 'premium' | 'specialized') | null;
+  /**
+   * Number of times contractor contacted the customer
+   */
+  contactAttempts?: number | null;
+  /**
+   * Whether chat is enabled for this lead
+   */
+  chatEnabled?: boolean | null;
+  /**
+   * Internal notes about this lead access
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Chat messages for premium leads
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leadChats".
+ */
+export interface LeadChat {
+  id: string;
+  /**
+   * Service request this chat belongs to
+   */
+  serviceRequest: string | ServiceRequest;
+  /**
+   * Lead access record that enables this chat
+   */
+  leadAccess: string | LeadAccess;
+  /**
+   * User who sent this message
+   */
+  sender: string | User;
+  /**
+   * Type of user who sent the message
+   */
+  senderType: 'customer' | 'contractor' | 'system';
+  /**
+   * Chat message content
+   */
+  message: string;
+  /**
+   * Type of message
+   */
+  messageType?: ('text' | 'quote' | 'schedule' | 'contact' | 'system') | null;
+  /**
+   * Whether message has been read by recipient
+   */
+  isRead?: boolean | null;
+  /**
+   * When message was read
+   */
+  readAt?: string | null;
+  /**
+   * File attachments for this message
+   */
+  attachments?:
+    | {
+        file: string | Media;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Quote information if this is a quote message
+   */
+  quoteInfo?: {
+    /**
+     * Quoted amount in USD
+     */
+    amount?: number | null;
+    /**
+     * Quote expiration date
+     */
+    validUntil?: string | null;
+    includesLabor?: boolean | null;
+    includesMaterials?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1248,6 +1529,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contractors';
         value: string | Contractor;
+      } | null)
+    | ({
+        relationTo: 'leadAccess';
+        value: string | LeadAccess;
+      } | null)
+    | ({
+        relationTo: 'leadChats';
+        value: string | LeadChat;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1636,10 +1925,11 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   role?: T;
-  name?: T;
+  firstName?: T;
   lastName?: T;
-  phoneNumber?: T;
+  phone?: T;
   phoneVerified?: T;
+  avatar?: T;
   location?:
     | T
     | {
@@ -1647,16 +1937,46 @@ export interface UsersSelect<T extends boolean = true> {
         lat?: T;
         lng?: T;
       };
-  contractorFields?:
+  businessName?: T;
+  businessType?: T;
+  businessLicense?: T;
+  businessAddress?: T;
+  businessCity?: T;
+  businessState?: T;
+  businessZip?: T;
+  taxId?: T;
+  yearsOfExperience?: T;
+  services?: T;
+  specializations?:
     | T
     | {
-        services?: T;
-        yearsExperience?: T;
-        hasLicense?: T;
-        rating?: T;
-        reviewCount?: T;
-        isVerified?: T;
+        specialization?: T;
+        id?: T;
       };
+  serviceRadius?: T;
+  hourlyRate?: T;
+  minimumJobValue?: T;
+  stripeAccountId?: T;
+  bankAccountVerified?: T;
+  paymentMethodsAccepted?: T;
+  isAvailable?: T;
+  autoAcceptJobs?: T;
+  notificationPreferences?:
+    | T
+    | {
+        email?: T;
+        sms?: T;
+        push?: T;
+        newJobs?: T;
+        jobUpdates?: T;
+        payments?: T;
+      };
+  rating?: T;
+  reviewCount?: T;
+  completedJobs?: T;
+  verified?: T;
+  googlePlaceId?: T;
+  dataSource?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -1695,7 +2015,8 @@ export interface ServiceRequestsSelect<T extends boolean = true> {
   customerInfo?:
     | T
     | {
-        fullName?: T;
+        firstName?: T;
+        lastName?: T;
         email?: T;
         phone?: T;
         preferredContact?: T;
@@ -1769,6 +2090,7 @@ export interface ServicesSelect<T extends boolean = true> {
  * via the `definition` "contractors_select".
  */
 export interface ContractorsSelect<T extends boolean = true> {
+  userId?: T;
   name?: T;
   description?: T;
   contactEmail?: T;
@@ -1810,6 +2132,7 @@ export interface ContractorsSelect<T extends boolean = true> {
         saturday?: T;
         sunday?: T;
       };
+  openNow?: T;
   socialMedia?:
     | T
     | {
@@ -1822,6 +2145,75 @@ export interface ContractorsSelect<T extends boolean = true> {
   dataSource?: T;
   dataSourceId?: T;
   lastScraped?: T;
+  googleTypes?:
+    | T
+    | {
+        type?: T;
+        id?: T;
+      };
+  responseTime?: T;
+  businessStatus?: T;
+  viewport?:
+    | T
+    | {
+        south?: T;
+        west?: T;
+        north?: T;
+        east?: T;
+      };
+  invitationStatus?: T;
+  invitationDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leadAccess_select".
+ */
+export interface LeadAccessSelect<T extends boolean = true> {
+  contractor?: T;
+  serviceRequest?: T;
+  hasAccessToContactInfo?: T;
+  leadPrice?: T;
+  paymentStatus?: T;
+  paymentIntentId?: T;
+  purchasedAt?: T;
+  expiresAt?: T;
+  leadType?: T;
+  contactAttempts?: T;
+  chatEnabled?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leadChats_select".
+ */
+export interface LeadChatsSelect<T extends boolean = true> {
+  serviceRequest?: T;
+  leadAccess?: T;
+  sender?: T;
+  senderType?: T;
+  message?: T;
+  messageType?: T;
+  isRead?: T;
+  readAt?: T;
+  attachments?:
+    | T
+    | {
+        file?: T;
+        description?: T;
+        id?: T;
+      };
+  quoteInfo?:
+    | T
+    | {
+        amount?: T;
+        validUntil?: T;
+        includesLabor?: T;
+        includesMaterials?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1949,6 +2341,11 @@ export interface FormsSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        phoneNumber?: T | PhoneNumberFieldSelect<T>;
+        imageUpload?: T | ImageUploadFieldSelect<T>;
+        location?: T | LocationFieldSelect<T>;
+        colorPicker?: T | ColorPickerFieldSelect<T>;
+        urgencyLevel?: T | UrgencyLevelFieldSelect<T>;
       };
   submitButtonLabel?: T;
   confirmationType?: T;
@@ -1972,6 +2369,69 @@ export interface FormsSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PhoneNumberField_select".
+ */
+export interface PhoneNumberFieldSelect<T extends boolean = true> {
+  name?: T;
+  label?: T;
+  width?: T;
+  required?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageUploadField_select".
+ */
+export interface ImageUploadFieldSelect<T extends boolean = true> {
+  name?: T;
+  label?: T;
+  width?: T;
+  required?: T;
+  maxFiles?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LocationField_select".
+ */
+export interface LocationFieldSelect<T extends boolean = true> {
+  name?: T;
+  label?: T;
+  width?: T;
+  required?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ColorPickerField_select".
+ */
+export interface ColorPickerFieldSelect<T extends boolean = true> {
+  name?: T;
+  label?: T;
+  width?: T;
+  required?: T;
+  defaultValue?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "UrgencyLevelField_select".
+ */
+export interface UrgencyLevelFieldSelect<T extends boolean = true> {
+  name?: T;
+  label?: T;
+  width?: T;
+  required?: T;
+  defaultValue?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -73,10 +73,11 @@ export const RequestFilters: React.FC<RequestFiltersProps> = ({
   ]
 
   return (
-    <div className="bg-white rounded-lg border p-4 mb-6">
-      <div className="flex flex-col md:flex-row md:items-center gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+    <div className="bg-background dark:bg-background rounded-lg border p-4 mb-6 text-foreground dark:text-foreground">
+      <div className="flex flex-col gap-4">
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Buscar solicitudes..."
             className="pl-8"
@@ -85,14 +86,21 @@ export const RequestFilters: React.FC<RequestFiltersProps> = ({
           />
         </div>
 
+        {/* Filter Buttons */}
         <div className="flex flex-wrap gap-2">
           {/* Filtro de servicios */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="flex items-center gap-1.5">
                 <Filter className="h-4 w-4" />
-                <span>Servicios</span>
-                <ChevronDown className="h-4 w-4" />
+                <span className="hidden sm:inline">Servicios</span>
+                <span className="sm:hidden">Svc</span>
+                {serviceFilters.length > 0 && (
+                  <span className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-xs min-w-[1.25rem]">
+                    {serviceFilters.length}
+                  </span>
+                )}
+                <ChevronDown className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -119,10 +127,16 @@ export const RequestFilters: React.FC<RequestFiltersProps> = ({
           {/* Filtro de urgencia */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="flex items-center gap-1.5">
                 <Clock className="h-4 w-4" />
-                <span>Urgencia</span>
-                <ChevronDown className="h-4 w-4" />
+                <span className="hidden sm:inline">Urgencia</span>
+                <span className="sm:hidden">Urg</span>
+                {urgencyFilter.length > 0 && (
+                  <span className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-xs min-w-[1.25rem]">
+                    {urgencyFilter.length}
+                  </span>
+                )}
+                <ChevronDown className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -149,10 +163,16 @@ export const RequestFilters: React.FC<RequestFiltersProps> = ({
           {/* Filtro de estado */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="flex items-center gap-1.5">
                 <CheckCircle className="h-4 w-4" />
-                <span>Estado</span>
-                <ChevronDown className="h-4 w-4" />
+                <span className="hidden sm:inline">Estado</span>
+                <span className="sm:hidden">Est</span>
+                {statusFilter.length > 0 && (
+                  <span className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-xs min-w-[1.25rem]">
+                    {statusFilter.length}
+                  </span>
+                )}
+                <ChevronDown className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -175,6 +195,26 @@ export const RequestFilters: React.FC<RequestFiltersProps> = ({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Clear Filters Button */}
+          {(serviceFilters.length > 0 ||
+            urgencyFilter.length > 0 ||
+            statusFilter.length > 0 ||
+            searchTerm) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                onSearchChange('')
+                onServiceFilterChange([])
+                onUrgencyFilterChange([])
+                onStatusFilterChange([])
+              }}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Limpiar
+            </Button>
+          )}
         </div>
       </div>
     </div>

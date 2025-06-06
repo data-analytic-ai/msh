@@ -14,6 +14,9 @@ import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 
+// Import custom form fields
+import { customFormFields } from '@/plugins/customFormFields'
+
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
 }
@@ -58,6 +61,18 @@ export const plugins: Plugin[] = [
   formBuilderPlugin({
     fields: {
       payment: false,
+      // Enable standard fields
+      text: true,
+      textarea: true,
+      email: true,
+      select: true,
+      checkbox: true,
+      number: true,
+      message: true,
+      state: true,
+      country: true,
+      // Add custom fields
+      ...customFormFields,
     },
     formOverrides: {
       fields: ({ defaultFields }) => {

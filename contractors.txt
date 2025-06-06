@@ -1,0 +1,843 @@
+[
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1207148,
+                "lng": -86.25385299999999
+            },
+            "viewport": {
+                "south": 12.11941182010728,
+                "west": -86.25520207989273,
+                "north": 12.12211147989272,
+                "east": -86.25250242010728
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "FUMIPGREEN Desinfección y Control de Plagas",
+        "opening_hours": {
+            "open_now": true
+        },
+        "photos": [
+            {
+                "height": 576,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/114697651984840040070\">A Google User</a>"
+                ],
+                "width": 1024
+            }
+        ],
+        "place_id": "ChIJ0Z---h3_c48RTp_oQKD_w7g",
+        "plus_code": {
+            "compound_code": "4PCW+7F Managua",
+            "global_code": "764M4PCW+7F"
+        },
+        "rating": 5,
+        "reference": "ChIJ0Z---h3_c48RTp_oQKD_w7g",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 9,
+        "vicinity": "Semáforos de la Vicky 2C Norte 1/2 Este, Altamira, Managua, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1155441,
+                "lng": -86.2517439
+            },
+            "viewport": {
+                "south": 12.11425477010728,
+                "west": -86.25314162989271,
+                "north": 12.11695442989272,
+                "east": -86.25044197010727
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "FUMIG CONTROL",
+        "opening_hours": {
+            "open_now": true
+        },
+        "photos": [
+            {
+                "height": 400,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/107515069034103998442\">A Google User</a>"
+                ],
+                "width": 400
+            }
+        ],
+        "place_id": "ChIJXXvqfgX_c48RDH_XMTZIlT4",
+        "plus_code": {
+            "compound_code": "4P8X+68 Managua",
+            "global_code": "764M4P8X+68"
+        },
+        "rating": 5,
+        "reference": "ChIJXXvqfgX_c48RDH_XMTZIlT4",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 1,
+        "vicinity": "Plaza Julio Martínez, 6c Abajo, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1273065,
+                "lng": -86.2748153
+            },
+            "viewport": {
+                "south": 12.12594517010728,
+                "west": -86.27626752989272,
+                "north": 12.12864482989272,
+                "east": -86.27356787010729
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "FUMIGACIONES DE NICARAGUA,S.A",
+        "opening_hours": {
+            "open_now": true
+        },
+        "photos": [
+            {
+                "height": 1123,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/116852291179435844166\">A Google User</a>"
+                ],
+                "width": 794
+            }
+        ],
+        "place_id": "ChIJAQaI31pVcY8R7J8qdK6crg0",
+        "plus_code": {
+            "compound_code": "4PGG+W3 Managua",
+            "global_code": "764M4PGG+W3"
+        },
+        "rating": 4.3,
+        "reference": "ChIJAQaI31pVcY8R7J8qdK6crg0",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 18,
+        "vicinity": "Semáforos de enel central 300 mts al Norte",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1202608,
+                "lng": -86.2621451
+            },
+            "viewport": {
+                "south": 12.11898577010728,
+                "west": -86.26340757989271,
+                "north": 12.12168542989272,
+                "east": -86.26070792010727
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "FUMIPGREEN",
+        "opening_hours": {
+            "open_now": true
+        },
+        "photos": [
+            {
+                "height": 1152,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/118387989944640582754\">A Google User</a>"
+                ],
+                "width": 864
+            }
+        ],
+        "place_id": "ChIJVUeoXI8FdI8REInqTSdLtng",
+        "plus_code": {
+            "compound_code": "4PCQ+44 Managua",
+            "global_code": "764M4PCQ+44"
+        },
+        "rating": 5,
+        "reference": "ChIJVUeoXI8FdI8REInqTSdLtng",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 2,
+        "vicinity": "Planes de Altamira, Donde Fue la Vicky 2c Norte Media C al Este, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.142603,
+                "lng": -86.2404128
+            },
+            "viewport": {
+                "south": 12.14126432010728,
+                "west": -86.24174947989273,
+                "north": 12.14396397989272,
+                "east": -86.23904982010728
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Fumigadora Alfa y Omega",
+        "opening_hours": {
+            "open_now": true
+        },
+        "photos": [
+            {
+                "height": 741,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/106499400475101719441\">A Google User</a>"
+                ],
+                "width": 750
+            }
+        ],
+        "place_id": "ChIJcw4ESgD9c48RM1JOttS5Cuo",
+        "plus_code": {
+            "compound_code": "4QV5+2R Managua",
+            "global_code": "764M4QV5+2R"
+        },
+        "rating": 5,
+        "reference": "ChIJcw4ESgD9c48RM1JOttS5Cuo",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 1,
+        "vicinity": "Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1318736,
+                "lng": -86.2590104
+            },
+            "viewport": {
+                "south": 12.13053197010728,
+                "west": -86.26036832989273,
+                "north": 12.13323162989272,
+                "east": -86.25766867010728
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "INTERAGRO, S.A",
+        "opening_hours": {
+            "open_now": true
+        },
+        "photos": [
+            {
+                "height": 750,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/114090383547462911939\">A Google User</a>"
+                ],
+                "width": 750
+            }
+        ],
+        "place_id": "ChIJIxjniptVcY8RYGEZAY4hJdI",
+        "plus_code": {
+            "compound_code": "4PJR+P9 Managua",
+            "global_code": "764M4PJR+P9"
+        },
+        "reference": "ChIJIxjniptVcY8RYGEZAY4hJdI",
+        "scope": "GOOGLE",
+        "types": [
+            "car_rental",
+            "accounting",
+            "store",
+            "storage",
+            "point_of_interest",
+            "food",
+            "finance",
+            "establishment"
+        ],
+        "vicinity": "De la Rotonda Santo Domingo 300mts al Sur Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.136597,
+                "lng": -86.27770389999999
+            },
+            "viewport": {
+                "south": 12.13517157010728,
+                "west": -86.27897572989272,
+                "north": 12.13787122989272,
+                "east": -86.27627607010727
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "INVERSIONES PRADO S.A.",
+        "opening_hours": {
+            "open_now": true
+        },
+        "place_id": "ChIJb2hQZddVcY8RAgVxwUF1rT8",
+        "plus_code": {
+            "compound_code": "4PPC+JW Managua",
+            "global_code": "764M4PPC+JW"
+        },
+        "reference": "ChIJb2hQZddVcY8RAgVxwUF1rT8",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "vicinity": "DE LA OFICINA DE LOS PIPITOS 1 ABAJO FRENTE A AUTOBANCO LAFISE, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1140296,
+                "lng": -86.25960189999999
+            },
+            "viewport": {
+                "south": 12.11269717010728,
+                "west": -86.26091477989273,
+                "north": 12.11539682989272,
+                "east": -86.25821512010728
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Leiman Invest",
+        "opening_hours": {
+            "open_now": false
+        },
+        "photos": [
+            {
+                "height": 4000,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/116299600511432953966\">A Google User</a>"
+                ],
+                "width": 1848
+            }
+        ],
+        "place_id": "ChIJz4M0IotVcY8RnqZ86xXCtCc",
+        "plus_code": {
+            "compound_code": "4P7R+J4 Managua",
+            "global_code": "764M4P7R+J4"
+        },
+        "rating": 4.6,
+        "reference": "ChIJz4M0IotVcY8RnqZ86xXCtCc",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 120,
+        "vicinity": "Las Cañadas, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1254955,
+                "lng": -86.2510193
+            },
+            "viewport": {
+                "south": 12.12414487010728,
+                "west": -86.25232312989272,
+                "north": 12.12684452989272,
+                "east": -86.24962347010727
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Western Control y Prevencion de Plagas",
+        "opening_hours": {
+            "open_now": false
+        },
+        "photos": [
+            {
+                "height": 943,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/100026003816147746545\">A Google User</a>"
+                ],
+                "width": 1554
+            }
+        ],
+        "place_id": "ChIJBwztZcz9c48RuWt-_rsKOrU",
+        "plus_code": {
+            "compound_code": "4PGX+5H Managua",
+            "global_code": "764M4PGX+5H"
+        },
+        "rating": 5,
+        "reference": "ChIJBwztZcz9c48RuWt-_rsKOrU",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 1,
+        "vicinity": "casa 672, Managua Altamira de Junior Music, 3 cuadras al este, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1511421,
+                "lng": -86.20137969999999
+            },
+            "viewport": {
+                "south": 12.14979897010728,
+                "west": -86.20280237989272,
+                "north": 12.15249862989272,
+                "east": -86.20010272010728
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "FUHERCASA",
+        "opening_hours": {
+            "open_now": false
+        },
+        "photos": [
+            {
+                "height": 2448,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/108013031625536195236\">Fumigadora Fuhercasa Control de plagas</a>"
+                ],
+                "width": 3264
+            }
+        ],
+        "place_id": "ChIJi8MkcTv8c48RGk8VtTFAqEo",
+        "plus_code": {
+            "compound_code": "5Q2X+FC Managua",
+            "global_code": "764M5Q2X+FC"
+        },
+        "rating": 5,
+        "reference": "ChIJi8MkcTv8c48RGk8VtTFAqEo",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 4,
+        "vicinity": "87 Av. Nte., Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1110672,
+                "lng": -86.24775389999999
+            },
+            "viewport": {
+                "south": 12.10967292010728,
+                "west": -86.24916722989272,
+                "north": 12.11237257989272,
+                "east": -86.24646757010728
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Fumiplax",
+        "opening_hours": {
+            "open_now": false
+        },
+        "photos": [
+            {
+                "height": 960,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/100154510850557706326\">Indira Solórzano</a>"
+                ],
+                "width": 1280
+            }
+        ],
+        "place_id": "ChIJycE8mXlWcY8RRyTBDO8vdXI",
+        "plus_code": {
+            "compound_code": "4Q62+CW Managua",
+            "global_code": "764M4Q62+CW"
+        },
+        "rating": 4.6,
+        "reference": "ChIJycE8mXlWcY8RRyTBDO8vdXI",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 17,
+        "vicinity": "Colonia Centroamérica Iglesia virgen de Fatima 300 metros al Sur",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1327514,
+                "lng": -86.2923398
+            },
+            "viewport": {
+                "south": 12.13135307010728,
+                "west": -86.29369667989272,
+                "north": 12.13405272989272,
+                "east": -86.29099702010727
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Cleaning Services and Pest Control R & B",
+        "opening_hours": {
+            "open_now": false
+        },
+        "place_id": "ChIJf8DrUHNVcY8RqxVSUS6taqs",
+        "rating": 5,
+        "reference": "ChIJf8DrUHNVcY8RqxVSUS6taqs",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 3,
+        "vicinity": "4PM5+433, 23 Calle Suroeste, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1408077,
+                "lng": -86.2464928
+            },
+            "viewport": {
+                "south": 12.13946757010728,
+                "west": -86.24789027989272,
+                "north": 12.14216722989272,
+                "east": -86.24519062010727
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "SOAGRO S.A.",
+        "place_id": "ChIJ_S-MRQD9c48R0fpLArggqZ0",
+        "plus_code": {
+            "compound_code": "4QR3+8C Managua",
+            "global_code": "764M4QR3+8C"
+        },
+        "reference": "ChIJ_S-MRQD9c48R0fpLArggqZ0",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "vicinity": "3a Etapa, No. 109, Residencial Los Robles, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1295492,
+                "lng": -86.2625067
+            },
+            "viewport": {
+                "south": 12.12806577010728,
+                "west": -86.26401822989271,
+                "north": 12.13076542989272,
+                "east": -86.26131857010728
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "SOAGRO",
+        "opening_hours": {
+            "open_now": false
+        },
+        "photos": [
+            {
+                "height": 457,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/108546336484429948217\">A Google User</a>"
+                ],
+                "width": 814
+            }
+        ],
+        "place_id": "ChIJW1ESSvpVcY8R3jNHxnDGj9c",
+        "plus_code": {
+            "compound_code": "4PHP+RX Managua",
+            "global_code": "764M4PHP+RX"
+        },
+        "rating": 4.8,
+        "reference": "ChIJW1ESSvpVcY8R3jNHxnDGj9c",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 8,
+        "vicinity": "Col los Robles de Plaza el Sol 1c al S 1c al Oe, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1389636,
+                "lng": -86.2287412
+            },
+            "viewport": {
+                "south": 12.13766792010728,
+                "west": -86.22986852989271,
+                "north": 12.14036757989272,
+                "east": -86.22716887010728
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "FUZERSA",
+        "place_id": "ChIJIRgeYgD9c48RFL5r6ptLl3k",
+        "plus_code": {
+            "compound_code": "4QQC+HG Managua",
+            "global_code": "764M4QQC+HG"
+        },
+        "reference": "ChIJIRgeYgD9c48RFL5r6ptLl3k",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "vicinity": "Multicentro Las Americas, Paseo Los Muchachos, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1326775,
+                "lng": -86.23454009999999
+            },
+            "viewport": {
+                "south": 12.13129147010728,
+                "west": -86.23589452989272,
+                "north": 12.13399112989272,
+                "east": -86.23319487010727
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Fumipsa",
+        "place_id": "ChIJ7SGBfAD_c48Ruwh_fVqRKNk",
+        "reference": "ChIJ7SGBfAD_c48Ruwh_fVqRKNk",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "vicinity": "4QM8+35G, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1522626,
+                "lng": -86.2202131
+            },
+            "viewport": {
+                "south": 12.15090712010728,
+                "west": -86.22150122989272,
+                "north": 12.15360677989272,
+                "east": -86.21880157010727
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Fumimax - Control de Plagas",
+        "opening_hours": {
+            "open_now": false
+        },
+        "photos": [
+            {
+                "height": 2551,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/116553132716980540865\">A Google User</a>"
+                ],
+                "width": 4009
+            }
+        ],
+        "place_id": "ChIJw6F-_Qf9c48RKA1eZTvoPss",
+        "plus_code": {
+            "compound_code": "5Q2H+WW Managua",
+            "global_code": "764M5Q2H+WW"
+        },
+        "rating": 3.3,
+        "reference": "ChIJw6F-_Qf9c48RKA1eZTvoPss",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 3,
+        "vicinity": "Km 5.5 Carretera Norte. De Enacal Portezuelo 150 mtrs al Norte, Carretera Norte, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1150044,
+                "lng": -86.236176
+            },
+            "viewport": {
+                "south": 12.11357707010728,
+                "west": -86.23764482989272,
+                "north": 12.11627672989272,
+                "east": -86.23494517010728
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Biopest Control S.A.",
+        "opening_hours": {
+            "open_now": false
+        },
+        "place_id": "ChIJCxddlaX_c48RR15JRAbvnVk",
+        "plus_code": {
+            "compound_code": "4Q87+2G Managua",
+            "global_code": "764M4Q87+2G"
+        },
+        "reference": "ChIJCxddlaX_c48RR15JRAbvnVk",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "vicinity": "Puente de desnivel de portezuelo, 1c al sur 1c arriba, Managua",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1148897,
+                "lng": -86.236181
+            },
+            "viewport": {
+                "south": 12.11348572010728,
+                "west": -86.23761397989273,
+                "north": 12.11618537989272,
+                "east": -86.23491432010728
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "SEMIP, SERVICIO EN MANEJO INTEGRADO DE PLAGAS",
+        "opening_hours": {
+            "open_now": false
+        },
+        "photos": [
+            {
+                "height": 750,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/101786667578825685851\">A Google User</a>"
+                ],
+                "width": 750
+            }
+        ],
+        "place_id": "ChIJDXZpzAZXcY8R31jLWLp89Os",
+        "plus_code": {
+            "compound_code": "4Q77+XG Managua",
+            "global_code": "764M4Q77+XG"
+        },
+        "rating": 4,
+        "reference": "ChIJDXZpzAZXcY8R31jLWLp89Os",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "user_ratings_total": 2,
+        "vicinity": "KM 10.5 Carretera Masaya, de la Unica 300mts al Este",
+        "html_attributions": []
+    },
+    {
+        "business_status": "OPERATIONAL",
+        "geometry": {
+            "location": {
+                "lat": 12.1448795,
+                "lng": -86.21841350000001
+            },
+            "viewport": {
+                "south": 12.14353357010728,
+                "west": -86.21977307989272,
+                "north": 12.14623322989272,
+                "east": -86.21707342010728
+            }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Funicasa Fumigadora de Nicaragua",
+        "opening_hours": {
+            "open_now": false
+        },
+        "photos": [
+            {
+                "height": 1080,
+                "html_attributions": [
+                    "<a href=\"https://maps.google.com/maps/contrib/110385703332791217685\">A Google User</a>"
+                ],
+                "width": 1302
+            }
+        ],
+        "place_id": "ChIJdaTc7tT9c48RoaVxT4WcKg0",
+        "plus_code": {
+            "compound_code": "4QVJ+XJ Managua",
+            "global_code": "764M4QVJ+XJ"
+        },
+        "reference": "ChIJdaTc7tT9c48RoaVxT4WcKg0",
+        "scope": "GOOGLE",
+        "types": [
+            "point_of_interest",
+            "establishment"
+        ],
+        "vicinity": "Fte al Colegio Rep.Argentina, Del Hospital Nicaraguense, Cuadra y Media al Sur Reparto Ciudad de Xolotlan, Casa 145, Managua",
+        "html_attributions": []
+    }
+]

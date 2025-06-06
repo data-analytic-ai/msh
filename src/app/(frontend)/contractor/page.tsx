@@ -5,7 +5,7 @@ import { Shield, Star, CheckCircle, Clock, BadgeDollarSign, Users } from 'lucide
 
 export default function ContractorLandingPage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen dark:text-white dark:bg-background">
       <main className="flex-1">
         <section className="bg-background py-12 px-4 md:pb-0 md:pt-24">
           <div className="container mx-auto max-w-4xl text-center space-y-6">
@@ -17,7 +17,7 @@ export default function ContractorLandingPage() {
               your income and build your business on our platform.
             </p>
             <Button asChild size="lg" className="bg-secondary text-primary hover:bg-secondary/50">
-              <Link href="/register?type=contractor">Get Started Today</Link>
+              <Link href="/contractor/register">Get Started Today</Link>
             </Button>
           </div>
         </section>
@@ -125,7 +125,7 @@ function Step({
   description: string
 }) {
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-4 dark:text-white">
       <div className="flex-shrink-0">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-primary">
           {number}

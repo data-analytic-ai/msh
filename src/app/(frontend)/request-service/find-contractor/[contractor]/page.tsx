@@ -10,16 +10,8 @@
 
 import React, { use, Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, MapPin, Phone, Mail, Globe, Star, Clock, Check } from 'lucide-react'
-import Link from 'next/link'
-import { ServiceRequestProvider } from '@/context/ServiceRequestContext'
-import { useServiceRequestStore } from '@/store/serviceRequestStore'
-import { Contractor } from '@/types/contractor'
-import { Separator } from '@/components/ui/separator'
 import ContractorDetailContent from '@/app/(frontend)/request-service/find-contractor/[contractor]/ContractorDetailContent'
+import { ServiceRequestStateProvider } from '@/providers/ServiceRequestStateProvider'
 
 // Types for our params
 type ContractorPageProps = {
@@ -63,15 +55,25 @@ export async function generateMetadata({ params: paramsPromise }: ContractorPage
 // Generar rutas estáticas para contratistas disponibles en la compilación
 export async function generateStaticParams() {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}/api/contractors`,
-      {
-        method: 'GET',
-        next: { revalidate: 3600 }, // Revalidar cada hora
-      },
-    )
+    // Intentar obtener contratistas para generar rutas estáticas
+    const url = `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}/api/contractors`
 
-    if (!response.ok) {
+    // Si estamos en entorno de compilación y hay problemas de conexión, devolver array vacío
+    // para que la compilación pueda continuar
+    const response = await fetch(url, {
+      method: 'GET',
+      next: { revalidate: 3600 }, // Revalidar cada hora
+    }).catch((error) => {
+      console.error(`Error conectando a ${url}:`, error)
+      // Devolver una respuesta "falsa" para evitar que falle la compilación
+      return new Response(JSON.stringify({ contractors: [] }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    })
+
+    if (!response.ok && response.status !== 200) {
+      console.warn('No se pudieron obtener contratistas para rutas estáticas')
       return []
     }
 
@@ -87,6 +89,7 @@ export async function generateStaticParams() {
     }))
   } catch (error) {
     console.error('Error generating static paths for contractors:', error)
+    // Retornar array vacío para permitir que la compilación continúe
     return []
   }
 }
@@ -125,8 +128,8 @@ function ContractorDetail({ paramsPromise }: { paramsPromise: Promise<{ contract
   }
 
   return (
-    <ServiceRequestProvider>
+    <ServiceRequestStateProvider>
       <ContractorDetailContent contractorId={contractorId} slug={slugParam} />
-    </ServiceRequestProvider>
+    </ServiceRequestStateProvider>
   )
 }

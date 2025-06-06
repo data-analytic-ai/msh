@@ -33,7 +33,7 @@ export async function Footer() {
             <p className="text-sm text-muted-foreground max-w-xs">
               Connecting you with trusted professionals contractors throughout the US.
             </p>
-            <Link href="/contractor-home" className="text-sm hover:text-primary transition-colors">
+            <Link href="/contractor" className="text-sm hover:text-primary transition-colors">
               Are you a contractor?
             </Link>
           </div>

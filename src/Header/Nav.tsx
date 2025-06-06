@@ -69,7 +69,7 @@ export const HeaderNav: React.FC<{ data: Header; isMobile?: boolean }> = ({
           </div>
 
           <Button
-            className={`${isMobile ? 'mt-2 w-full' : ''}`}
+            className={`${isMobile ? 'mt-2 w-full' : ''} dark:text-primary/50 dark:hover:text-primary`}
             onClick={handleLogout}
             size={isMobile ? 'default' : 'xs'}
             variant="outline"

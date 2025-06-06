@@ -16,7 +16,16 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Clock, MapPin, Wrench, AlertTriangle, Loader2, DollarSign } from 'lucide-react'
+import {
+  Clock,
+  MapPin,
+  Wrench,
+  AlertTriangle,
+  Loader2,
+  DollarSign,
+  MessageCircle,
+  CheckCircle,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/providers/AuthProvider'
 
@@ -258,92 +267,156 @@ export const UserServiceRequests = () => {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Your Service Requests</h2>
+      <div className="flex items-center justify-between dark:text-white">
+        <h2 className="text-2xl font-bold">Tus Solicitudes de Servicio</h2>
         <div className="flex gap-2">
           <Button variant="outline" size="icon" onClick={() => refresh()} title="Refresh">
-            <Loader2 className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <Loader2 className={`h-4 w-4 text-white ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
           <Link href="/request-service">
-            <Button>New Request</Button>
+            <Button>Nueva Solicitud</Button>
           </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {requests.map((request) => (
-          <Card key={request.id} className="overflow-hidden">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{request.requestTitle}</CardTitle>
-                <Badge className={`${statusColors[request.status] || 'bg-gray-500'}`}>
-                  {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                </Badge>
-              </div>
-              <CardDescription className="flex items-center gap-1 mt-1">
-                <Clock className="h-3 w-3" />
-                {new Date(request.createdAt).toLocaleDateString()}
-              </CardDescription>
-            </CardHeader>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 pb-12 px-4">
+        {requests.map((request) => {
+          const hasQuotes = request.quotes && request.quotes.length > 0
+          const quotesCount = request.quotes?.length || 0
+          const pendingQuotes = request.quotes?.filter((q) => q.status === 'pending') || []
+          const acceptedQuote = request.quotes?.find((q) => q.status === 'accepted')
 
-            <CardContent className="pb-3">
-              <div className="space-y-3">
-                <div className="flex items-start gap-2">
-                  <Wrench className="h-4 w-4 mt-0.5 text-primary" />
-                  <div>
-                    <p className="text-sm font-medium">Service Type</p>
-                    <p className="text-sm text-muted-foreground">
-                      {request.serviceType.map((type) => serviceNames[type] || type).join(', ')}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <MapPin className="h-4 w-4 mt-0.5 text-primary" />
-                  <div>
-                    <p className="text-sm font-medium">Location</p>
-                    <p className="text-sm text-muted-foreground truncate max-w-[250px]">
-                      {request.location.formattedAddress}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <AlertTriangle className="h-4 w-4 mt-0.5 text-primary" />
-                  <div>
-                    <p className="text-sm font-medium">Urgency</p>
-                    <Badge
-                      className={`${urgencyColors[request.urgencyLevel] || 'bg-gray-500'} mt-1`}
-                    >
-                      {request.urgencyLevel.charAt(0).toUpperCase() + request.urgencyLevel.slice(1)}
+          return (
+            <Card key={request.id} className="overflow-hidden">
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg">{request.requestTitle}</CardTitle>
+                  <div className="flex flex-col gap-1 items-end">
+                    <Badge className={`${statusColors[request.status] || 'bg-gray-500'}`}>
+                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
                     </Badge>
+                    {hasQuotes && (
+                      <Badge variant="secondary" className="text-xs">
+                        {quotesCount} cotización{quotesCount > 1 ? 'es' : ''}
+                      </Badge>
+                    )}
                   </div>
                 </div>
+                <CardDescription className="flex items-center gap-1 mt-1">
+                  <Clock className="h-3 w-3" />
+                  {new Date(request.createdAt).toLocaleDateString()}
+                </CardDescription>
+              </CardHeader>
 
-                {request.quotes && request.quotes.length > 0 && (
+              <CardContent className="pb-3">
+                <div className="space-y-3">
                   <div className="flex items-start gap-2">
-                    <DollarSign className="h-4 w-4 mt-0.5 text-primary" />
+                    <Wrench className="h-4 w-4 mt-0.5 text-primary" />
                     <div>
-                      <p className="text-sm font-medium">Quotes</p>
+                      <p className="text-sm font-medium">Tipo de Servicio</p>
                       <p className="text-sm text-muted-foreground">
-                        {request.quotes.length} quote{request.quotes.length !== 1 ? 's' : ''}{' '}
-                        received
+                        {request.serviceType.map((type) => serviceNames[type] || type).join(', ')}
                       </p>
                     </div>
                   </div>
-                )}
-              </div>
-            </CardContent>
 
-            <CardFooter>
-              <Link href={`/request-service/details/${request.id}`} className="w-full">
-                <Button variant="outline" className="w-full">
-                  View Details
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
-        ))}
+                  <div className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 mt-0.5 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium">Ubicación</p>
+                      <p className="text-sm text-muted-foreground truncate max-w-[250px]">
+                        {request.location.formattedAddress}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 mt-0.5 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium">Urgencia</p>
+                      <Badge
+                        className={`${urgencyColors[request.urgencyLevel] || 'bg-gray-500'} mt-1`}
+                      >
+                        {request.urgencyLevel.charAt(0).toUpperCase() +
+                          request.urgencyLevel.slice(1)}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Enhanced quotes section */}
+                  {hasQuotes ? (
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        <MessageCircle className="h-4 w-4 mt-0.5 text-primary" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">Cotizaciones</p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {pendingQuotes.length > 0 && (
+                              <Badge variant="outline" className="text-xs">
+                                {pendingQuotes.length} pendiente
+                                {pendingQuotes.length > 1 ? 's' : ''}
+                              </Badge>
+                            )}
+                            {acceptedQuote && (
+                              <Badge className="bg-green-500 text-xs">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Aceptada: ${acceptedQuote.amount}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Show price range for pending quotes */}
+                      {pendingQuotes.length > 0 && (
+                        <div className="flex items-start gap-2">
+                          <DollarSign className="h-4 w-4 mt-0.5 text-green-600" />
+                          <div>
+                            <p className="text-sm font-medium">Rango de Precios</p>
+                            <p className="text-sm text-muted-foreground">
+                              ${Math.min(...pendingQuotes.map((q) => q.amount))} - $
+                              {Math.max(...pendingQuotes.map((q) => q.amount))}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-2">
+                      <DollarSign className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium">Cotizaciones</p>
+                        <p className="text-sm text-muted-foreground">Esperando cotizaciones...</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+
+              <CardFooter className="flex gap-2">
+                {hasQuotes ? (
+                  <Link href={`/request-service/quotes/${request.id}`} className="flex-1">
+                    <Button className="w-full">
+                      {pendingQuotes.length > 0 ? 'Ver Cotizaciones' : 'Ver Detalles'}
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link href={`/request-service/details/${request.id}`} className="flex-1">
+                    <Button variant="outline" className="w-full">
+                      Ver Detalles
+                    </Button>
+                  </Link>
+                )}
+
+                {pendingQuotes.length > 0 && (
+                  <Badge className="bg-orange-500 text-xs px-2 py-1 animate-pulse">
+                    {pendingQuotes.length} nueva{pendingQuotes.length > 1 ? 's' : ''}
+                  </Badge>
+                )}
+              </CardFooter>
+            </Card>
+          )
+        })}
       </div>
     </div>
   )

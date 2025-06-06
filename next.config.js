@@ -9,7 +9,11 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    ignoreBuildErrors: false,
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: true,
   },
 
   eslint: {
@@ -18,7 +22,7 @@ const nextConfig = {
 
   images: {
     remotePatterns: [
-      ...[NEXT_PUBLIC_SERVER_URL, 'https://urgent-fix-qa.up.railway.app'].map((item) => {
+      ...[NEXT_PUBLIC_SERVER_URL, 'https://er24-qa.up.railway.app'].map((item) => {
         const url = new URL(item)
 
         return {

@@ -226,10 +226,16 @@ export const ServiceRequests: CollectionConfig = {
       },
       fields: [
         {
-          name: 'fullName',
+          name: 'firstName',
           type: 'text',
           required: true,
-          label: 'Full Name',
+          label: 'First Name',
+        },
+        {
+          name: 'lastName',
+          type: 'text',
+          required: true,
+          label: 'Last Name',
         },
         {
           name: 'email',

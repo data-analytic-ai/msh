@@ -1,25 +1,16 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useServiceRequest } from '@/hooks/useServiceRequest'
+import { useUserProfile } from '@/hooks/useUserProfile'
+import { useAuth } from '@/providers/AuthProvider'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { ArrowLeft, Camera } from 'lucide-react'
+import { ArrowLeft, Info, User, MapPin } from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
 import MapComponent from '@/components/ui/MapComponent'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { getClientSideURL } from '@/utilities/getURL'
-import { useServiceRequestStore } from '@/store/serviceRequestStore'
+import { ServiceRequestForm } from '@/blocks/Form/ServiceRequestForm'
+import { UserAccountHandler } from '../confirmation/components/UserAccountHandler'
 
 // Service type name mappings
 const serviceNames: Record<string, string> = {
@@ -31,57 +22,72 @@ const serviceNames: Record<string, string> = {
   locksmith: 'Locksmith',
 }
 
-type FormData = {
-  fullName: string
-  email: string
-  phone: string
-  description: string
-  urgency: string
-  images: string[]
-}
-
+/**
+ * RequestServiceDetailsPage - Service request details form page
+ *
+ * This page combines the location display with a PayloadCMS-powered form
+ * for collecting service request details. It integrates with the service
+ * request flow and maintains backward compatibility with the existing system.
+ *
+ * Now includes user profile auto-population and address management for
+ * authenticated users, allowing them to save time by reusing previous
+ * information and manage multiple service locations.
+ *
+ * After form submission, it shows the UserAccountHandler component to
+ * manage user authentication before proceeding to confirmation.
+ *
+ * @returns {JSX.Element} - Service request details page
+ */
 export default function RequestServiceDetailsPage() {
   const {
     selectedServices,
     location,
     formattedAddress,
     setFormattedAddress,
-    setRequestId,
-    updateFormData,
-    setUserEmail,
-    submitServiceRequest,
     setCurrentStep,
+    requestId,
+    userEmail,
   } = useServiceRequest()
 
   const router = useRouter()
-  const [isLoading, setIsLoading] = React.useState(false)
-  const [images, setImages] = React.useState<string[]>([])
-  const [formData, setFormData] = React.useState<FormData>({
-    fullName: '',
-    email: '',
-    phone: '',
-    description: '',
-    urgency: 'emergency',
-    images: [],
-  })
+  const { isAuthenticated } = useAuth()
+  const {
+    profileData,
+    hasBeenAutoPopulated,
+    isLoading: profileLoading,
+    error: profileError,
+  } = useUserProfile()
 
-  // Marcar el paso actual en el contexto
+  // Estado para controlar qué vista mostrar
+  const [showAccountHandler, setShowAccountHandler] = useState(false)
+  const [formSubmissionComplete, setFormSubmissionComplete] = useState(false)
+
+  // Mark the current step in the context
   useEffect(() => {
     setCurrentStep('details')
 
-    // Debugging para detectar problemas de estado
-    console.log('Estado en details:', {
+    // Debugging to detect state issues
+    console.log('State in details:', {
       selectedServices,
       location,
       formattedAddress,
       currentStep: 'details',
+      isAuthenticated,
+      hasBeenAutoPopulated,
     })
-  }, [setCurrentStep, selectedServices, location, formattedAddress])
+  }, [
+    setCurrentStep,
+    selectedServices,
+    location,
+    formattedAddress,
+    isAuthenticated,
+    hasBeenAutoPopulated,
+  ])
 
-  // Verificar si tenemos la información formateada
+  // Verify if we have the formatted information
   useEffect(() => {
     if (!formattedAddress && location) {
-      // Si tenemos ubicación pero no dirección formateada, intentar obtenerla
+      // If we have location but no formatted address, try to get it
       if (window.google && window.google.maps) {
         const geocoder = new google.maps.Geocoder()
         geocoder.geocode(
@@ -96,84 +102,45 @@ export default function RequestServiceDetailsPage() {
     }
   }, [location, formattedAddress, setFormattedAddress])
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newImages = Array.from(e.target.files).map((file) => URL.createObjectURL(file))
-      setImages([...images, ...newImages])
+  // Si el usuario ya está autenticado, ir directamente a confirmación
+  useEffect(() => {
+    if (isAuthenticated && formSubmissionComplete && requestId) {
+      console.log('User is authenticated and form submitted, redirecting to dashboard')
+      router.push(`/request-service/dashboard/${requestId}`)
+    }
+  }, [isAuthenticated, formSubmissionComplete, requestId, router])
+
+  // Handle successful form submission
+  const handleSubmitSuccess = () => {
+    console.log('Form submitted successfully')
+    setFormSubmissionComplete(true)
+
+    // Si el usuario ya está autenticado, ir directamente a dashboard
+    if (isAuthenticated && requestId) {
+      console.log('User already authenticated, redirecting to dashboard immediately')
+      router.push(`/request-service/dashboard/${requestId}`)
+    } else {
+      // Si no está autenticado, mostrar el UserAccountHandler
+      console.log('User not authenticated, showing account handler')
+      setShowAccountHandler(true)
     }
   }
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-
-    // Save email to context for persistence across refreshes
-    setUserEmail(formData.email)
-
-    try {
-      // Verificar que tenemos la ubicación antes de continuar
-      if (!location) {
-        throw new Error('No location selected')
-      }
-
-      // Log para diagnóstico
-      console.log('Enviando formulario con datos:', {
-        ...formData,
-        selectedServices,
-        location,
-        formattedAddress,
-      })
-
-      // Guardar los datos del formulario en el contexto
-      updateFormData({
-        fullName: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        description: formData.description,
-        urgency: formData.urgency, // This matches the field name expected by the store
-        images: images,
-      })
-
-      // Usar la función del contexto para enviar la solicitud
-      const success = await submitServiceRequest(formData)
-
-      if (!success) {
-        throw new Error('Failed to submit service request')
-      }
-
-      // Verificar que se haya establecido el requestId correctamente
-      const currentRequestId = useServiceRequestStore.getState().requestId
-      console.log('Estado después de submitServiceRequest:', {
-        requestId: currentRequestId,
-        formData,
-        success,
-      })
-
-      // Redireccionar a la página de confirmación
-      setIsLoading(false)
-      router.push('/request-service/confirmation')
-    } catch (error) {
-      console.error('Error sending request:', error)
-      setIsLoading(false)
-      // Mostrar mensaje de error al usuario
-      alert(
-        `Failed to submit request: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
-      )
+  // Handle successful authentication from UserAccountHandler
+  const handleAuthenticationComplete = () => {
+    console.log('Authentication completed, redirecting to dashboard')
+    if (requestId) {
+      router.push(`/request-service/dashboard/${requestId}`)
     }
   }
 
-  // Si no tenemos la información requerida, mostrar un estado de carga
+  // Handle back button when showing account handler
+  const handleBackToForm = () => {
+    setShowAccountHandler(false)
+    setFormSubmissionComplete(false)
+  }
+
+  // If we don't have the required information, show a loading state
   if (!selectedServices || !location) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -197,175 +164,105 @@ export default function RequestServiceDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col dark:bg-background dark:text-white">
       <header className="sticky top-0 z-10 border-b bg-background">
         <div className="flex h-16 items-center px-4">
-          <Link href="/" className="flex items-center gap-2 text-sm font-medium">
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Link>
-          <h1 className="ml-4 text-lg font-semibold">Complete Request</h1>
+          {showAccountHandler ? (
+            <button
+              onClick={handleBackToForm}
+              className="flex items-center gap-2 text-sm font-medium"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Form
+            </button>
+          ) : (
+            <Link href="/" className="flex items-center gap-2 text-sm font-medium">
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Link>
+          )}
+          <h1 className="ml-4 text-lg font-semibold">
+            {showAccountHandler ? 'Account Setup' : 'Complete Request'}
+          </h1>
         </div>
       </header>
 
       <main className="flex-1 p-4">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Mapa en modo solo lectura */}
-          <div className="w-full h-48 rounded-lg overflow-hidden shadow-md">
-            <MapComponent
-              selectedService={selectedServices}
-              location={location}
-              setLocation={() => {}}
-              onContinue={() => {}}
-              formattedAddress={formattedAddress}
-              setFormattedAddress={setFormattedAddress}
-              readOnly={true}
-            />
-          </div>
-
-          {/* Summary of previous selection */}
-          <div className="bg-primary/20 text-orange-900 p-4 rounded-lg">
-            <h2 className="font-semibold text-lg">Selected Service</h2>
-            <p className="font-medium text-orange-950">
-              {selectedServices.length > 0
-                ? selectedServices
-                    .map((service) => {
-                      // Comprobar si es un objeto con id o un string directo
-                      const serviceId = typeof service === 'object' ? service.id : service
-                      return serviceNames[serviceId] || serviceId
-                    })
-                    .join(', ')
-                : 'Not specified'}
-            </p>
-            <p className="text-sm mt-1 text-orange-950 ">
-              Location: {formattedAddress || 'Loading address...'}
-            </p>
-          </div>
-
-          {/* Customer information */}
-          <div className="space-y-4">
-            <h2 className="font-semibold text-lg">Your Information</h2>
-
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleInputChange}
-                placeholder="Enter your full name"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="tucorreo@ejemplo.com"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="Phone number"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Request details */}
-          <div className="space-y-4">
-            <h2 className="font-semibold text-lg">Request Details</h2>
-
-            <div className="space-y-2">
-              <Label htmlFor="urgency">Urgency Level</Label>
-              <Select
-                value={formData.urgency}
-                onValueChange={(value) => handleSelectChange('urgency', value)}
-                defaultValue="emergency"
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low - Within a week</SelectItem>
-                  <SelectItem value="medium">Medium - Within 48 hours</SelectItem>
-                  <SelectItem value="high">High - Within 24 hours</SelectItem>
-                  <SelectItem value="emergency">Emergency - As soon as possible</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Describe your problem</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="Describe the problem with the most detail possible..."
-                className="min-h-[100px]"
-                required
-              />
-            </div>
-
-            <div className="space-y-2 p-0 m-0">
-              <p className="block text-sm font-medium">Photos (optional)</p>
-              <div className="flex flex-wrap gap-2 w-full p-2">
-                {images.map((image, index) => (
-                  <div
-                    key={index}
-                    className="relative aspect-square rounded-md bg-muted w-[100px] h-[100px]"
-                  >
-                    <Image
-                      src={image}
-                      alt={`Image ${index + 1}`}
-                      fill
-                      className="object-cover rounded-md"
-                      sizes="(max-width: 768px) 40vw, 40vw"
-                    />
-                  </div>
-                ))}
-                {images.length < 3 && (
-                  <div className="flex aspect-square items-center justify-center rounded-md border border-dashed border-muted-foreground/50 w-[100px] h-[100px] p-2">
-                    <label
-                      htmlFor="image-upload"
-                      className="flex cursor-pointer flex-col items-center justify-center"
-                    >
-                      <Camera className="mb-0.5 h-4 w-4 text-muted-foreground" />
-                      <span className="text-[10px] text-muted-foreground">Add photo</span>
-                      <Input
-                        id="image-upload"
-                        type="file"
-                        accept="image/*"
-                        className="sr-only"
-                        onChange={handleImageUpload}
-                      />
-                    </label>
-                  </div>
-                )}
+        {showAccountHandler ? (
+          // Mostrar UserAccountHandler después del envío del formulario
+          <div className="space-y-6">
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Info className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5" />
+                <div className="text-green-800 dark:text-green-200 text-sm">
+                  <strong>¡Solicitud Enviada Exitosamente!</strong> Ahora necesitamos configurar tu
+                  cuenta para que puedas seguir el progreso de tu solicitud y recibir cotizaciones
+                  de contratistas.
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="pb-8">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Sending...' : 'Send request'}
-            </Button>
+            <UserAccountHandler
+              userEmail={userEmail}
+              requestId={requestId}
+              onAuthenticationComplete={handleAuthenticationComplete}
+            />
           </div>
-        </form>
+        ) : (
+          // Mostrar formulario normal
+          <div className="space-y-6">
+            {/* User Profile Auto-Population Info */}
+            {isAuthenticated && hasBeenAutoPopulated && (
+              <div className="border border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-900/20 p-4 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5" />
+                  <div className="text-blue-800 dark:text-blue-200 text-sm">
+                    <strong>Information Auto-filled:</strong> We&apos;ve pre-filled your contact
+                    information from your last service request. You can edit any details before
+                    submitting.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Address Management Info for Authenticated Users */}
+            {isAuthenticated && profileData && profileData.addresses.length > 0 && (
+              <div className="border border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-900/20 p-4 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5" />
+                  <div className="text-green-800 dark:text-green-200 text-sm">
+                    <strong>Saved Addresses Available:</strong> You have{' '}
+                    {profileData.addresses.length} saved address
+                    {profileData.addresses.length !== 1 ? 'es' : ''}. You can select from them or
+                    use a new location in the form below.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Profile Loading State */}
+            {isAuthenticated && profileLoading && (
+              <div className="border border-border bg-muted p-4 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <User className="h-4 w-4 mt-0.5" />
+                  <div className="text-sm">Loading your profile information...</div>
+                </div>
+              </div>
+            )}
+
+            {/* Profile Error State */}
+            {isAuthenticated && profileError && (
+              <div className="border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-900/20 p-4 rounded-lg">
+                <div className="text-red-800 dark:text-red-200 text-sm">
+                  <strong>Profile Error:</strong> {profileError}
+                </div>
+              </div>
+            )}
+
+            {/* Enhanced PayloadCMS Form Integration with User Profile */}
+            <ServiceRequestForm onSubmitSuccess={handleSubmitSuccess} className="w-full" />
+          </div>
+        )}
       </main>
     </div>
   )
@@ -375,3 +272,4 @@ export default function RequestServiceDetailsPage() {
 // TODO: Verificar antes de enviar el formulario si el usuario ya esta registrado, se le pide iniciar sesion y no se registra de nuevo.
 // TODO: En la la informacion del formulario, agregar una opcion para indicar que es de otra persona.
 // TODO: En la informacion del formulario, agregar un campo para indicar el codigo postal.
+// TODO: Integrar funcionalidad de subida de imágenes usando PayloadCMS media collection

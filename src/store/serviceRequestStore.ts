@@ -26,6 +26,7 @@ export type StepType =
   | 'location'
   | 'details'
   | 'confirmation'
+  | 'dashboard'
   | 'find-contractor'
   | 'payment'
   | 'tracking'
@@ -119,7 +120,10 @@ export const useServiceRequestStore = create<ServiceRequestStore>()(
 
       // Basic setters
       setRequestId: (id) => set({ requestId: id }),
-      setSelectedServices: (services) => set({ selectedServices: services }),
+      setSelectedServices: (services) => {
+        console.log('🔄 Store: setSelectedServices called with:', services)
+        set({ selectedServices: services })
+      },
       setLocation: (location) => set({ location }),
       setFormattedAddress: (address) => set({ formattedAddress: address }),
       updateFormData: (data) =>
@@ -295,12 +299,15 @@ export const useServiceRequestStore = create<ServiceRequestStore>()(
           // Crear un objeto con el formato exacto que espera PayloadCMS
           const requestData = {
             ...(requestId ? { id: requestId } : {}),
-            requestTitle: formData.title || 'Service Request',
+            requestTitle:
+              `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 'Service Request',
             serviceType: serviceTypes,
             description: formData.description || '',
             urgencyLevel: formData.urgency || 'emergency',
+            // Estructura correcta según el schema de PayloadCMS - usar firstName y lastName por separado
             customerInfo: {
-              fullName: formData.fullName || '',
+              firstName: formData.firstName || '',
+              lastName: formData.lastName || '',
               phone: formData.phone || '',
               email: userEmail || formData.email || '',
               preferredContact: 'email',

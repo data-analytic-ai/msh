@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Clock, Info, Shield } from 'lucide-react'
+import { formatCurrency } from '@/lib/payment-config'
 
 // Wrapper que proporciona el provider de Stripe
 export const PaymentFormWrapper = ({
@@ -89,7 +90,7 @@ function PaymentForm({
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/request-service/confirmation`,
+          return_url: `${window.location.origin}/request-service/dashboard/{requestId}`,
         },
         redirect: 'if_required',
       })
@@ -110,7 +111,7 @@ function PaymentForm({
   }
 
   return (
-    <Card className="w-full max-w-[500px] mx-auto">
+    <Card className="w-full max-w-[500px] mx-auto dark:text-white bg-background">
       <CardHeader>
         <CardTitle>Pago de Servicio</CardTitle>
         <CardDescription>
@@ -126,7 +127,7 @@ function PaymentForm({
             </div>
             <div className="text-right">
               <span className="text-sm text-muted-foreground">Monto</span>
-              <p className="font-medium text-lg">${amount.toFixed(2)}</p>
+              <p className="font-medium text-lg">{formatCurrency(amount)}</p>
             </div>
           </div>
 
@@ -142,7 +143,7 @@ function PaymentForm({
               <div className="p-3 bg-red-50 text-red-700 rounded-md text-sm">{errorMessage}</div>
             )}
 
-            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-md">
+            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-md dark:bg-slate-800">
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-primary" />
                 <span className="text-sm">Tus datos de pago están seguros y encriptados</span>
@@ -157,7 +158,7 @@ function PaymentForm({
           type="submit"
           onClick={handleSubmit}
           disabled={!stripe || isProcessing}
-          className="w-full"
+          className="w-full bg-primary hover:bg-primary/50 text-white"
         >
           {isProcessing ? 'Procesando...' : 'Pagar y confirmar'}
         </Button>

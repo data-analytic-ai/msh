@@ -62,9 +62,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
   const cardContent = (
     <>
-      <div className="rounded-full bg-secondary/50 p-2 sm:p-3 text-xl sm:text-2xl md:text-3xl">
-        {icon}
-      </div>
+      <div className="rounded-full p-2 sm:p-3 text-xl sm:text-2xl md:text-3xl">{icon}</div>
       <span className="text-xs sm:text-sm font-medium text-center">{name}</span>
       {description && <span className="text-xs text-center hidden sm:block">{description}</span>}
     </>
@@ -77,7 +75,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         <div
           className={`flex flex-col items-center mx-auto gap-1 sm:gap-4 rounded-lg border p-2 xs:p-3 sm:p-3 md:p-4 transition-all duration-300 cursor-pointer w-11/12 h-full ${
             isSelected
-              ? 'bg-neutral-700 text-accent-foreground shadow-lg scale-105 border-primary'
+              ? 'bg-neutral-600 text-accent-foreground shadow-lg scale-105 border-primary'
               : 'bg-card text-card-foreground hover:border-primary/50 ' +
                 (enableHover ? 'hover:scale-105 hover:shadow-md hover:bg-secondary/70' : '')
           }`}

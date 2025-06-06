@@ -20,8 +20,8 @@ const ROUTES_REQUIRING_CONTEXT = [
 // Rutas que requieren al menos servicios y ubicación
 const ROUTES_REQUIRING_BASIC_CONTEXT = ['/request-service/details']
 
-// Rutas que pueden mostrar la confirmación después de enviar un formulario
-const CONFIRMATION_ROUTES = ['/request-service/confirmation']
+// Rutas que pueden accederse libremente (no requieren datos del store)
+const FREE_ACCESS_ROUTES = ['/request-service/dashboard', '/request-service/confirmation']
 
 /**
  * ServiceRequestStateProvider - Ensures service request data is available
@@ -42,31 +42,20 @@ export function ServiceRequestStateProvider({ children }: { children: React.Reac
   const requiresBasicContext = ROUTES_REQUIRING_BASIC_CONTEXT.some((route) =>
     pathname?.includes(route),
   )
-  const isConfirmationPage = CONFIRMATION_ROUTES.some((route) => pathname?.includes(route))
+  const isFreeAccessRoute = FREE_ACCESS_ROUTES.some((route) => pathname?.includes(route))
 
   // Check if we need to redirect due to missing data
   useEffect(() => {
+    // Allow free access to dashboard and other specified routes
+    if (isFreeAccessRoute) {
+      console.log('Free access route, no data requirements')
+      return
+    }
+
     // Si estamos en la ruta de detalles, solo verificamos servicios y ubicación
     if (requiresBasicContext) {
       if (!(selectedServices.length > 0 && location)) {
         console.log('Redirigiendo al inicio desde detalles por falta de datos básicos')
-        router.push('/')
-      }
-      return
-    }
-
-    // Caso especial para la página de confirmación
-    if (isConfirmationPage) {
-      // Si venimos de enviar el formulario (success), permitir la visualización
-      // incluso si no tenemos un requestId todavía (puede haber un retraso)
-      if (requestStatus === 'success') {
-        console.log('Permitiendo confirmación porque requestStatus es success')
-        return
-      }
-
-      // De lo contrario, verificar que al menos tengamos servicios y ubicación
-      if (!(selectedServices.length > 0 && location)) {
-        console.log('Redirigiendo desde confirmación por falta de datos básicos')
         router.push('/')
       }
       return
@@ -81,7 +70,7 @@ export function ServiceRequestStateProvider({ children }: { children: React.Reac
     pathname,
     requiresContext,
     requiresBasicContext,
-    isConfirmationPage,
+    isFreeAccessRoute,
     hasEssentialData,
     selectedServices,
     location,

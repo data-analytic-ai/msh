@@ -11,13 +11,14 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useServiceRequest } from '@/context/ServiceRequestContext'
+import { useServiceRequest } from '@/hooks/useServiceRequest'
 import { PaymentFormWrapper } from '@/components/payment/PaymentForm'
 import { createPaymentIntent } from '@/lib/stripe-client'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { v4 as uuidv4 } from 'uuid'
+import { formatCurrency } from '@/lib/payment-config'
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -34,7 +35,7 @@ export default function PaymentPage() {
   }, [setCurrentStep])
 
   // Precio estimado (podría venir del contratista o ser estimado según el servicio)
-  const estimatedPrice = 450 // En pesos mexicanos (MXN)
+  const estimatedPrice = 450 // En dólares estadounidenses (USD)
 
   // Tiempo estimado de llegada
   const estimatedArrivalTime = '10-15 minutos'
@@ -114,7 +115,7 @@ export default function PaymentPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6 dark:text-white">
       {/* Navegación */}
       <div className="mb-6">
         <Link
@@ -135,7 +136,7 @@ export default function PaymentPage() {
       </div>
 
       {/* Contenido principal */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-secondary rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-background rounded-lg dark:bg-background ">
         <div className="md:col-span-2">
           {isLoading ? (
             <div className="flex justify-center py-12">
@@ -181,7 +182,7 @@ export default function PaymentPage() {
 
             <div>
               <h3 className="text-sm font-medium text-muted-foreground">Precio estimado</h3>
-              <p className="font-medium">${estimatedPrice.toFixed(2)}</p>
+              <p className="font-medium">{formatCurrency(estimatedPrice)}</p>
               <p className="text-xs text-muted-foreground">
                 El precio final puede variar según el trabajo realizado
               </p>
@@ -197,7 +198,7 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-200">
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
               <p className="text-sm">
                 El pago se retendrá hasta que confirmes que el servicio ha sido completado
                 satisfactoriamente.
