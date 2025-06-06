@@ -21,6 +21,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
   const {
     alt: altFromProps,
     fill,
+    pictureClassName,
     imgClassName,
     priority,
     resource,
@@ -35,21 +36,29 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
   let src: StaticImageData | string = srcFromProps || ''
 
   if (!src && resource && typeof resource === 'object') {
-    const {
-      alt: altFromResource,
-      filename: fullFilename,
-      height: fullHeight,
-      url,
-      width: fullWidth,
-    } = resource
+    const { alt: altFromResource, height: fullHeight, url, width: fullWidth } = resource
 
     width = fullWidth!
     height = fullHeight!
     alt = altFromResource || ''
 
-    const cacheTag = resource.updatedAt
+    // Obtenemos la URL base del servidor
+    const baseUrl = getClientSideURL()
 
-    src = `${getClientSideURL()}${url}?${cacheTag}`
+    // Verificamos si la URL ya es absoluta o relativa
+    if (url && typeof url === 'string' && url.startsWith('/')) {
+      // Si es una URL relativa, la combinamos con la URL base
+      // Aseguramos que no haya doble barra
+      const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
+      const cleanUrl = url.startsWith('/') ? url : `/${url}`
+
+      // Agregamos el timestamp como parámetro de caché
+      const cacheTag = resource.updatedAt
+      src = `${cleanBaseUrl}${cleanUrl}?${cacheTag}`
+    } else if (url && typeof url === 'string') {
+      // Si ya es una URL absoluta, la usamos directamente
+      src = url
+    }
   }
 
   const loading = loadingFromProps || (!priority ? 'lazy' : undefined)
@@ -62,7 +71,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         .join(', ')
 
   return (
-    <picture>
+    <picture className={cn(pictureClassName)}>
       <NextImage
         alt={alt || ''}
         className={cn(imgClassName)}

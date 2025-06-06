@@ -9,6 +9,7 @@ export interface Props {
   fill?: boolean // for NextImage only
   htmlElement?: ElementType | null
   imgClassName?: string
+  pictureClassName?: string // for picture element wrapper
   onClick?: () => void
   onLoad?: () => void
   loading?: 'lazy' | 'eager' // for NextImage only

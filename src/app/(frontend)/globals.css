@@ -1,6 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+.text-wrap-fallback {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  -webkit-line-break: auto;
+  line-break: auto;
+} 
 
 @layer base {
   h1,
@@ -13,84 +19,169 @@
     font-weight: auto;
   }
 
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 240 5% 96%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 240 6% 80%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.2rem;
-
-    --success: 196 52% 74%;
-    --warning: 34 89% 85%;
-    --error: 10 100% 86%;
+  * {
+    border-color: var(--border);
   }
-
-  [data-theme='dark'] {
-    --background: 0 0% 0%;
-    --foreground: 210 40% 98%;
-
-    --card: 0 0% 4%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 0, 0%, 15%, 0.8;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-
-    --success: 196 100% 14%;
-    --warning: 34 51% 25%;
-    --error: 10 39% 43%;
+  
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground min-h-[100vh] flex flex-col;
-  }
+   /* Configuración básica */
+@theme {
+
+  /* Breakpoints */
+  --breakpoints-3xl: 1920px;
+  --breakpoints-2xl: 1536px;
+  --breakpoints-xl: 1280px;
+  --breakpoints-lg: 1024px;
+  --breakpoints-md: 768px;
+  --breakpoints-sm: 640px;
+  --breakpoints-xs: 480px;
+  --breakpoints-2xs: 320px;
+  --breakpoints-3xs: 240px;
+
+  /* Radius */
+  --radius: 0.4rem;
+
+  /* Container */
+  --container-*: initial;
+  --container-width: 100%;
+  --container-center: true;
+  --container-padding: 1rem;
+  --container-padding-sm: 1rem;
+  --container-padding-md: 2rem;
+  --container-padding-lg: 2rem;
+  --container-padding-xl: 2rem;
+  --container-padding-2xl: 2rem;
+
+
+  --color-logo-urgent-dark: #ffffff;
+  --color-logo-fix-dark: #D93D1A;
+  --logo-urgent: #1F2937;
+  --logo-fix: #D93D1A;
+  
+  /* Colores principales - armónicos con el logo */
+  --color-background: #FFFFFF;
+  --color-foreground: #1F2937;
+  
+  --color-accent: #FF6E40;
+  --color-accent-foreground: #FFFFFF;
+
+  --color-card: #F9FAFB;
+  --color-card-foreground: #1F2937;
+
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1F2937;
+
+  --color-primary: #FF4500;
+  --color-primary-foreground: #FFFFFF;
+
+  --color-secondary: #F3F4F6;
+  --color-secondary-foreground: #1F2937;
+
+  --color-muted: #F3F4F6;
+  --color-muted-foreground: #6B7280;
+
+  
+
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
+
+  --color-border: #E5E7EB;
+  --color-input: #F3F4F6;
+  --color-ring: #FF4500;
+
+  /* Status colors */
+  --color-success: #10B981;
+  --color-success-foreground: #FFFFFF;
+  --color-success-light: #ECFDF5;
+  --color-success-light-foreground: #065F46;
+  --color-success-border: #A7F3D0;
+
+  --color-warning: #F59E0B;
+  --color-warning-foreground: #FFFFFF;
+  --color-warning-light: #FFFBEB;
+  --color-warning-light-foreground: #92400E;
+  --color-warning-border: #FEF3C7;
+
+  --color-error: #EF4444;
+  --color-error-foreground: #FFFFFF;
+  --color-error-light: #FEF2F2;
+  --color-error-light-foreground: #B91C1C;
+  --color-error-border: #FEE2E2;
+
+  --color-info: #3B82F6;
+  --color-info-foreground: #FFFFFF;
+  --color-info-light: #EFF6FF;
+  --color-info-light-foreground: #1E40AF;
+  --color-info-border: #BFDBFE;
+  
+}
+
+
+
+/* Modo oscuro manejado con selector en vez de @dark dentro de @theme */
+[data-theme="dark"] {
+  --color-background: #121212;
+  --color-foreground: #F9FAFB;
+
+
+
+  --color-card: #1F1F1F;
+  --color-card-foreground: #F9FAFB;
+
+  --color-popover: #1F1F1F;
+  --color-popover-foreground: #F9FAFB;
+
+  --color-primary: #FF4500;
+  --color-primary-foreground: #121212;
+
+  --color-secondary: #2D2D2D;
+  --color-secondary-foreground: #F9FAFB;
+
+  --color-muted: #2D2D2D;
+  --color-muted-foreground: #9CA3AF;
+
+  --color-accent: #FF6E40;
+  --color-accent-foreground: #121212;
+
+  --color-destructive: #F87171;
+  --color-destructive-foreground: #121212;
+
+  --color-border: #2D2D2D;
+  --color-input: #2D2D2D;
+  --color-ring: #FF4500;
+
+  /* Status colors */
+  --color-success: #34D399;
+  --color-success-foreground: #121212;
+  --color-success-light: #064E3B;
+  --color-success-light-foreground: #6EE7B7;
+  --color-success-border: #065F46;
+
+  --color-warning: #FBBF24;
+  --color-warning-foreground: #121212;
+  --color-warning-light: #78350F;
+  --color-warning-light-foreground: #FCD34D;
+  --color-warning-border: #92400E;
+
+  --color-error: #F87171;
+  --color-error-foreground: #121212;
+  --color-error-light: #7F1D1D;
+  --color-error-light-foreground: #FCA5A5;
+  --color-error-border: #B91C1C;
+
+  --color-info: #60A5FA;
+  --color-info-foreground: #121212;
+  --color-info-light: #1E3A8A;
+  --color-info-light-foreground: #93C5FD;
+  --color-info-border: #1E40AF;
 }
 
 html {
@@ -100,4 +191,108 @@ html {
 html[data-theme='dark'],
 html[data-theme='light'] {
   opacity: initial;
+}
+
+/* Estilos adicionales para badges */
+@layer utilities {
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .status-badge-success {
+    background-color: var(--success-light);
+    color: var(--success-light-foreground);
+  }
+
+  .status-badge-warning {
+    background-color: var(--warning-light);
+    color: var(--warning-light-foreground);
+  }
+
+  .status-badge-error {
+    background-color: var(--error-light);
+    color: var(--error-light-foreground);
+  }
+
+  .status-badge-info {
+    background-color: var(--info-light);
+    color: var(--info-light-foreground);
+  }
+
+  /* Service Request Form Field Styles */
+  .optional-field {
+    opacity: 0.9;
+  }
+
+  .optional-field:hover {
+    opacity: 1;
+  }
+
+  /* Radio button styles for urgency level */
+  input[type="radio"]:checked + * .radio-checked\:opacity-100 {
+    opacity: 1;
+  }
+
+  /* Image upload preview animations */
+  .image-preview-enter {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  .image-preview-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 200ms, transform 200ms;
+  }
+
+  .image-preview-exit {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .image-preview-exit-active {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 150ms, transform 150ms;
+  }
+
+  /* Phone number input formatting */
+  .phone-input {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* Location input with geolocation button */
+  .location-input-group {
+    position: relative;
+  }
+
+  .location-input-group .geolocation-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* Form step indicator enhancements */
+  .form-step-indicator {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .form-step-indicator::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, var(--primary) var(--progress, 0%), transparent var(--progress, 0%));
+    transition: --progress 300ms ease-in-out;
+  }
 }

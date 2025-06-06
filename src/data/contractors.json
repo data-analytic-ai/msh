@@ -1,0 +1,222 @@
+[
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": {
+        "lat": 39.0062,
+        "lng": -77.4286
+      },
+      "viewport": {
+        "south": 38.9978,
+        "west": -77.4375,
+        "north": 39.0145,
+        "east": -77.4197
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+    "icon_background_color": "#7B9EB0",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+    "name": "Sterling Pest Control Services",
+    "category": "Control de Plagas",
+    "opening_hours": {
+      "open_now": true
+    },
+    "photos": [
+      {
+        "height": 576,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/114697651984840040070\">A Google User</a>"
+        ],
+        "width": 1024
+      }
+    ],
+    "place_id": "ChIJ0Z---h3_c48RTp_oQKD_w7g",
+    "plus_code": {
+      "compound_code": "VJ5H+F7 Sterling, VA",
+      "global_code": "87C4VJ5H+F7"
+    },
+    "rating": 4.8,
+    "reference": "ChIJ0Z---h3_c48RTp_oQKD_w7g",
+    "scope": "GOOGLE",
+    "types": ["point_of_interest", "establishment"],
+    "user_ratings_total": 42,
+    "vicinity": "45965 Nokes Blvd #150, Sterling, VA",
+    "html_attributions": []
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": {
+        "lat": 39.0187,
+        "lng": -77.4305
+      },
+      "viewport": {
+        "south": 39.0104,
+        "west": -77.4394,
+        "north": 39.0271,
+        "east": -77.4216
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+    "icon_background_color": "#7B9EB0",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+    "name": "Virginia Extermination Experts",
+    "category": "Control de Plagas",
+    "opening_hours": {
+      "open_now": true
+    },
+    "photos": [
+      {
+        "height": 400,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/107515069034103998442\">A Google User</a>"
+        ],
+        "width": 400
+      }
+    ],
+    "place_id": "ChIJXXvqfgX_c48RDH_XMTZIlT4",
+    "plus_code": {
+      "compound_code": "VJ9H+FR Sterling, VA",
+      "global_code": "87C4VJ9H+FR"
+    },
+    "rating": 4.7,
+    "reference": "ChIJXXvqfgX_c48RDH_XMTZIlT4",
+    "scope": "GOOGLE",
+    "types": ["point_of_interest", "establishment"],
+    "user_ratings_total": 38,
+    "vicinity": "22446 Davis Dr, Sterling, VA",
+    "html_attributions": []
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": {
+        "lat": 39.0234,
+        "lng": -77.3898
+      },
+      "viewport": {
+        "south": 39.0151,
+        "west": -77.3987,
+        "north": 39.0318,
+        "east": -77.3809
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+    "icon_background_color": "#7B9EB0",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+    "name": "Sterling Termite & Pest Solutions",
+    "category": "Control de Plagas",
+    "opening_hours": {
+      "open_now": true
+    },
+    "photos": [
+      {
+        "height": 1123,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/116852291179435844166\">A Google User</a>"
+        ],
+        "width": 794
+      }
+    ],
+    "place_id": "ChIJAQaI31pVcY8R7J8qdK6crg0",
+    "plus_code": {
+      "compound_code": "VMB3+9W Sterling, VA",
+      "global_code": "87C4VMB3+9W"
+    },
+    "rating": 4.5,
+    "reference": "ChIJAQaI31pVcY8R7J8qdK6crg0",
+    "scope": "GOOGLE",
+    "types": ["point_of_interest", "establishment"],
+    "user_ratings_total": 53,
+    "vicinity": "21405 Davis Dr, Sterling, VA",
+    "html_attributions": []
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": {
+        "lat": 39.0058,
+        "lng": -77.4102
+      },
+      "viewport": {
+        "south": 38.9974,
+        "west": -77.4191,
+        "north": 39.0141,
+        "east": -77.4013
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+    "icon_background_color": "#7B9EB0",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+    "name": "EcoPest Virginia",
+    "category": "Control de Plagas",
+    "opening_hours": {
+      "open_now": true
+    },
+    "photos": [
+      {
+        "height": 1152,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/118387989944640582754\">A Google User</a>"
+        ],
+        "width": 864
+      }
+    ],
+    "place_id": "ChIJVUeoXI8FdI8REInqTSdLtng",
+    "plus_code": {
+      "compound_code": "VJ5Q+8W Sterling, VA",
+      "global_code": "87C4VJ5Q+8W"
+    },
+    "rating": 4.9,
+    "reference": "ChIJVUeoXI8FdI8REInqTSdLtng",
+    "scope": "GOOGLE",
+    "types": ["point_of_interest", "establishment"],
+    "user_ratings_total": 67,
+    "vicinity": "21525 Ridgetop Circle, Sterling, VA",
+    "html_attributions": []
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": {
+        "lat": 39.0368,
+        "lng": -77.4021
+      },
+      "viewport": {
+        "south": 39.0284,
+        "west": -77.411,
+        "north": 39.0451,
+        "east": -77.3932
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+    "icon_background_color": "#7B9EB0",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+    "name": "Loudoun County Pest Management",
+    "category": "Control de Plagas",
+    "opening_hours": {
+      "open_now": true
+    },
+    "photos": [
+      {
+        "height": 741,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/106499400475101719441\">A Google User</a>"
+        ],
+        "width": 750
+      }
+    ],
+    "place_id": "ChIJcw4ESgD9c48RM1JOttS5Cuo",
+    "plus_code": {
+      "compound_code": "VMH2+PX Sterling, VA",
+      "global_code": "87C4VMH2+PX"
+    },
+    "rating": 4.6,
+    "reference": "ChIJcw4ESgD9c48RM1JOttS5Cuo",
+    "scope": "GOOGLE",
+    "types": ["point_of_interest", "establishment"],
+    "user_ratings_total": 29,
+    "vicinity": "47100 Community Plaza, Sterling, VA",
+    "html_attributions": []
+  }
+]

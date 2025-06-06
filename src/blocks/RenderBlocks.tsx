@@ -1,53 +1,45 @@
-import React, { Fragment } from 'react'
-
-import type { Page } from '@/payload-types'
-
-import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
-import { CallToActionBlock } from '@/blocks/CallToAction/Component'
-import { ContentBlock } from '@/blocks/Content/Component'
-import { FormBlock } from '@/blocks/Form/Component'
-import { MediaBlock } from '@/blocks/MediaBlock/Component'
-import { EmergencyServicesBlock } from '@/blocks/EmergencyServices/Component'
-
-const blockComponents = {
-  archive: ArchiveBlock,
-  content: ContentBlock,
-  cta: CallToActionBlock,
-  formBlock: FormBlock,
-  mediaBlock: MediaBlock,
-  emergencyServices: EmergencyServicesBlock,
-}
+import React from 'react'
+import { Page } from '../payload-types'
+import { blockComponents } from '.'
 
 export const RenderBlocks: React.FC<{
-  blocks: Page['layout'][0][]
+  blocks: Page['layout']
 }> = (props) => {
   const { blocks } = props
 
-  const hasBlocks = blocks && Array.isArray(blocks) && blocks.length > 0
-
-  if (hasBlocks) {
-    return (
-      <Fragment>
-        {blocks.map((block, index) => {
-          const { blockType } = block
-
-          if (blockType && blockType in blockComponents) {
-            const Block = blockComponents[blockType]
-
-            if (Block) {
-              return (
-                <div className="my-16" key={index}>
-                  {/* @ts-expect-error there may be some mismatch between the expected types here */}
-                  <Block {...block} disableInnerContainer />
-                </div>
-              )
-            }
-          }
-          return null
-        })}
-      </Fragment>
-    )
+  if (!blocks || blocks?.length === 0) {
+    return null
   }
 
-  return null
+  return (
+    <div className="my-8 space-y-16">
+      {blocks.map((block, index) => {
+        const Block = blockComponents?.[block.blockType as keyof typeof blockComponents]
+
+        if (Block) {
+          return (
+            <div
+              key={index}
+              data-block-type={block.blockType}
+              className={index % 2 === 0 ? 'bg-background' : 'bg-muted/50'}
+              data-index={index}
+            >
+              {/* The most direct solution is to use a @ts-ignore comment to tell the compiler to ignore the error on that specific line. While it's not ideal to ignore TypeScript errors, in this case it's justified because:
+             At runtime, each component receives exactly the properties it needs based on its blockType
+             The alternative would be to implement a complex structure of discriminated types that could be excessive
+             If we prefer a solution without @ts-ignore, we could:
+             Create a specific discriminated union type for each component
+             Extract only the properties that each component needs
+             Implement a custom renderer for each block type
+             But for most cases, @ts-ignore is sufficient and keeps the code simpler */}
+              {/* @ts-expect-error - Cada componente espera props específicos basados en blockType */}
+              <Block {...block} />
+            </div>
+          )
+        }
+
+        return null
+      })}
+    </div>
+  )
 }

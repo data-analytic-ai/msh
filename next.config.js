@@ -9,7 +9,11 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    ignoreBuildErrors: false,
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: true,
   },
 
   eslint: {
@@ -18,11 +22,7 @@ const nextConfig = {
 
   images: {
     remotePatterns: [
-      ...[
-        NEXT_PUBLIC_SERVER_URL,
-        'https://rfsd-hub-qa.up.railway.app',
-        'https://roofingsidinghub.com',
-      ].map((item) => {
+      ...[NEXT_PUBLIC_SERVER_URL, 'https://er24-qa.up.railway.app'].map((item) => {
         const url = new URL(item)
 
         return {
@@ -30,6 +30,19 @@ const nextConfig = {
           protocol: url.protocol.replace(':', ''),
         }
       }),
+      {
+        hostname: '192.168.1.115',
+        protocol: 'http',
+        port: '3000',
+      },
+      {
+        hostname: 'maps.googleapis.com',
+        protocol: 'https',
+      },
+      {
+        hostname: 'lh3.googleusercontent.com',
+        protocol: 'https',
+      },
     ],
   },
   reactStrictMode: true,

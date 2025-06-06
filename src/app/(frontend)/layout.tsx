@@ -16,17 +16,32 @@ import { draftMode } from 'next/headers'
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
 
+/**
+ * RootLayout - Main application layout component
+ *
+ * Sets up the basic structure and providers for the application.
+ * Includes theme initialization, fonts, and main layout components.
+ *
+ * @param {React.ReactNode} children - Page content to render within the layout
+ * @returns {JSX.Element} - The rendered layout with page content
+ */
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { isEnabled } = await draftMode()
 
   return (
-    <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
+    <html
+      className={cn(GeistSans.variable, GeistMono.variable)}
+      data-theme="light"
+      lang="en"
+      suppressHydrationWarning
+    >
       <head>
         <InitTheme />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body>
+      <body className="min-h-screen flex flex-col bg-background dark:bg-background-dark">
         <Providers>
           <AdminBar
             adminBarProps={{
@@ -35,7 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           />
 
           <Header />
-          {children}
+          <main className="flex-grow w-full">{children}</main>
           <Footer />
         </Providers>
       </body>

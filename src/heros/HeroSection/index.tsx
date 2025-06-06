@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import React from "react";
-import { Media } from "@/components/Media";
-import RichText from "@/components/RichText";
-import { FormBlock } from "@/blocks/Form/Component";
-import { Page } from "@/payload-types";
+import React from 'react'
+import { Media } from '@/components/Media'
+import RichText from '@/components/RichText'
+import { FormBlock } from '@/blocks/Form/Component'
+import { Page } from '@/payload-types'
 import type { Form } from '@payloadcms/plugin-form-builder/types'
 // export type HeroSectionProps = {
 //   richText?: any;
@@ -17,17 +17,11 @@ const HeroSection: React.FC<Page['hero']> = ({ richText, media, form }) => {
     <section className="relative min-h-[100vh] w-full bg-primary overflow-hidden flex items-center justify-center">
       {media && (
         <div className="absolute top-0 left-0 right-0 bottom-0 w-full h-full">
-          <Media
-            imgClassName="w-full h-full object-cover object-center"
-            resource={media}
-            priority
-            fill
-            size="100vw"
-          />
+          <Media resource={media} />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/20 dark:from-black/60 dark:to-black/30" />
         </div>
       )}
-      <div className="relative container mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 mt-[-16vh] sm:mt-[-10vh] md:mt-[-6vh] lg:mt-[-16vh]">
+      <div className="relative container mx-auto px-4 flex flex-col md:flex-row gap-6 md:gap-12 mt-[-32vh] sm:mt-[-12vh] md:mt-[-16vh] lg:mt-[-16vh]">
         <div className="w-full md:w-1/2 lg:w-3/5 flex items-center justify-center">
           {richText && (
             <RichText
@@ -44,7 +38,7 @@ const HeroSection: React.FC<Page['hero']> = ({ richText, media, form }) => {
         )}
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default HeroSection;
+export default HeroSection
