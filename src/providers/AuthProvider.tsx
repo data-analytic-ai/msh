@@ -7,7 +7,7 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { getMe, invalidateUserCache } from '@/lib/auth'
+import { getMe, invalidateUserCache, forceLogoutCache } from '@/lib/auth'
 import { User } from '@/payload-types'
 import { useRouter } from 'next/navigation'
 
@@ -49,13 +49,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const router = useRouter()
 
-  // Load user on mount
+  // Load user on mount ONLY if there's evidence of existing authentication
   useEffect(() => {
     const loadUser = async () => {
       try {
         setIsLoading(true)
-        const { user: userData } = await getMe()
-        setUser(userData)
+
+        // Check if there's any evidence of existing authentication
+        const hasAuthToken = document.cookie.includes('payload-token')
+        const hasStoredAuth =
+          localStorage.getItem('msh_userEmail') || localStorage.getItem('auth-login') === 'true'
+
+        console.log('🔍 Checking for existing auth evidence:', { hasAuthToken, hasStoredAuth })
+
+        // Only fetch user if there's evidence of existing authentication
+        if (hasAuthToken || hasStoredAuth) {
+          console.log('🔑 Found auth evidence, fetching user...')
+          const { user: userData } = await getMe()
+          setUser(userData)
+        } else {
+          console.log('🚫 No auth evidence found, staying logged out')
+          setUser(null)
+        }
       } catch (error) {
         console.error('Error loading user:', error)
         setUser(null)
@@ -70,10 +85,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const handleAuthSync = (event: StorageEvent) => {
       if (event.key === 'auth-logout' && event.newValue === 'true') {
         // Otra pestaña ha cerrado sesión, actualizar este contexto
+        console.log('🚪 Logout event detected from another tab')
         setUser(null)
+        forceLogoutCache()
         localStorage.removeItem('auth-logout')
+
+        // Force reload to ensure complete logout
+        if (typeof window !== 'undefined') {
+          window.location.reload()
+        }
       } else if (event.key === 'auth-login' && event.newValue === 'true') {
         // Otra pestaña ha iniciado sesión, actualizar este contexto
+        console.log('🔑 Login event detected from another tab')
         loadUser()
         localStorage.removeItem('auth-login')
       }
@@ -112,6 +135,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true)
 
+      // Clear local user state immediately
+      setUser(null)
+
+      // Force cache to logout state immediately
+      forceLogoutCache()
+
       // Call the logout endpoint to clear cookies
       const response = await fetch('/api/users/logout', {
         method: 'POST',
@@ -119,26 +148,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
 
       if (!response.ok) {
-        throw new Error('Error logging out')
+        console.warn('Logout endpoint error, trying nuclear option...')
+
+        // Try nuclear clear session endpoint
+        try {
+          await fetch('/api/auth/clear-session', {
+            method: 'POST',
+            credentials: 'include',
+          })
+          console.log('Nuclear session clear completed')
+        } catch (nuclearError) {
+          console.warn('Nuclear clear also failed, continuing with client-side cleanup')
+        }
       }
 
-      // Clear local user state
-      setUser(null)
+      // Additional cache invalidation
       invalidateUserCache()
 
-      // Informar a otras pestañas
-      localStorage.setItem('auth-logout', 'true')
+      // Clear all relevant localStorage items
+      try {
+        localStorage.removeItem('auth-login')
+        localStorage.setItem('auth-logout', 'true')
+      } catch (e) {
+        console.warn('LocalStorage not available')
+      }
 
       // Disparar evento de sincronización
       window.dispatchEvent(new CustomEvent(AUTH_SYNC_EVENT, { detail: { type: 'logout' } }))
 
-      // Redirigir a la página principal
-      router.push('/')
-      router.refresh()
+      // Force reload the entire page to clear any remaining state
+      if (typeof window !== 'undefined') {
+        window.location.href = '/'
+      } else {
+        router.push('/')
+      }
 
       return Promise.resolve()
     } catch (error) {
       console.error('Error during logout:', error)
+      // Even on error, ensure user is logged out locally
+      setUser(null)
+      forceLogoutCache()
       return Promise.reject(error)
     } finally {
       setIsLoading(false)

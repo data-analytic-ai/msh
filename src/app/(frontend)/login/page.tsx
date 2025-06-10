@@ -85,7 +85,7 @@ function LoginForm() {
     setError(null)
 
     try {
-      const response = await fetch('/api/users/login', {
+      const response = await fetch('/api/users/frontend-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

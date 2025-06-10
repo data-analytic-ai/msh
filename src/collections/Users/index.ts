@@ -14,6 +14,8 @@ export const Users: CollectionConfig = {
   slug: 'users',
   access: {
     admin: ({ req }) => {
+      // Allow access to admin panel if user is admin/superadmin, or if no user (for login page)
+      // if (!req.user) return true // Allow unauthenticated access for login
       return req.user?.role === 'admin' || req.user?.role === 'superadmin'
     },
     create: () => true, // Permitir registro público

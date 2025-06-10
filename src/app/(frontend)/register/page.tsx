@@ -76,7 +76,7 @@ export default function RegisterPage() {
       const userData = await response.json()
 
       // Iniciar sesión automáticamente
-      const loginResponse = await fetch('/api/users/login', {
+      const loginResponse = await fetch('/api/users/frontend-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

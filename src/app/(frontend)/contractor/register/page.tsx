@@ -127,7 +127,7 @@ export default function ContractorRegisterPage() {
       invalidateUserCache()
 
       // Iniciar sesión automáticamente
-      const loginResponse = await fetch('/api/users/login', {
+      const loginResponse = await fetch('/api/users/frontend-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
