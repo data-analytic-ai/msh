@@ -211,35 +211,6 @@ export default function RequestServiceDetailsPage() {
         ) : (
           // Mostrar formulario normal
           <div className="space-y-6">
-            {/* User Profile Auto-Population Info */}
-            {isAuthenticated && hasBeenAutoPopulated && (
-              <div className="border border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-900/20 p-4 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5" />
-                  <div className="text-blue-800 dark:text-blue-200 text-sm">
-                    <strong>Information Auto-filled:</strong> We&apos;ve pre-filled your contact
-                    information from your last service request. You can edit any details before
-                    submitting.
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Address Management Info for Authenticated Users */}
-            {isAuthenticated && profileData && profileData.addresses.length > 0 && (
-              <div className="border border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-900/20 p-4 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5" />
-                  <div className="text-green-800 dark:text-green-200 text-sm">
-                    <strong>Saved Addresses Available:</strong> You have{' '}
-                    {profileData.addresses.length} saved address
-                    {profileData.addresses.length !== 1 ? 'es' : ''}. You can select from them or
-                    use a new location in the form below.
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Profile Loading State */}
             {isAuthenticated && profileLoading && (
               <div className="border border-border bg-muted p-4 rounded-lg">

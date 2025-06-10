@@ -65,7 +65,9 @@ export const HeaderNav: React.FC<{ data: Header; isMobile?: boolean }> = ({
         <div className={`flex items-center gap-2 ${isMobile ? 'mt-4 flex-col w-full' : 'ml-auto'}`}>
           <div className="flex items-center gap-1 text-xs sm:text-sm font-medium text-foreground">
             <User size={isMobile ? 18 : 16} className="text-primary" />
-            <span className="truncate max-w-[120px]">Hi, {user?.name || 'User'}</span>
+            <span className="truncate max-w-[120px]">
+              Hi, {user?.firstName || 'User'} {user?.lastName || ''}
+            </span>
           </div>
 
           <Button

@@ -61,6 +61,11 @@ export async function GET(request: Request) {
       console.log(`Contraseña temporal generada para ${email}: ${tempPassword}`)
 
       try {
+        // Ensure we have valid firstName and lastName
+        const emailName = email.split('@')[0] || 'User'
+        const firstName = customerInfo?.firstName?.trim() || emailName || 'User'
+        const lastName = customerInfo?.lastName?.trim() || 'Customer'
+
         // Create a new user with customer data from the service request
         const newUser = await payload.create({
           collection: 'users',
@@ -68,8 +73,8 @@ export async function GET(request: Request) {
             email,
             password: tempPassword || 'TemporaryPassword123!',
             role: 'client',
-            firstName: customerInfo?.firstName || email.split('@')[0] || 'User',
-            lastName: customerInfo?.lastName || '',
+            firstName,
+            lastName,
             phone: customerInfo?.phone || '',
           },
         })
