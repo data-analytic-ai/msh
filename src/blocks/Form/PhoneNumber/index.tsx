@@ -4,7 +4,7 @@ import type { FieldErrorsImpl, FieldValues, UseFormRegister } from 'react-hook-f
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Phone, HelpCircle, CheckCircle, AlertCircle } from 'lucide-react'
 
 import { Error } from '../Error'
@@ -30,9 +30,6 @@ export const PhoneNumber: React.FC<
     register: UseFormRegister<FieldValues>
   }
 > = ({ name, defaultValue, errors, label, register, required, width }) => {
-  const [value, setValue] = useState(defaultValue || '')
-  const [isValid, setIsValid] = useState<boolean | null>(null)
-
   const formatPhoneNumber = (phoneNumber: string): string => {
     // Remove all non-numeric characters
     const cleaned = phoneNumber.replace(/\D/g, '')
@@ -57,6 +54,20 @@ export const PhoneNumber: React.FC<
     const cleaned = phoneNumber.replace(/\D/g, '')
     return cleaned.length === 10
   }
+
+  const [value, setValue] = useState(defaultValue ? formatPhoneNumber(defaultValue) : '')
+  const [isValid, setIsValid] = useState<boolean | null>(
+    defaultValue ? validatePhoneNumber(defaultValue) : null,
+  )
+
+  // Update local state when defaultValue changes (for auto-population)
+  useEffect(() => {
+    if (defaultValue && defaultValue !== value) {
+      const formatted = formatPhoneNumber(defaultValue)
+      setValue(formatted)
+      setIsValid(validatePhoneNumber(formatted))
+    }
+  }, [defaultValue, value])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value

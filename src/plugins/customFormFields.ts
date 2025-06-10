@@ -203,6 +203,49 @@ const urgencyLevelField: Block = {
   ],
 }
 
+// ServiceRequestConfirmation Field Block
+const serviceRequestConfirmationField: Block = {
+  slug: 'serviceRequestConfirmation',
+  interfaceName: 'ServiceRequestConfirmationField',
+  labels: {
+    singular: 'Service Request Confirmation Field',
+    plural: 'Service Request Confirmation Fields',
+  },
+  fields: [
+    {
+      name: 'name',
+      type: 'text',
+      required: true,
+      label: 'Field Name',
+      defaultValue: 'serviceRequestConfirmation',
+    },
+    {
+      name: 'label',
+      type: 'text',
+      label: 'Custom Label (optional)',
+      admin: {
+        description: 'Leave empty to use default confirmation text',
+      },
+    },
+    {
+      name: 'width',
+      type: 'number',
+      label: 'Field Width (%)',
+      defaultValue: 100,
+    },
+    {
+      name: 'required',
+      type: 'checkbox',
+      label: 'Required Field',
+      defaultValue: true,
+      admin: {
+        readOnly: true,
+        description: 'This field is always required for service requests',
+      },
+    },
+  ],
+}
+
 // Export custom fields configuration for form-builder plugin
 export const customFormFields = {
   phoneNumber: phoneNumberField,
@@ -210,6 +253,7 @@ export const customFormFields = {
   location: locationField,
   colorPicker: colorPickerField,
   urgencyLevel: urgencyLevelField,
+  serviceRequestConfirmation: serviceRequestConfirmationField,
 }
 
 // Export individual field blocks for direct import if needed

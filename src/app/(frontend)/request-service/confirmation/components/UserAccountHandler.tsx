@@ -102,7 +102,7 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({
     setLoginError(null)
 
     try {
-      const response = await fetch('/api/users/login', {
+      const response = await fetch('/api/users/frontend-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -190,7 +190,7 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({
 
         // Intentar login automático con la contraseña temporal
         try {
-          await fetch('/api/users/login', {
+          await fetch('/api/users/frontend-login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

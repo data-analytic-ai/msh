@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { FormBlock, type Data } from './Component'
 import { useServiceRequest } from '@/hooks/useServiceRequest'
 import { useUserProfile } from '@/hooks/useUserProfile'
@@ -9,6 +9,7 @@ import type { Form } from '@/payload-types'
 import type { Form as FormType } from '@payloadcms/plugin-form-builder/types'
 import { Badge } from '@/components/ui/badge'
 import { Info, CheckCircle2 } from 'lucide-react'
+import { ServiceRequestSummary } from '@/components/ServiceRequestSummary'
 
 export interface ServiceRequestFormProps {
   formId?: string
@@ -43,6 +44,9 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
 
   // State for managing initial values
   const [initialValues, setInitialValues] = useState<Record<string, any>>({})
+
+  // State for tracking form step to control notification visibility
+  const [isLastStep, setIsLastStep] = useState(false)
 
   // Use ref to track previous profile state to prevent infinite loops
   const previousProfileRef = useRef<string>('')
@@ -208,6 +212,14 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
     }
   }
 
+  // Handle step changes from FormBlock
+  const handleStepChange = useCallback(
+    (currentStep: number, totalSteps: number, isLast: boolean) => {
+      setIsLastStep(isLast)
+    },
+    [],
+  )
+
   if (loading) {
     return (
       <div className={`flex items-center justify-center min-h-[200px] ${className}`}>
@@ -234,21 +246,8 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
 
   return (
     <div className={className}>
-      {/* Service context information */}
-      <div className="mb-6 p-4 bg-primary/10 rounded-lg">
-        <h3 className="font-semibold text-lg mb-2">Service Request Summary</h3>
-        <p className="text-sm">
-          <strong>Services:</strong>{' '}
-          {selectedServices?.map((s) => (typeof s === 'object' ? s.id : s)).join(', ') ||
-            'Not specified'}
-        </p>
-        <p className="text-sm">
-          <strong>Location:</strong> {formattedAddress || 'Loading address...'}
-        </p>
-      </div>
-
-      {/* Auto-population notification for authenticated users */}
-      {isAuthenticated && hasBeenAutoPopulated && (
+      {/* Auto-population notification for authenticated users - Hide on last step */}
+      {isAuthenticated && hasBeenAutoPopulated && !isLastStep && (
         <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900 rounded-lg">
           <div className="flex items-start gap-3">
             <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
@@ -271,8 +270,8 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
         </div>
       )}
 
-      {/* Address options for authenticated users with saved addresses */}
-      {isAuthenticated && profileData && profileData.addresses.length > 0 && (
+      {/* Address options for authenticated users with saved addresses - Hide on last step */}
+      {isAuthenticated && profileData && profileData.addresses.length > 0 && !isLastStep && (
         <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 rounded-lg">
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
@@ -290,6 +289,9 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
         </div>
       )}
 
+      {/* Service Request Summary Component */}
+      {!isLastStep && <ServiceRequestSummary />}
+
       {/* Main form with auto-populated data */}
       <FormBlock
         form={form as FormType}
@@ -299,6 +301,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
         customSubmitLabel="Submit Service Request"
         hideProgressBar={false}
         initialValues={initialValues}
+        onStepChange={handleStepChange}
       />
     </div>
   )

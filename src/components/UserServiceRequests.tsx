@@ -273,7 +273,7 @@ export const UserServiceRequests = () => {
           <Button variant="outline" size="icon" onClick={() => refresh()} title="Refresh">
             <Loader2 className={`h-4 w-4 text-white ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
-          <Link href="/request-service">
+          <Link href="/request-service/details">
             <Button>Nueva Solicitud</Button>
           </Link>
         </div>

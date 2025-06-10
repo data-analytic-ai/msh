@@ -12,6 +12,7 @@ import { PhoneNumber } from './PhoneNumber'
 import { Location } from './Location'
 import { ImageUpload } from './ImageUpload'
 import { UrgencyLevel } from './UrgencyLevel'
+import { ServiceRequestConfirmation } from './ServiceRequestConfirmation'
 
 export const fields = {
   checkbox: Checkbox,
@@ -28,4 +29,5 @@ export const fields = {
   location: Location,
   imageUpload: ImageUpload,
   urgencyLevel: UrgencyLevel,
+  serviceRequestConfirmation: ServiceRequestConfirmation,
 }

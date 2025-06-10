@@ -11,6 +11,7 @@ type ExtendedFormFieldBlock =
         | 'number'
         | 'colorPicker'
         | 'urgencyLevel'
+        | 'serviceRequestConfirmation'
       name: string
       label?: string
       width?: number
@@ -97,6 +98,18 @@ export const buildInitialFormState = (fields: ExtendedFormFieldBlock[]) => {
       return {
         ...initialSchema,
         [field.name]: '',
+      }
+    }
+    if (field.blockType === 'urgencyLevel') {
+      return {
+        ...initialSchema,
+        [field.name]: '',
+      }
+    }
+    if (field.blockType === 'serviceRequestConfirmation') {
+      return {
+        ...initialSchema,
+        [field.name]: false,
       }
     }
 

@@ -41,6 +41,7 @@ export type ServiceRequestFormProps = {
   customSubmitLabel?: string
   hideProgressBar?: boolean
   initialValues?: Record<string, any>
+  onStepChange?: (currentStep: number, totalSteps: number, isLastStep: boolean) => void
 }
 
 /**
@@ -68,6 +69,7 @@ export const FormBlock: React.FC<
     customSubmitLabel,
     hideProgressBar = false,
     initialValues = {},
+    onStepChange,
   } = props
 
   // Combine buildInitialFormState with provided initialValues
@@ -143,10 +145,23 @@ export const FormBlock: React.FC<
     [allFields, step],
   )
 
+  // Notify parent about initial step
+  useEffect(() => {
+    if (onStepChange && totalSteps > 0) {
+      onStepChange(step, totalSteps, step === totalSteps - 1)
+    }
+  }, [onStepChange, step, totalSteps])
+
   // Función para retroceder
   const handleBack = useCallback(() => {
-    setStep((prev) => Math.max(prev - 1, 0))
-  }, [])
+    const newStep = Math.max(step - 1, 0)
+    setStep(newStep)
+
+    // Notify parent about step change
+    if (onStepChange) {
+      onStepChange(newStep, totalSteps, newStep === totalSteps - 1)
+    }
+  }, [step, totalSteps, onStepChange])
 
   // Función para avanzar - memoizada con useCallback
   const handleNext = useCallback(async () => {
@@ -184,8 +199,14 @@ export const FormBlock: React.FC<
     }
 
     // Avanzamos al siguiente paso
-    setStep((prev) => Math.min(prev + 1, totalSteps - 1))
-  }, [currentFields, trigger, totalSteps, formMethods])
+    const newStep = Math.min(step + 1, totalSteps - 1)
+    setStep(newStep)
+
+    // Notify parent about step change
+    if (onStepChange) {
+      onStepChange(newStep, totalSteps, newStep === totalSteps - 1)
+    }
+  }, [currentFields, trigger, totalSteps, formMethods, step, onStepChange])
 
   // Manejador de envío del formulario
   const onSubmit = useCallback(
@@ -324,6 +345,7 @@ export const FormBlock: React.FC<
         'location',
         'imageUpload',
         'urgencyLevel',
+        'serviceRequestConfirmation',
       ].includes(field.blockType)
 
       return (
@@ -351,6 +373,16 @@ export const FormBlock: React.FC<
       )
     }
     return null
+  }
+
+  // Check if we should show the service request confirmation field
+  const shouldShowConfirmation = () => {
+    // Show confirmation only after description field and in the final steps
+    const hasDescription = currentFields.some((f) => 'name' in f && f.name === 'description')
+    const hasConfirmationField = currentFields.some((f) => f.blockType === 'checkbox')
+
+    // Show if this step has the description field or if we're past it
+    return hasDescription || hasConfirmationField || step >= 1
   }
 
   const renderCurrentFields = () => (

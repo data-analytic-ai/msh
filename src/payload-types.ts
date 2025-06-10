@@ -528,6 +528,7 @@ export interface Form {
         | LocationField
         | ColorPickerField
         | UrgencyLevelField
+        | ServiceRequestConfirmationField
       )[]
     | null;
   submitButtonLabel?: string | null;
@@ -661,6 +662,25 @@ export interface UrgencyLevelField {
   id?: string | null;
   blockName?: string | null;
   blockType: 'urgencyLevel';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceRequestConfirmationField".
+ */
+export interface ServiceRequestConfirmationField {
+  name: string;
+  /**
+   * Leave empty to use default confirmation text
+   */
+  label?: string | null;
+  width?: number | null;
+  /**
+   * This field is always required for service requests
+   */
+  required?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'serviceRequestConfirmation';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2346,6 +2366,7 @@ export interface FormsSelect<T extends boolean = true> {
         location?: T | LocationFieldSelect<T>;
         colorPicker?: T | ColorPickerFieldSelect<T>;
         urgencyLevel?: T | UrgencyLevelFieldSelect<T>;
+        serviceRequestConfirmation?: T | ServiceRequestConfirmationFieldSelect<T>;
       };
   submitButtonLabel?: T;
   confirmationType?: T;
@@ -2430,6 +2451,18 @@ export interface UrgencyLevelFieldSelect<T extends boolean = true> {
   width?: T;
   required?: T;
   defaultValue?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceRequestConfirmationField_select".
+ */
+export interface ServiceRequestConfirmationFieldSelect<T extends boolean = true> {
+  name?: T;
+  label?: T;
+  width?: T;
+  required?: T;
   id?: T;
   blockName?: T;
 }
