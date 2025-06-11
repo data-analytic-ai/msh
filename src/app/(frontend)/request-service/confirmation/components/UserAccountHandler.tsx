@@ -24,6 +24,7 @@ interface UserAccountHandlerProps {
 
 export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({
   userEmail,
+  requestId,
   onAuthenticationComplete,
 }) => {
   const { login, isAuthenticated } = useAuth()
@@ -78,13 +79,13 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({
     }
   }, [userEmail, isAuthenticated])
 
-  // Llamar al callback cuando el usuario se autentica exitosamente
-  useEffect(() => {
-    if (isAuthenticated && onAuthenticationComplete) {
-      console.log('User authenticated, calling onAuthenticationComplete')
-      onAuthenticationComplete()
+  // Helper function to get redirect path
+  const getRedirectPath = () => {
+    if (requestId && requestId !== 'dashboard') {
+      return `/request-service/dashboard/${requestId}`
     }
-  }, [isAuthenticated, onAuthenticationComplete])
+    return '/request-service/dashboard'
+  }
 
   // Mostrar formulario de login interno
   const handleShowLoginForm = () => {
@@ -102,7 +103,7 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({
     setLoginError(null)
 
     try {
-      const response = await fetch('/api/users/frontend-login', {
+      const response = await fetch('/api/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,27 +128,28 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({
         throw new Error(errorMessage)
       }
 
-      // Try to parse JSON response, but handle empty responses
-      let userData = null
-      try {
-        const responseText = await response.text()
-        if (responseText && responseText.trim() !== '') {
-          userData = JSON.parse(responseText)
-        } else {
-          // Empty response is OK for PayloadCMS cookie-based auth
-          userData = { success: true }
-        }
-      } catch (jsonError) {
-        console.warn('Failed to parse login response as JSON, assuming success:', jsonError)
-        userData = { success: true }
-      }
+      // PayloadCMS login endpoint returns user data and token
+      const userData = await response.json()
+      console.log(
+        '✅ Login successful, user data received:',
+        userData.user ? userData.user.email : 'No user data',
+      )
 
       // PayloadCMS handles authentication with cookies automatically
-      await login() // No need to pass token
+      console.log('🔑 UserAccountHandler: Login successful, handling session and redirect...')
 
-      console.log('Inicio de sesión exitoso')
+      // Notificar al AuthProvider sobre el login
+      await login()
 
-      // El useEffect de arriba manejará el callback cuando isAuthenticated cambie
+      console.log('✅ UserAccountHandler: Login completed, performing full refresh redirect')
+
+      // Usar window.location.href para consistencia con login/logout
+      if (typeof window !== 'undefined') {
+        const redirectPath = getRedirectPath()
+
+        console.log('🚀 UserAccountHandler: Redirecting to:', redirectPath)
+        window.location.href = redirectPath
+      }
     } catch (err: unknown) {
       setLoginError(err instanceof Error ? err.message : 'Error al iniciar sesión')
     } finally {
@@ -190,7 +192,7 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({
 
         // Intentar login automático con la contraseña temporal
         try {
-          await fetch('/api/users/frontend-login', {
+          await fetch('/api/users/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -205,9 +207,15 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({
           // Después del login exitoso, actualizar el AuthProvider
           await login()
 
-          console.log('Automatic login successful')
+          console.log('Automatic login successful, performing full refresh redirect')
 
-          // El useEffect de arriba manejará el callback cuando isAuthenticated cambie
+          // Usar window.location.href para consistencia con login/logout
+          if (typeof window !== 'undefined') {
+            const redirectPath = getRedirectPath()
+
+            console.log('🚀 UserAccountHandler: Auto-login redirect to:', redirectPath)
+            window.location.href = redirectPath
+          }
         } catch (loginError) {
           console.error('Error with automatic login:', loginError)
           // Si el login automático falla, mostrar el formulario de login

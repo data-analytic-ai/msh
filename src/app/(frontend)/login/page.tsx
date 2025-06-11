@@ -58,18 +58,23 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Verificar autenticación existente
+  // Verificar si el usuario ya está autenticado y redirigir
   useEffect(() => {
-    if (isAuthenticated && user && !isLoading) {
-      // Si ya está autenticado, redirigir según el rol
+    if (isAuthenticated && user && !isLoading && !loading) {
+      console.log('🔍 User is already authenticated, redirecting...')
+
+      // Determinar ruta de redirección
+      let redirectPath = '/'
       if (user.role === 'admin' || user.role === 'superadmin') {
-        router.push('/admin')
-      } else {
-        // Si es cliente, redirigir a la página principal
-        router.push('/')
+        redirectPath = '/admin'
+      }
+
+      // Usar window.location.href para consistencia con logout
+      if (typeof window !== 'undefined') {
+        window.location.href = redirectPath
       }
     }
-  }, [isAuthenticated, user, router, isLoading])
+  }, [isAuthenticated, user, isLoading, loading])
 
   // Si recibimos un nuevo valor del parámetro email, actualizamos el estado
   useEffect(() => {
@@ -85,7 +90,7 @@ function LoginForm() {
     setError(null)
 
     try {
-      const response = await fetch('/api/users/frontend-login', {
+      const response = await fetch('/api/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,26 +115,15 @@ function LoginForm() {
         throw new Error(errorMessage)
       }
 
-      // Try to parse JSON response, but handle empty responses
-      let userData: any = { user: null }
-      try {
-        const responseText = await response.text()
-        if (responseText && responseText.trim() !== '') {
-          userData = JSON.parse(responseText)
-        } else {
-          // Empty response is OK for PayloadCMS cookie-based auth
-          console.log('Empty response from login, checking user data via /api/users/me')
-          // We'll get user data from getMe() after successful login
-        }
-      } catch (jsonError) {
-        console.warn(
-          'Failed to parse login response as JSON, checking user via /api/users/me:',
-          jsonError,
-        )
-      }
+      // PayloadCMS login endpoint returns user data and token
+      const userData = await response.json()
+      console.log(
+        '✅ Login successful, user data received:',
+        userData.user ? userData.user.email : 'No user data',
+      )
 
       // PayloadCMS handles authentication with cookies automatically
-      await login() // No need to pass token
+      console.log('🔑 Login successful, handling session and redirect...')
 
       // Verificar si hay una solicitud pendiente en sessionStorage
       let pendingRequest = null
@@ -145,14 +139,25 @@ function LoginForm() {
         console.error('Error procesando solicitud pendiente:', e)
       }
 
-      // Redirigir según el contexto
+      // Notificar al AuthProvider sobre el login
+      await login()
+
+      // Determinar la ruta de redirección
+      let redirectPath = '/'
       if (pendingRequest && pendingRequest.returnPath) {
-        // Si hay una ruta de retorno específica, ir allí
-        router.push(pendingRequest.returnPath)
-      } else if (userData.user?.role === 'admin' || userData.user?.role === 'superadmin') {
-        router.push('/admin') // Roles administrativos van al panel
-      } else {
-        router.push('/') // Clientes van a la página principal
+        redirectPath = pendingRequest.returnPath
+      } else if (
+        userData.user &&
+        (userData.user.role === 'admin' || userData.user.role === 'superadmin')
+      ) {
+        redirectPath = '/admin'
+      }
+
+      console.log('🚀 Redirecting to:', redirectPath)
+
+      // Hacer un refresh completo de la aplicación, similar al logout
+      if (typeof window !== 'undefined') {
+        window.location.href = redirectPath
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión')

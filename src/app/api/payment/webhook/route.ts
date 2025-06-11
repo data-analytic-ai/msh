@@ -7,7 +7,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import payload from 'payload'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 import { headers } from 'next/headers'
 
 // Inicializar Stripe con la clave secreta
@@ -38,6 +39,9 @@ export async function POST(request: NextRequest) {
 
   // Manejar diferentes tipos de eventos
   try {
+    // Get payload instance
+    const payload = await getPayload({ config })
+
     switch (event.type) {
       case 'payment_intent.succeeded':
         const paymentIntent = event.data.object as Stripe.PaymentIntent

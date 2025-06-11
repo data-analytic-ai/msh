@@ -39,6 +39,14 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     user: Users.slug,
+    // Improved meta configuration
+    meta: {
+      titleSuffix: '- Multi-Service Hub Admin',
+    },
+    // Add custom CSS for admin panel
+    // css: path.resolve(dirname, 'app/(payload)/custom.scss'),
+    // Configure date format
+    dateFormat: 'MMMM do yyyy, h:mm a',
     livePreview: {
       breakpoints: [
         {
@@ -61,6 +69,8 @@ export default buildConfig({
         },
       ],
     },
+    // Disable auto-login for better security
+    autoLogin: false,
   },
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,

@@ -2,7 +2,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import type { User } from '../payload-types'
-import { getClientSideURL } from './getURL'
+import { getServerSideURL } from './getURL'
 
 export const getMeUser = async (args?: {
   nullUserRedirect?: string
@@ -12,25 +12,63 @@ export const getMeUser = async (args?: {
 }> => {
   const { nullUserRedirect, validUserRedirect } = args || {}
 
-  const meUserReq = await fetch(`${getClientSideURL()}/api/users/me`, {
-    credentials: 'include', // Use cookies for authentication
-  })
+  try {
+    // Get cookies from server-side headers
+    const cookieStore = await cookies()
+    const token = cookieStore.get('payload-token')?.value
 
-  const {
-    user,
-  }: {
-    user: User
-  } = await meUserReq.json()
+    // If no token, return null user without redirecting immediately
+    if (!token) {
+      console.log('🚫 No payload-token found in SSR')
+      if (nullUserRedirect) {
+        redirect(nullUserRedirect)
+      }
+      return { user: null }
+    }
 
-  if (validUserRedirect && meUserReq.ok && user) {
-    redirect(validUserRedirect)
-  }
+    // Build proper headers for server-side request
+    const cookieHeader = cookieStore.toString()
 
-  if (nullUserRedirect && (!meUserReq.ok || !user)) {
-    redirect(nullUserRedirect)
-  }
+    const meUserReq = await fetch(`${getServerSideURL()}/api/users/me`, {
+      method: 'GET',
+      headers: {
+        Cookie: cookieHeader,
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store', // Prevent caching for auth requests
+    })
 
-  return {
-    user,
+    console.log('📡 SSR /api/users/me response status:', meUserReq.status)
+
+    if (!meUserReq.ok) {
+      console.log('❌ SSR users/me request failed')
+      if (nullUserRedirect) {
+        redirect(nullUserRedirect)
+      }
+      return { user: null }
+    }
+
+    const responseData = await meUserReq.json()
+    const user = responseData.user || responseData || null
+
+    console.log('📦 SSR users/me response:', user ? `User: ${user.email}` : 'No user')
+
+    if (validUserRedirect && user) {
+      redirect(validUserRedirect)
+    }
+
+    if (nullUserRedirect && !user) {
+      redirect(nullUserRedirect)
+    }
+
+    return { user }
+  } catch (error) {
+    console.error('🚨 Error in getMeUser SSR:', error)
+
+    if (nullUserRedirect) {
+      redirect(nullUserRedirect)
+    }
+
+    return { user: null }
   }
 }

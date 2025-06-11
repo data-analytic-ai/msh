@@ -50,7 +50,7 @@ export default function RequestServiceDetailsPage() {
   } = useServiceRequest()
 
   const router = useRouter()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user, isLoading } = useAuth()
   const {
     profileData,
     hasBeenAutoPopulated,
@@ -102,23 +102,40 @@ export default function RequestServiceDetailsPage() {
     }
   }, [location, formattedAddress, setFormattedAddress])
 
-  // Si el usuario ya está autenticado, ir directamente a confirmación
+  // Verificar autenticación existente
   useEffect(() => {
-    if (isAuthenticated && formSubmissionComplete && requestId) {
-      console.log('User is authenticated and form submitted, redirecting to dashboard')
-      router.push(`/request-service/dashboard/${requestId}`)
+    if (isAuthenticated && user && !isLoading) {
+      console.log('🔍 User is already authenticated, redirecting...')
+
+      // Determinar ruta de redirección
+      let redirectPath = '/'
+      if (user.role === 'admin' || user.role === 'superadmin') {
+        redirectPath = '/admin'
+      }
+
+      // Usar window.location.href para consistencia con logout
+      if (typeof window !== 'undefined') {
+        window.location.href = redirectPath
+      }
     }
-  }, [isAuthenticated, formSubmissionComplete, requestId, router])
+  }, [isAuthenticated, user, isLoading])
 
   // Handle successful form submission
   const handleSubmitSuccess = () => {
     console.log('Form submitted successfully')
     setFormSubmissionComplete(true)
 
+    // Guardar requestId en sessionStorage para uso posterior
+    if (requestId && typeof window !== 'undefined') {
+      sessionStorage.setItem('current_request_id', requestId)
+    }
+
     // Si el usuario ya está autenticado, ir directamente a dashboard
     if (isAuthenticated && requestId) {
       console.log('User already authenticated, redirecting to dashboard immediately')
-      router.push(`/request-service/dashboard/${requestId}`)
+      if (typeof window !== 'undefined') {
+        window.location.href = `/request-service/dashboard/${requestId}`
+      }
     } else {
       // Si no está autenticado, mostrar el UserAccountHandler
       console.log('User not authenticated, showing account handler')
@@ -128,10 +145,9 @@ export default function RequestServiceDetailsPage() {
 
   // Handle successful authentication from UserAccountHandler
   const handleAuthenticationComplete = () => {
-    console.log('Authentication completed, redirecting to dashboard')
-    if (requestId) {
-      router.push(`/request-service/dashboard/${requestId}`)
-    }
+    console.log('Authentication completed - UserAccountHandler will handle redirect')
+    // UserAccountHandler ahora maneja toda la redirección con refresh completo
+    // No necesitamos hacer nada aquí
   }
 
   // Handle back button when showing account handler

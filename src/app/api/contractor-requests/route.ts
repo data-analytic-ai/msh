@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import payload from 'payload'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 
 /**
  * Contractor Requests API
@@ -19,6 +20,9 @@ export async function GET(request: NextRequest) {
     if (!request.headers.get('cookie')?.includes('payload-token')) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
+
+    // Get payload instance
+    const payload = await getPayload({ config })
 
     // Base query - create an empty where object
     const where: any = {}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import payload from 'payload'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 
 /**
  * Stripe Connect Account Creation API
@@ -15,6 +16,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: NextRequest) {
   try {
+    // Get payload instance
+    const payload = await getPayload({ config })
+
     const { contractorId, type = 'express' } = await request.json()
 
     if (!contractorId) {

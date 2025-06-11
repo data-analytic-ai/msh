@@ -6,7 +6,8 @@
  * by service type and calculating distance from a given location.
  */
 import { NextRequest, NextResponse } from 'next/server'
-import payload from 'payload'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 import { getDistance } from 'geolib'
 import { Contractor, ContractorWithDistance } from '@/types/contractor'
 
@@ -25,6 +26,9 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
 // GET handler for searching contractors
 export async function GET(request: NextRequest) {
   try {
+    // Get payload instance
+    const payload = await getPayload({ config })
+
     // Parse query parameters
     const searchParams = request.nextUrl.searchParams
     const services = searchParams.get('services')?.split(',') || []

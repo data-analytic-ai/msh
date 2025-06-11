@@ -6,7 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import payload from 'payload'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 
 // Define los tipos de servicios permitidos
 type ServiceType =
@@ -197,30 +198,31 @@ const sampleContractors = [
  */
 export async function GET() {
   try {
+    // Get payload instance
+    const payload = await getPayload({ config })
+
     // Verificar si ya existen contratistas
     const existingContractors = await payload.find({
       collection: 'contractors',
       limit: 1,
     })
 
-    // Si ya hay contratistas, informar que ya existe data
-    if (existingContractors.docs.length > 0) {
+    if (existingContractors.totalDocs > 0) {
       return NextResponse.json({
-        message: 'La base de datos ya contiene contratistas. No se crearon nuevos registros.',
+        message: 'Contractors already exist in database',
         count: existingContractors.totalDocs,
       })
     }
 
-    // Crear los contratistas de ejemplo
-    const createdContractors = []
-
+    // Crear contratistas de ejemplo
+    const results = []
     for (const contractor of sampleContractors) {
       try {
         const created = await payload.create({
           collection: 'contractors',
           data: contractor,
         })
-        createdContractors.push(created)
+        results.push(created)
         console.log(`✅ Contratista creado: ${contractor.name}`)
       } catch (error) {
         console.error(`❌ Error al crear contratista ${contractor.name}:`, error)
@@ -229,8 +231,8 @@ export async function GET() {
 
     return NextResponse.json({
       message: 'Contratistas de ejemplo creados exitosamente',
-      count: createdContractors.length,
-      contractors: createdContractors.map((c) => ({ id: c.id, name: c.name })),
+      count: results.length,
+      contractors: results.map((c) => ({ id: c.id, name: c.name })),
     })
   } catch (error) {
     console.error('Error al poblar la base de datos con contratistas:', error)

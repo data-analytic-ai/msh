@@ -329,7 +329,7 @@ export const useServiceRequestStore = create<ServiceRequestStore>()(
 
           try {
             // Use direct PayloadCMS API endpoint
-            const endpoint = '/api/service-requests'
+            const endpoint = '/api/service-request-operations'
 
             response = await fetch(endpoint, {
               method: 'POST',

@@ -7,7 +7,7 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { getMe, invalidateUserCache, forceLogoutCache } from '@/lib/auth'
+import { getMe, invalidateUserCache, forceLogoutCache, syncSSRUser } from '@/lib/auth'
 import { User } from '@/payload-types'
 import { useRouter } from 'next/navigation'
 
@@ -19,6 +19,7 @@ interface AuthContextType {
   login: (token?: string) => Promise<void>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
+  initializeFromSSR: (ssrUser: User | null) => void
 }
 
 // Create context with default values
@@ -29,6 +30,7 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   logout: async () => {},
   refreshUser: async () => {},
+  initializeFromSSR: () => {},
 })
 
 // Event para sincronizar el estado de autenticación entre pestañas
@@ -47,10 +49,25 @@ const AUTH_SYNC_EVENT = 'auth-sync-event'
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isHydrated, setIsHydrated] = useState(false)
   const router = useRouter()
 
-  // Load user on mount ONLY if there's evidence of existing authentication
+  // Initialize from SSR data if available
+  const initializeFromSSR = (ssrUser: User | null) => {
+    console.log('🔄 Initializing from SSR:', ssrUser ? `User: ${ssrUser.email}` : 'No user')
+    setUser(ssrUser)
+    syncSSRUser(ssrUser)
+    setIsLoading(false)
+    setIsHydrated(true)
+  }
+
+  // Load user on mount ONLY after hydration
   useEffect(() => {
+    if (isHydrated) {
+      console.log('✅ Already hydrated from SSR, skipping client fetch')
+      return
+    }
+
     const loadUser = async () => {
       try {
         setIsLoading(true)
@@ -58,15 +75,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Check if there's any evidence of existing authentication
         const hasAuthToken = document.cookie.includes('payload-token')
         const hasStoredAuth =
-          localStorage.getItem('msh_userEmail') || localStorage.getItem('auth-login') === 'true'
+          localStorage.getItem('msh_userEmail') ||
+          localStorage.getItem('auth-login') === 'true' ||
+          localStorage.getItem('msh_authenticated') === 'true'
 
         console.log('🔍 Checking for existing auth evidence:', { hasAuthToken, hasStoredAuth })
 
-        // Only fetch user if there's evidence of existing authentication
+        // Always try to fetch user if there's any auth evidence
         if (hasAuthToken || hasStoredAuth) {
           console.log('🔑 Found auth evidence, fetching user...')
           const { user: userData } = await getMe()
-          setUser(userData)
+          if (userData) {
+            setUser(userData)
+            // Asegurar que el flag de persistencia esté establecido
+            localStorage.setItem('msh_authenticated', 'true')
+          } else {
+            console.log('⚠️ Auth evidence found but no user returned, clearing flags')
+            localStorage.removeItem('msh_authenticated')
+            localStorage.removeItem('auth-login')
+            setUser(null)
+          }
         } else {
           console.log('🚫 No auth evidence found, staying logged out')
           setUser(null)
@@ -76,10 +104,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null)
       } finally {
         setIsLoading(false)
+        setIsHydrated(true)
       }
     }
 
-    loadUser()
+    // Add delay to prevent immediate fetch on hydration
+    const timeoutId = setTimeout(loadUser, 100)
 
     // Configurar listener para eventos de sincronización entre pestañas
     const handleAuthSync = (event: StorageEvent) => {
@@ -106,26 +136,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Limpieza
     return () => {
+      clearTimeout(timeoutId)
       window.removeEventListener('storage', handleAuthSync)
     }
-  }, [])
+  }, [isHydrated])
 
   // Login method - PayloadCMS handles cookies automatically, we just need to refresh user state
   const login = async (token?: string) => {
     try {
+      console.log('🔑 AuthProvider login method called')
+
       // PayloadCMS handles cookies automatically, so we just need to refresh user data
       invalidateUserCache()
+
+      // Force refresh user data and wait for it to complete
       await refreshUser()
 
-      // Informar a otras pestañas sobre el login
-      localStorage.setItem('auth-login', 'true')
+      console.log('✅ AuthProvider login completed, user state updated')
+
+      // Force a state update to trigger re-renders immediately
+      setIsLoading(false)
+
+      // Informar a otras pestañas sobre el login (con flag para persistencia)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('auth-login', 'true')
+        localStorage.setItem('msh_authenticated', 'true')
+      }
 
       // Disparar evento de sincronización
-      window.dispatchEvent(new CustomEvent(AUTH_SYNC_EVENT, { detail: { type: 'login' } }))
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent(AUTH_SYNC_EVENT, { detail: { type: 'login' } }))
+      }
 
       return Promise.resolve()
     } catch (error) {
       console.error('Error during login:', error)
+      setIsLoading(false)
       return Promise.reject(error)
     }
   }
@@ -168,13 +214,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Clear all relevant localStorage items
       try {
         localStorage.removeItem('auth-login')
+        localStorage.removeItem('msh_authenticated')
+        localStorage.removeItem('msh_userEmail')
         localStorage.setItem('auth-logout', 'true')
       } catch (e) {
         console.warn('LocalStorage not available')
       }
 
       // Disparar evento de sincronización
-      window.dispatchEvent(new CustomEvent(AUTH_SYNC_EVENT, { detail: { type: 'logout' } }))
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent(AUTH_SYNC_EVENT, { detail: { type: 'logout' } }))
+      }
 
       // Force reload the entire page to clear any remaining state
       if (typeof window !== 'undefined') {
@@ -197,13 +247,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Method to refresh user data
   const refreshUser = async () => {
+    console.log('🔄 Refreshing user data...')
     setIsLoading(true)
     try {
       const { user: freshUser } = await getMe(true)
+      console.log(
+        '📦 Fresh user data received:',
+        freshUser ? `User: ${freshUser.email}, Role: ${freshUser.role}` : 'No user',
+      )
       setUser(freshUser)
+      console.log('✅ User state updated in AuthProvider')
       return Promise.resolve()
     } catch (error) {
-      console.error('Error refreshing user:', error)
+      console.error('❌ Error refreshing user:', error)
       setUser(null)
       return Promise.reject(error)
     } finally {
@@ -220,6 +276,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         logout,
         refreshUser,
+        initializeFromSSR,
       }}
     >
       {children}

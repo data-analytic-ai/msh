@@ -10,8 +10,8 @@ let meCache: {
   timestamp: number
 } | null = null
 
-// Tiempo de expiración de la caché (5 minutos)
-const CACHE_EXPIRY = 5 * 60 * 1000
+// Tiempo de expiración de la caché (2 minutos para mejor sincronización)
+const CACHE_EXPIRY = 2 * 60 * 1000
 
 // Function to get the currently authenticated user using PayloadCMS native API
 export const getMe = async (skipCache: boolean = false): Promise<MeResponse> => {
@@ -40,7 +40,12 @@ export const getMe = async (skipCache: boolean = false): Promise<MeResponse> => 
       credentials: 'include', // Include cookies for authentication
       headers: {
         'Content-Type': 'application/json',
+        // Add cache busting to prevent stale responses
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache',
       },
+      // Prevent Next.js caching
+      cache: 'no-store',
     })
 
     console.log('📡 /api/users/me response status:', response.status)
@@ -80,11 +85,22 @@ export const getMe = async (skipCache: boolean = false): Promise<MeResponse> => 
 // Función para invalidar la caché manualmente (útil después de login/logout)
 export const invalidateUserCache = () => {
   meCache = null
-  console.log('User cache invalidated')
+  console.log('🗑️ User cache invalidated')
 }
 
 // Función para forzar logout del caché
 export const forceLogoutCache = () => {
-  meCache = null
-  console.log('User cache forced to logout state')
+  meCache = { user: null, timestamp: Date.now() }
+  console.log('🚪 User cache forced to logout state')
+}
+
+// Nueva función para sincronizar estado SSR con client-side
+export const syncSSRUser = (ssrUser: User | null) => {
+  if (typeof window !== 'undefined') {
+    meCache = { user: ssrUser, timestamp: Date.now() }
+    console.log(
+      '🔄 Synced SSR user with client cache:',
+      ssrUser ? `User: ${ssrUser.email}` : 'No user',
+    )
+  }
 }

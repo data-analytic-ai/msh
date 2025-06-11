@@ -9,12 +9,12 @@ export const Providers: React.FC<{
   children: React.ReactNode
 }> = ({ children }) => {
   return (
-    <ThemeProvider>
-      <HeaderThemeProvider>
-        <AuthProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <HeaderThemeProvider>
           <ServiceRequestStateProvider>{children}</ServiceRequestStateProvider>
-        </AuthProvider>
-      </HeaderThemeProvider>
-    </ThemeProvider>
+        </HeaderThemeProvider>
+      </ThemeProvider>
+    </AuthProvider>
   )
 }

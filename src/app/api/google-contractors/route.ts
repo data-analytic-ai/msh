@@ -5,7 +5,8 @@
  * This serves as a bridge solution while we build our contractor database.
  */
 import { NextRequest, NextResponse } from 'next/server'
-import payload from 'payload'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 import { getDistance } from 'geolib'
 import { Contractor, ContractorWithDistance } from '@/types/contractor'
 import contractorsFromGoogleData from '@/data/contractors.json'
@@ -79,6 +80,9 @@ const storeContractorInDatabase = async (contractor: Contractor) => {
   }
 
   try {
+    // Get payload instance
+    const payload = await getPayload({ config })
+
     // Check if the contractor already exists in our database
     const existingDoc = await payload.find({
       collection: 'contractors',

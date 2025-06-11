@@ -6,7 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import payload from 'payload'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 import { Contractor } from '@/types/contractor'
 
 // Helper function to calculate distance between two points using the Haversine formula
@@ -73,6 +74,9 @@ function mapToContractor(contractor: any): Contractor {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Get payload instance
+    const payload = await getPayload({ config })
+
     const body = await request.json()
     const { services, location, limit = 5 } = body
 
@@ -117,8 +121,8 @@ export async function POST(request: NextRequest) {
       const distance = calculateDistance(
         location.lat,
         location.lng,
-        contractor.location.coordinates.lat,
-        contractor.location.coordinates.lng,
+        contractor.location.lat,
+        contractor.location.lng,
       )
 
       return {

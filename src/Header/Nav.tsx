@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import React from 'react'
+import React, { useEffect } from 'react'
 import type { Header } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
 import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
@@ -28,10 +28,26 @@ export const HeaderNav: React.FC<{ data: Header; isMobile?: boolean }> = ({
   const { isAuthenticated, logout, user } = useAuth()
   const router = useRouter()
 
-  const handleLogout = () => {
-    logout()
-    // Redirect to home page using Next.js useRouter
-    router.push('/')
+  // Debug logging para rastrear cambios de estado
+  useEffect(() => {
+    console.log('🔍 HeaderNav: Auth state changed:', {
+      isAuthenticated,
+      user: user ? `${user.email} (${user.role})` : 'No user',
+    })
+  }, [isAuthenticated, user])
+
+  const handleLogout = async () => {
+    try {
+      // Call logout method which handles the full page refresh
+      await logout()
+      // El logout ya maneja la redirección con window.location.href
+    } catch (error) {
+      console.error('Error during logout:', error)
+      // Fallback: Force redirect even if logout fails
+      if (typeof window !== 'undefined') {
+        window.location.href = '/'
+      }
+    }
   }
 
   return (

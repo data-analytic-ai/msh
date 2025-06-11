@@ -7,39 +7,52 @@
 
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import payload from 'payload'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 
 export async function GET() {
   try {
-    // Obtener el token de la cookie
-    const cookieStore = cookies()
+    // Get payload instance
+    const payload = await getPayload({ config })
+
+    // Obtener el token de la cookie (await required)
+    const cookieStore = await cookies()
     const token = cookieStore.get('payload-token')?.value
 
     if (!token) {
       return NextResponse.json({ error: 'No authentication token found' }, { status: 401 })
     }
 
-    // Obtener información del usuario usando el token
-    const userResponse = await payload.find({
-      collection: 'users',
-      token,
-      depth: 0,
-    })
+    // Buscar usuario por token de sesión activa
+    try {
+      // Usar el endpoint nativo de Payload para verificar autenticación
+      const authResult = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
 
-    if (!userResponse) {
-      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 })
+      if (!authResult.ok) {
+        return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 })
+      }
+
+      const userData = await authResult.json()
+
+      // Devolver solo información necesaria
+      return NextResponse.json({
+        user: {
+          id: userData.user?.id,
+          email: userData.user?.email,
+          firstName: userData.user?.firstName,
+          lastName: userData.user?.lastName,
+          role: userData.user?.role,
+        },
+        token,
+      })
+    } catch (tokenError) {
+      return NextResponse.json({ error: 'Failed to verify token' }, { status: 401 })
     }
-
-    // Devolver solo información necesaria para evitar filtrar datos sensibles
-    return NextResponse.json({
-      user: {
-        id: userResponse.id,
-        email: userResponse.email,
-        name: userResponse.name,
-        role: userResponse.role,
-      },
-      token,
-    })
   } catch (error) {
     console.error('Error fetching user details:', error)
     return NextResponse.json({ error: 'Failed to fetch user details' }, { status: 500 })
