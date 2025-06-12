@@ -9,9 +9,7 @@
  */
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useServiceRequestStore } from '@/store/serviceRequestStore'
 import { Button } from '@/components/ui/button'
-import { getMe, invalidateUserCache } from '@/lib/auth'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -24,10 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useAuth } from '@/providers/AuthProvider'
 
 export default function ContractorRegisterPage() {
   const router = useRouter()
-  const { resetContext, setUserEmail, setIsAuthenticated } = useServiceRequestStore()
+  const { login, isAuthenticated, user, isLoading } = useAuth()
   const [name, setName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -42,29 +41,30 @@ export default function ContractorRegisterPage() {
 
   // Verificar si el usuario ya está autenticado
   useEffect(() => {
-    const checkAuthentication = async () => {
-      const { user } = await getMe()
-      if (user) {
-        setUserEmail(user.email)
-        setIsAuthenticated(true)
+    if (isAuthenticated && user && !isLoading) {
+      console.log('🔍 User is already authenticated, redirecting...')
 
-        // Redireccionar según rol
-        if (user.role === 'admin' || user.role === 'superadmin') {
-          router.push('/admin')
-        } else if (user.role === 'contractor') {
-          router.push('/contractor/dashboard')
-        } else {
-          // Si es cliente, mostrar error y redirigir
-          setError('Esta página es solo para contratistas')
-          setTimeout(() => {
-            router.push('/register')
-          }, 3000)
+      // Redireccionar según rol
+      if (user.role === 'admin' || user.role === 'superadmin') {
+        // Usar window.location.href para consistencia con flujo de clientes
+        if (typeof window !== 'undefined') {
+          window.location.href = '/admin'
         }
+      } else if (user.role === 'contractor') {
+        if (typeof window !== 'undefined') {
+          window.location.href = '/contractor/dashboard'
+        }
+      } else {
+        // Si es cliente, mostrar error y redirigir
+        setError('Esta página es solo para contratistas')
+        setTimeout(() => {
+          if (typeof window !== 'undefined') {
+            window.location.href = '/register'
+          }
+        }, 3000)
       }
     }
-
-    checkAuthentication()
-  }, [router, setUserEmail, setIsAuthenticated])
+  }, [isAuthenticated, user, isLoading, router])
 
   // Función para manejar el registro
   const handleRegister = async (e: React.FormEvent) => {
@@ -92,6 +92,7 @@ export default function ContractorRegisterPage() {
     }
 
     try {
+      // Crear el usuario contratista
       const response = await fetch('/api/users', {
         method: 'POST',
         headers: {
@@ -105,14 +106,13 @@ export default function ContractorRegisterPage() {
           password: password,
           confirmPassword: confirmPassword,
           role: 'contractor', // Asignar rol de contratista
-          contractorFields: {
-            services: services,
-            yearsExperience: parseInt(yearsExperience),
-            hasLicense: hasLicense,
-            rating: 0, // Valor inicial
-            reviewCount: 0, // Valor inicial
-            isVerified: false, // Inicialmente no verificado
-          },
+          // Campos específicos de contratista
+          services: services,
+          yearsOfExperience: parseInt(yearsExperience),
+          verified: false, // Inicialmente no verificado
+          rating: 0, // Valor inicial
+          reviewCount: 0, // Valor inicial
+          completedJobs: 0, // Valor inicial
         }),
       })
 
@@ -122,12 +122,10 @@ export default function ContractorRegisterPage() {
       }
 
       const userData = await response.json()
+      console.log('✅ User created successfully:', userData.doc ? userData.doc.email : 'No email')
 
-      // Invalidar caché para forzar una recarga de los datos del usuario
-      invalidateUserCache()
-
-      // Iniciar sesión automáticamente
-      const loginResponse = await fetch('/api/users/frontend-login', {
+      // Iniciar sesión automáticamente usando la API estándar
+      const loginResponse = await fetch('/api/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -139,32 +137,46 @@ export default function ContractorRegisterPage() {
         }),
       })
 
-      if (loginResponse.ok) {
-        // PayloadCMS handles authentication with cookies automatically
-        // Try to parse JSON response, but handle empty responses
-        try {
-          const responseText = await loginResponse.text()
-          if (responseText && responseText.trim() !== '') {
-            // Parse response if available
-            JSON.parse(responseText)
-          }
-          // Whether we have response data or not, login was successful
-        } catch (jsonError) {
-          console.warn(
-            'Failed to parse login response as JSON, but login was successful:',
-            jsonError,
-          )
-        }
-
-        // Registro y login exitoso
-        setUserEmail(email)
-        setIsAuthenticated(true)
-        router.push('/contractor/dashboard')
-      } else {
+      if (!loginResponse.ok) {
+        console.warn('Login after registration failed, redirecting to login page')
         // Registro exitoso pero login falló, redirigir a login
-        router.push('/contractor/login')
+        if (typeof window !== 'undefined') {
+          window.location.href = '/contractor/login'
+        }
+        return
+      }
+
+      // PayloadCMS handles authentication with cookies automatically
+      // Try to parse JSON response, but handle empty responses
+      let loginData = null
+      try {
+        const responseText = await loginResponse.text()
+        if (responseText && responseText.trim() !== '') {
+          loginData = JSON.parse(responseText)
+        }
+      } catch (jsonError) {
+        console.warn('Failed to parse login response as JSON, but login was successful:', jsonError)
+      }
+
+      console.log('🔑 Login successful after registration')
+
+      // Notificar al AuthProvider sobre el login (esto actualizará el estado global)
+      await login()
+
+      // Determinar la ruta de redirección
+      let redirectPath = '/contractor/dashboard'
+      if (loginData?.user?.role === 'admin' || loginData?.user?.role === 'superadmin') {
+        redirectPath = '/admin'
+      }
+
+      console.log('🚀 Redirecting to:', redirectPath)
+
+      // Hacer un refresh completo de la aplicación, igual que en el flujo de clientes
+      if (typeof window !== 'undefined') {
+        window.location.href = redirectPath
       }
     } catch (error: any) {
+      console.error('❌ Registration error:', error)
       setError(error.message || 'Error al registrar contratista')
     } finally {
       setLoading(false)
@@ -315,7 +327,7 @@ export default function ContractorRegisterPage() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading || isLoading}>
             {loading ? 'Creando cuenta...' : 'Registrarme como contratista'}
           </Button>
         </form>

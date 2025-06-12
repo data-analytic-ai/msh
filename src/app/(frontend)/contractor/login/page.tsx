@@ -8,50 +8,49 @@
  */
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useServiceRequestStore } from '@/store/serviceRequestStore'
 import { Button } from '@/components/ui/button'
-import { getMe, invalidateUserCache } from '@/lib/auth'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { AlertCircle, Wrench } from 'lucide-react'
+import { useAuth } from '@/providers/AuthProvider'
 
 export default function ContractorLoginPage() {
   const router = useRouter()
-  const { resetContext, setUserEmail, setIsAuthenticated } = useServiceRequestStore()
+  const { login, isAuthenticated, user, isLoading } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Limpia el estado al cargar la página y verifica autenticación existente
+  // Verificar si el usuario ya está autenticado y redirigir
   useEffect(() => {
-    resetContext()
+    if (isAuthenticated && user && !isLoading && !loading) {
+      console.log('🔍 User is already authenticated, redirecting...')
 
-    const checkAuthentication = async () => {
-      const { user } = await getMe()
-      if (user) {
-        setUserEmail(user.email)
-        setIsAuthenticated(true)
+      // Determinar ruta de redirección
+      let redirectPath = '/'
+      if (user.role === 'contractor') {
+        redirectPath = '/contractor/dashboard'
+      } else if (user.role === 'admin' || user.role === 'superadmin') {
+        redirectPath = '/admin'
+      } else {
+        // Si es cliente, mostrar error y redirigir a login de clientes
+        setError('Esta página es solo para contratistas')
+        setTimeout(() => {
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login'
+          }
+        }, 3000)
+        return
+      }
 
-        // Si es contratista, redirigir a su dashboard
-        if (user.role === 'contractor') {
-          router.push('/contractor/dashboard')
-        } else if (user.role === 'admin' || user.role === 'superadmin') {
-          // Administradores también pueden acceder al panel de contratistas
-          router.push('/admin')
-        } else {
-          // Si es cliente, mostrar error y redirigir a login de clientes
-          setError('Esta página es solo para contratistas')
-          setTimeout(() => {
-            router.push('/login')
-          }, 3000)
-        }
+      // Usar window.location.href para consistencia con flujo de clientes
+      if (typeof window !== 'undefined') {
+        window.location.href = redirectPath
       }
     }
-
-    checkAuthentication()
-  }, [resetContext, router, setUserEmail, setIsAuthenticated])
+  }, [isAuthenticated, user, isLoading, loading])
 
   // Función para manejar el login de contratistas
   const handleLogin = async (e: React.FormEvent) => {
@@ -60,7 +59,7 @@ export default function ContractorLoginPage() {
     setError(null)
 
     try {
-      const response = await fetch('/api/users/frontend-login', {
+      const response = await fetch('/api/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,7 +101,7 @@ export default function ContractorLoginPage() {
         )
       }
 
-      // Check user role only if we have it from response, otherwise check after login
+      // Check user role only if we have it from response
       if (
         userData.user?.role &&
         userData.user.role !== 'contractor' &&
@@ -112,27 +111,30 @@ export default function ContractorLoginPage() {
         throw new Error('Esta página es solo para contratistas')
       }
 
-      // Invalidar caché para forzar una recarga de los datos del usuario
-      invalidateUserCache()
+      console.log(
+        '✅ Login successful, user data received:',
+        userData.user && 'email' in userData.user ? userData.user.email : 'No user data',
+      )
 
-      // Autenticación exitosa
-      setUserEmail(email)
-      setIsAuthenticated(true)
+      console.log('🔑 Login successful, handling session and redirect...')
 
-      // If we don't have user data from response, we need to fetch it after login
-      if (!userData.user?.role) {
-        // Let the effect handle redirect based on user data from getMe()
-        // The useEffect will check authentication and redirect appropriately
-        return
+      // Notificar al AuthProvider sobre el login (esto actualizará el estado global)
+      await login()
+
+      // Determinar la ruta de redirección
+      let redirectPath = '/contractor/dashboard'
+      if (userData.user?.role === 'admin' || userData.user?.role === 'superadmin') {
+        redirectPath = '/admin'
       }
 
-      // Redirigir según el rol (only if we have role data)
-      if (userData.user.role === 'contractor') {
-        router.push('/contractor/dashboard') // Contratistas van a su dashboard
-      } else if (userData.user.role === 'admin' || userData.user.role === 'superadmin') {
-        router.push('/admin') // Administradores van al panel de admin
+      console.log('🚀 Redirecting to:', redirectPath)
+
+      // Hacer un refresh completo de la aplicación, igual que en el flujo de clientes
+      if (typeof window !== 'undefined') {
+        window.location.href = redirectPath
       }
     } catch (err: any) {
+      console.error('❌ Login error:', err)
       setError(err.message || 'Error al iniciar sesión')
     } finally {
       setLoading(false)
@@ -179,7 +181,7 @@ export default function ContractorLoginPage() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading || isLoading}>
             {loading ? 'Iniciando sesión...' : 'Iniciar sesión como contratista'}
           </Button>
         </form>

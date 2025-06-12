@@ -43,7 +43,9 @@ export const AdminBar: React.FC<{
   const router = useRouter()
 
   const onAuthChange = React.useCallback((user: PayloadMeUser) => {
-    setShow(Boolean(user?.id))
+    // Only show AdminBar for admin and superadmin roles
+    const isAdminUser = (user as any)?.role === 'admin' || (user as any)?.role === 'superadmin'
+    setShow(Boolean(user?.id && isAdminUser))
   }, [])
 
   return (
