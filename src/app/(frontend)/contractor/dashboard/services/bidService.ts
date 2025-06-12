@@ -20,63 +20,79 @@ export const submitBid = async (
   amount: number,
   description: string,
 ): Promise<boolean> => {
-  if (!requestId || !contractorId) return false
+  if (!requestId || !contractorId) {
+    console.error('❌ Missing required parameters: requestId or contractorId')
+    return false
+  }
 
   try {
-    // Obtener la información actual del request para actualizar
-    const getResponse = await fetch(`/api/service-requests/${requestId}`, {
-      credentials: 'include',
-    })
+    console.log('💰 Submitting bid:', { requestId, contractorId, amount, description })
 
-    if (!getResponse.ok) {
-      throw new Error('Error al obtener la solicitud')
-    }
-
-    const requestData = await getResponse.json()
-
-    // Verificar si el contratista ya hizo una oferta
-    const existingQuoteIndex = requestData.quotes?.findIndex(
-      (q: any) => q.contractor === contractorId,
-    )
-
-    let updatedQuotes = requestData.quotes || []
-
-    // Prepara la nueva cotización
-    const newQuote = {
-      contractor: contractorId,
-      amount,
-      description,
-      status: 'pending',
-    }
-
-    if (existingQuoteIndex >= 0) {
-      // Actualizar cotización existente
-      updatedQuotes[existingQuoteIndex] = newQuote
-    } else {
-      // Agregar nueva cotización
-      updatedQuotes = [...updatedQuotes, newQuote]
-    }
-
-    // Enviar actualización
-    const updateResponse = await fetch(`/api/service-requests/${requestId}`, {
-      method: 'PATCH',
+    // Use the custom contractor quotes endpoint
+    const response = await fetch('/api/contractor-quotes', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
       body: JSON.stringify({
-        quotes: updatedQuotes,
+        requestId,
+        contractorId,
+        amount,
+        description,
       }),
     })
 
-    if (!updateResponse.ok) {
-      const errorData = await updateResponse.json()
-      throw new Error(errorData.errors?.[0]?.message || 'Error al enviar cotización')
+    if (!response.ok) {
+      const errorData = await response.json()
+      console.error('❌ Error response:', errorData)
+
+      // Handle specific error types
+      if (response.status === 400) {
+        throw new Error(errorData.message || 'Datos inválidos para la cotización')
+      } else if (response.status === 404) {
+        throw new Error('Solicitud de servicio no encontrada')
+      } else {
+        throw new Error(errorData.message || 'Error al enviar cotización')
+      }
     }
 
+    const result = await response.json()
+    console.log('✅ Quote submission successful:', result.message)
     return true
   } catch (err) {
-    console.error('Error al enviar cotización:', err)
+    console.error('❌ Error submitting bid:', err)
     return false
+  }
+}
+
+/**
+ * getContractorQuotes - Retrieves all quotes submitted by a contractor
+ *
+ * @param {string} contractorId - ID of the contractor
+ * @returns {Promise<any[]>} - Array of quotes or empty array on error
+ */
+export const getContractorQuotes = async (contractorId: string): Promise<any[]> => {
+  if (!contractorId) {
+    console.error('❌ Missing contractorId parameter')
+    return []
+  }
+
+  try {
+    const response = await fetch(`/api/contractor-quotes?contractorId=${contractorId}`, {
+      method: 'GET',
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      console.error('❌ Error fetching contractor quotes:', response.status)
+      return []
+    }
+
+    const data = await response.json()
+    return data.quotes || []
+  } catch (err) {
+    console.error('❌ Error fetching contractor quotes:', err)
+    return []
   }
 }

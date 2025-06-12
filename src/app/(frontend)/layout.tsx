@@ -55,7 +55,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           />
 
           <Header data={headerData} />
-          <main className="flex-grow w-full">{children}</main>
+          <main className="flex-grow w-full relative">{children}</main>
           <Footer />
         </Providers>
       </body>

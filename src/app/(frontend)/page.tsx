@@ -5,6 +5,7 @@ import React from 'react'
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { RenderHero } from '@/heros/RenderHero'
 import { UserServiceRequestsWrapper } from '@/components/UserServiceRequestsWrapper'
+import { ClientNavigation } from '@/components/ClientNavigation'
 
 // Este componente es el que renderiza la página completa
 export default async function Home() {
@@ -36,6 +37,11 @@ export default async function Home() {
         media={page.hero.media}
       />
       <div className="px-4 md:px-6 lg:px-8">
+        {/* Client navigation for easy access */}
+        <div className="mb-6">
+          <ClientNavigation />
+        </div>
+
         {/* User Service Requests will only show for authenticated users */}
         <UserServiceRequestsWrapper />
         <RenderBlocks blocks={page.layout} />

@@ -16,31 +16,42 @@
 import React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Wrench, Home, Search, User, LogOut, X } from 'lucide-react'
+import { Wrench, Home, Search, User, LogOut, X, Menu, ChevronLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/providers/AuthProvider'
+import { useLayoutDimensions } from '../hooks/useLayoutDimensions'
+import styles from './ContractorSidebar.module.css'
 
 interface ContractorSidebarProps {
   activePath: string
   isMobileMenuOpen: boolean
   onMobileMenuClose: () => void
+  isDesktopSidebarOpen: boolean
+  onDesktopSidebarToggle: () => void
 }
 
 export const ContractorSidebar: React.FC<ContractorSidebarProps> = ({
   activePath,
   isMobileMenuOpen,
   onMobileMenuClose,
+  isDesktopSidebarOpen,
+  onDesktopSidebarToggle,
 }) => {
   const router = useRouter()
+  const { logout, user } = useAuth()
+  const { sidebarTopOffset, sidebarBottomOffset, availableHeight } = useLayoutDimensions()
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/users/logout', {
-        method: 'POST',
-        credentials: 'include',
-      })
-      router.push('/contractor/login')
+      // Use AuthProvider logout method for consistency
+      await logout()
+      // Logout handles the full page refresh and redirect
     } catch (error) {
       console.error('Error al cerrar sesión:', error)
+      // Fallback: Force redirect even if logout fails
+      if (typeof window !== 'undefined') {
+        window.location.href = '/contractor/login'
+      }
     }
   }
 
@@ -72,31 +83,74 @@ export const ContractorSidebar: React.FC<ContractorSidebarProps> = ({
     label: string
     isActive: boolean
     onClick?: () => void
-  }> = ({ href, icon: Icon, label, isActive, onClick }) => (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors ${
-        isActive
-          ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary font-medium'
-          : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
-      }`}
-    >
-      <Icon className="h-5 w-5 flex-shrink-0" />
-      <span>{label}</span>
-    </Link>
-  )
+  }> = ({ href, icon: Icon, label, isActive, onClick }) => {
+    const isSmallHeight = availableHeight < 500
 
-  return (
-    <>
-      {/* Desktop Sidebar */}
-      <div className="w-64 bg-background/95 dark:bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm border-r border-border p-4 hidden md:block text-foreground dark:text-foreground">
-        <div className="flex items-center space-x-2 pb-4 mb-6 border-b border-border">
-          <Wrench className="h-6 w-6 text-primary" />
-          <h1 className="font-bold text-xl text-foreground dark:text-white">Portal Contratista</h1>
+    return (
+      <Link
+        href={href}
+        onClick={onClick}
+        className={`flex items-center space-x-3 rounded-lg transition-colors ${
+          isSmallHeight ? 'px-2 py-1.5' : 'px-3 py-2.5'
+        } ${
+          isActive
+            ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary font-medium'
+            : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+        }`}
+      >
+        <Icon className={`flex-shrink-0 ${isSmallHeight ? 'h-4 w-4' : 'h-5 w-5'}`} />
+        <span className={isSmallHeight ? 'text-sm' : ''}>{label}</span>
+      </Link>
+    )
+  }
+
+  // Sidebar content
+  const SidebarContent = ({ isDesktop = false }: { isDesktop?: boolean }) => {
+    const isSmallHeight = isDesktop && availableHeight < 500
+
+    return (
+      <div
+        className={`${styles.sidebarContainer} ${isSmallHeight ? styles.smallHeight : ''} w-full bg-background dark:bg-background ${isDesktop ? 'border-r border-gray-200 dark:border-gray-800' : ''}`}
+      >
+        {/* Header */}
+        <div
+          className={`${styles.sidebarHeader} border-b border-gray-200 dark:border-gray-800 ${isSmallHeight ? '' : 'p-6'}`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Wrench className={`text-primary ${isSmallHeight ? 'h-4 w-4' : 'h-6 w-6'}`} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2
+                  className={`font-semibold text-gray-900 dark:text-white ${isSmallHeight ? 'text-sm' : 'text-base'}`}
+                >
+                  Portal Contratista
+                </h2>
+                {user && !isSmallHeight && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                    {user.firstName} {user.lastName}
+                  </p>
+                )}
+              </div>
+            </div>
+            {/* Desktop toggle button */}
+            {isDesktop && (
+              <Button
+                variant="ghost"
+                size={isSmallHeight ? 'sm' : 'icon'}
+                onClick={onDesktopSidebarToggle}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <ChevronLeft className={`${isSmallHeight ? 'h-4 w-4' : 'h-5 w-5'}`} />
+                <span className="sr-only">Cerrar sidebar</span>
+              </Button>
+            )}
+          </div>
         </div>
 
-        <nav className="space-y-1">
+        {/* Navigation */}
+        <nav className={`${styles.sidebarNav} ${isSmallHeight ? 'space-y-1' : 'p-4 space-y-2'}`}>
           {navigationItems.map((item) => (
             <NavLink
               key={item.href}
@@ -104,67 +158,71 @@ export const ContractorSidebar: React.FC<ContractorSidebarProps> = ({
               icon={item.icon}
               label={item.label}
               isActive={item.isActive}
+              onClick={onMobileMenuClose}
             />
           ))}
-
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
-          >
-            <LogOut className="h-5 w-5 flex-shrink-0" />
-            <span>Cerrar sesión</span>
-          </button>
         </nav>
+
+        {/* Footer - Always at bottom */}
+        <div
+          className={`${styles.sidebarFooter} border-t border-gray-200 dark:border-gray-800 ${isSmallHeight ? '' : 'p-4'}`}
+        >
+          <Button
+            onClick={handleLogout}
+            variant="ghost"
+            size={isSmallHeight ? 'sm' : 'default'}
+            className={`w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950 ${isSmallHeight ? 'text-sm' : ''}`}
+          >
+            <LogOut className={`mr-3 ${isSmallHeight ? 'h-4 w-4' : 'h-5 w-5'}`} />
+            {isSmallHeight ? 'Salir' : 'Cerrar sesión'}
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <div
+        className={`hidden md:flex md:w-64 md:flex-col md:fixed md:z-20 transition-transform duration-300 shadow-lg ${isDesktopSidebarOpen ? 'md:translate-x-0' : 'md:-translate-x-full'}`}
+        style={{
+          top: sidebarTopOffset,
+          left: 0,
+          bottom: sidebarBottomOffset,
+          maxHeight: `${availableHeight}px`,
+          overflowY: 'hidden',
+        }}
+      >
+        <SidebarContent isDesktop={true} />
       </div>
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div className="fixed inset-0 z-50 flex md:hidden">
           {/* Backdrop */}
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onMobileMenuClose} />
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50"
+            onClick={onMobileMenuClose}
+            aria-hidden="true"
+          />
 
-          {/* Drawer */}
-          <div className="fixed inset-y-0 left-0 w-72 bg-background dark:bg-background shadow-xl border-r border-border">
-            <div className="flex flex-col h-full">
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-border">
-                <div className="flex items-center space-x-2">
-                  <Wrench className="h-6 w-6 text-primary" />
-                  <h1 className="font-bold text-lg text-foreground dark:text-white">
-                    Portal Contratista
-                  </h1>
-                </div>
-                <Button variant="ghost" size="icon" onClick={onMobileMenuClose}>
-                  <X className="h-4 w-4 text-foreground dark:text-white" />
-                  <span className="sr-only">Cerrar menú</span>
-                </Button>
-              </div>
-
-              {/* Navigation */}
-              <nav className="flex-1 p-4 space-y-1">
-                {navigationItems.map((item) => (
-                  <NavLink
-                    key={item.href}
-                    href={item.href}
-                    icon={item.icon}
-                    label={item.label}
-                    isActive={item.isActive}
-                    onClick={onMobileMenuClose}
-                  />
-                ))}
-
-                <button
-                  onClick={() => {
-                    handleLogout()
-                    onMobileMenuClose()
-                  }}
-                  className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
-                >
-                  <LogOut className="h-5 w-5 flex-shrink-0" />
-                  <span>Cerrar sesión</span>
-                </button>
-              </nav>
+          {/* Sidebar */}
+          <div className="relative flex flex-col w-64 bg-background dark:bg-background">
+            {/* Close button */}
+            <div className="absolute top-0 right-0 -mr-12 pt-2">
+              <Button
+                onClick={onMobileMenuClose}
+                variant="ghost"
+                size="icon"
+                className="text-white hover:text-white hover:bg-white/10"
+              >
+                <X className="h-6 w-6" />
+                <span className="sr-only">Cerrar menú</span>
+              </Button>
             </div>
+
+            <SidebarContent isDesktop={false} />
           </div>
         </div>
       )}

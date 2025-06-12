@@ -6,7 +6,7 @@
  */
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -80,12 +80,12 @@ export const UserAccountHandler: React.FC<UserAccountHandlerProps> = ({
   }, [userEmail, isAuthenticated])
 
   // Helper function to get redirect path
-  const getRedirectPath = () => {
+  const getRedirectPath = useCallback(() => {
     if (requestId && requestId !== 'dashboard') {
       return `/request-service/dashboard/${requestId}`
     }
     return '/request-service/dashboard'
-  }
+  }, [requestId])
 
   // Mostrar formulario de login interno
   const handleShowLoginForm = () => {

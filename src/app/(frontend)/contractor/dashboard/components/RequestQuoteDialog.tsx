@@ -64,142 +64,160 @@ interface PredefinedMessage {
   urgencyBonus?: number
 }
 
-const PREDEFINED_MESSAGES: PredefinedMessage[] = [
-  // Greeting Messages
-  {
-    id: 'greeting_professional',
-    label: 'Saludo profesional',
-    description: 'Introducción formal y confiable',
-    template:
-      'Estimado cliente, soy un contratista certificado con más de 5 años de experiencia en este tipo de trabajos. Me interesa su proyecto y estoy disponible para realizarlo con la máxima calidad.',
-    category: 'greeting',
-  },
-  {
-    id: 'greeting_quick',
-    label: 'Respuesta rápida',
-    description: 'Para emergencias y trabajos urgentes',
-    template:
-      'He visto su solicitud urgente. Puedo estar en su ubicación en menos de 2 horas y comenzar el trabajo inmediatamente. Tengo todas las herramientas necesarias.',
-    category: 'greeting',
-    urgencyBonus: 15,
-  },
-  {
-    id: 'greeting_experienced',
-    label: 'Destacar experiencia',
-    description: 'Enfatizar credenciales y trabajos anteriores',
-    template:
-      'Con más de 200 trabajos similares completados y calificación de 4.9 estrellas, garantizo un servicio profesional. Puedo mostrarle ejemplos de trabajos similares.',
-    category: 'greeting',
-  },
+interface ContractorInfo {
+  name: string
+  rating: number
+  reviewCount: number
+  completedJobs: number
+  experience: number
+  services: string[]
+  verified: boolean
+}
 
-  // Availability Messages
-  {
-    id: 'available_today',
-    label: 'Disponible hoy',
-    description: 'Para trabajos inmediatos',
-    template:
-      'Estoy disponible hoy mismo para realizar el trabajo. Puedo comenzar en cuanto confirmemos los detalles.',
-    category: 'availability',
-    urgencyBonus: 10,
-  },
-  {
-    id: 'available_weekend',
-    label: 'Trabajo en fines de semana',
-    description: 'Flexibilidad horaria',
-    template:
-      'Trabajo también sábados y domingos sin costo adicional por horario. Mi horario es flexible para ajustarse a su conveniencia.',
-    category: 'availability',
-  },
-  {
-    id: 'available_evening',
-    label: 'Horarios nocturnos',
-    description: 'Para emergencias fuera de horario',
-    template:
-      'Para emergencias, trabajo hasta altas horas sin recargo adicional. Su problema será resuelto sin importar la hora.',
-    category: 'availability',
-    urgencyBonus: 20,
-  },
+/**
+ * Generate dynamic message templates based on contractor information
+ */
+const generateDynamicMessages = (contractor: ContractorInfo): PredefinedMessage[] => {
+  const experienceText =
+    contractor.experience > 5
+      ? `más de ${contractor.experience} años`
+      : `${contractor.experience} años`
 
-  // Pricing Messages
-  {
-    id: 'pricing_competitive',
-    label: 'Precio competitivo',
-    description: 'Enfatizar valor por dinero',
-    template:
-      'Mi precio incluye materiales de calidad, mano de obra especializada y garantía completa. Es una inversión que vale la pena.',
-    category: 'pricing',
-  },
-  {
-    id: 'pricing_negotiable',
-    label: 'Abierto a negociar',
-    description: 'Flexibilidad en precio',
-    template:
-      'Estoy abierto a discutir el precio y encontrar una solución que funcione para ambos. Podemos ajustar según el presupuesto disponible.',
-    category: 'pricing',
-  },
-  {
-    id: 'pricing_allinclusive',
-    label: 'Todo incluido',
-    description: 'Sin costos ocultos',
-    template:
-      'El precio incluye TODO: materiales, mano de obra, limpieza y garantía. No hay costos adicionales sorpresa.',
-    category: 'pricing',
-  },
+  const ratingText =
+    contractor.rating > 0
+      ? `calificación de ${contractor.rating} estrellas`
+      : `excelentes referencias`
 
-  // Materials Messages
-  {
-    id: 'materials_quality',
-    label: 'Materiales de calidad',
-    description: 'Enfatizar calidad de materiales',
-    template:
-      'Uso solo materiales de primera calidad de marcas reconocidas. Esto garantiza durabilidad y mejor resultado final.',
-    category: 'materials',
-  },
-  {
-    id: 'materials_local',
-    label: 'Proveedor local',
-    description: 'Materiales disponibles localmente',
-    template:
-      'Tengo acuerdos con proveedores locales para obtener materiales rápidamente y a mejor precio. Esto reduce el tiempo de espera.',
-    category: 'materials',
-  },
+  const jobsText =
+    contractor.completedJobs > 100
+      ? `más de ${contractor.completedJobs} trabajos`
+      : `${contractor.completedJobs} trabajos`
 
-  // Timeline Messages
-  {
-    id: 'timeline_fast',
-    label: 'Trabajo rápido',
-    description: 'Completar en tiempo record',
-    template:
-      'Puedo completar este trabajo en la mitad del tiempo habitual sin comprometer la calidad. Soy muy eficiente.',
-    category: 'timeline',
-  },
-  {
-    id: 'timeline_detailed',
-    label: 'Cronograma detallado',
-    description: 'Planificación paso a paso',
-    template:
-      'Le proporcionaré un cronograma detallado día por día. Sabrá exactamente qué esperar en cada momento del proceso.',
-    category: 'timeline',
-  },
+  const servicesText =
+    contractor.services.length > 0 ? contractor.services.join(', ') : 'servicios especializados'
 
-  // Guarantee Messages
-  {
-    id: 'guarantee_full',
-    label: 'Garantía completa',
-    description: 'Garantía extendida del trabajo',
-    template:
-      'Ofrezco garantía completa de 2 años en mano de obra y 5 años en materiales. Si algo falla, lo reparo sin costo.',
-    category: 'guarantee',
-  },
-  {
-    id: 'guarantee_satisfaction',
-    label: 'Satisfacción garantizada',
-    description: 'Garantía de satisfacción 100%',
-    template:
-      'Garantía de satisfacción 100%. Si no está completamente satisfecho, ajusto el trabajo hasta que quede perfecto.',
-    category: 'guarantee',
-  },
-]
+  return [
+    // Greeting Messages
+    {
+      id: 'greeting_professional',
+      label: 'Saludo profesional',
+      description: 'Introducción formal y confiable',
+      template: `Estimado cliente, soy ${contractor.name}, un contratista ${contractor.verified ? 'certificado' : 'profesional'} con ${experienceText} de experiencia en este tipo de trabajos. Con ${ratingText} y ${jobsText} completados exitosamente, me interesa su proyecto y estoy disponible para realizarlo con la máxima calidad.`,
+      category: 'greeting',
+    },
+    {
+      id: 'greeting_quick',
+      label: 'Respuesta rápida',
+      description: 'Para emergencias y trabajos urgentes',
+      template: `¡Hola! Soy ${contractor.name} y he visto su solicitud urgente. Puedo estar en su ubicación en menos de 2 horas y comenzar el trabajo inmediatamente. Con ${experienceText} de experiencia y ${ratingText}, tengo todas las herramientas necesarias para resolver su problema rápidamente.`,
+      category: 'greeting',
+      urgencyBonus: 15,
+    },
+    {
+      id: 'greeting_experienced',
+      label: 'Destacar experiencia',
+      description: 'Enfatizar credenciales y trabajos anteriores',
+      template: `${contractor.name} a su servicio. Con ${jobsText} similares completados y ${ratingText}, garantizo un servicio profesional de alta calidad. Mi especialidad incluye ${servicesText} y puedo mostrarle ejemplos de trabajos similares que he realizado en la zona.`,
+      category: 'greeting',
+    },
+
+    // Availability Messages
+    {
+      id: 'available_today',
+      label: 'Disponible hoy',
+      description: 'Para trabajos inmediatos',
+      template: `Estoy disponible hoy mismo para realizar el trabajo. Como profesional con ${experienceText} de experiencia, puedo comenzar en cuanto confirmemos los detalles y tener su problema resuelto rápidamente.`,
+      category: 'availability',
+      urgencyBonus: 10,
+    },
+    {
+      id: 'available_weekend',
+      label: 'Trabajo en fines de semana',
+      description: 'Flexibilidad horaria',
+      template: `Trabajo también sábados y domingos sin costo adicional por horario. Mi horario es flexible para ajustarse a su conveniencia. En mis ${experienceText} de experiencia, he aprendido que los problemas no esperan y estoy aquí para ayudarle cuando me necesite.`,
+      category: 'availability',
+    },
+    {
+      id: 'available_evening',
+      label: 'Horarios nocturnos',
+      description: 'Para emergencias fuera de horario',
+      template: `Para emergencias, trabajo hasta altas horas sin recargo adicional. Su problema será resuelto sin importar la hora. Con ${ratingText} de mis clientes anteriores, puede confiar en que el trabajo será de primera calidad.`,
+      category: 'availability',
+      urgencyBonus: 20,
+    },
+
+    // Pricing Messages
+    {
+      id: 'pricing_competitive',
+      label: 'Precio competitivo',
+      description: 'Enfatizar valor por dinero',
+      template: `Mi precio incluye materiales de calidad, mano de obra especializada y garantía completa. Con ${experienceText} en el mercado y ${ratingText}, ofrezco la mejor relación calidad-precio. Es una inversión que vale la pena.`,
+      category: 'pricing',
+    },
+    {
+      id: 'pricing_negotiable',
+      label: 'Abierto a negociar',
+      description: 'Flexibilidad en precio',
+      template: `Estoy abierto a discutir el precio y encontrar una solución que funcione para ambos. En mis ${experienceText} de experiencia, he aprendido que cada situación es única y podemos ajustar según el presupuesto disponible.`,
+      category: 'pricing',
+    },
+    {
+      id: 'pricing_allinclusive',
+      label: 'Todo incluido',
+      description: 'Sin costos ocultos',
+      template: `El precio incluye TODO: materiales de primera calidad, mano de obra especializada, limpieza completa y garantía. No hay costos adicionales sorpresa. Esta transparencia me ha permitido mantener ${ratingText} con todos mis clientes.`,
+      category: 'pricing',
+    },
+
+    // Materials Messages
+    {
+      id: 'materials_quality',
+      label: 'Materiales de calidad',
+      description: 'Enfatizar calidad de materiales',
+      template: `Uso solo materiales de primera calidad de marcas reconocidas. En mis ${experienceText} de experiencia, he aprendido que usar buenos materiales es fundamental para un trabajo duradero. Esto garantiza un mejor resultado final y menos problemas futuros.`,
+      category: 'materials',
+    },
+    {
+      id: 'materials_local',
+      label: 'Proveedor local',
+      description: 'Materiales disponibles localmente',
+      template: `Tengo acuerdos establecidos con proveedores locales para obtener materiales rápidamente y a mejor precio. Esto reduce el tiempo de espera y me permite ofrecer mejores precios. Es una ventaja que he desarrollado en mis ${experienceText} en la zona.`,
+      category: 'materials',
+    },
+
+    // Timeline Messages
+    {
+      id: 'timeline_fast',
+      label: 'Trabajo rápido',
+      description: 'Completar en tiempo record',
+      template: `Puedo completar este trabajo en la mitad del tiempo habitual sin comprometer la calidad. Mi experiencia de ${experienceText} y ${jobsText} completados me permiten ser muy eficiente mientras mantengo los estándares más altos.`,
+      category: 'timeline',
+    },
+    {
+      id: 'timeline_detailed',
+      label: 'Cronograma detallado',
+      description: 'Planificación paso a paso',
+      template: `Le proporcionaré un cronograma detallado día por día. Sabrá exactamente qué esperar en cada momento del proceso. Esta organización es parte de lo que me ha permitido mantener ${ratingText} con mis clientes anteriores.`,
+      category: 'timeline',
+    },
+
+    // Guarantee Messages
+    {
+      id: 'guarantee_full',
+      label: 'Garantía completa',
+      description: 'Garantía extendida del trabajo',
+      template: `Ofrezco garantía completa de 2 años en mano de obra y 5 años en materiales. Si algo falla, lo reparo sin costo. Esta confianza en mi trabajo viene respaldada por ${experienceText} de experiencia y ${ratingText} de satisfacción del cliente.`,
+      category: 'guarantee',
+    },
+    {
+      id: 'guarantee_satisfaction',
+      label: 'Satisfacción garantizada',
+      description: 'Garantía de satisfacción 100%',
+      template: `Garantía de satisfacción 100%. Si no está completamente satisfecho, ajusto el trabajo hasta que quede perfecto. Mi reputación de ${ratingText} se basa en clientes completamente satisfechos, y usted no será la excepción.`,
+      category: 'guarantee',
+    },
+  ]
+}
 
 export const RequestQuoteDialog: React.FC<RequestQuoteDialogProps> = ({
   request,
@@ -219,6 +237,51 @@ export const RequestQuoteDialog: React.FC<RequestQuoteDialogProps> = ({
   const [priceHistory, setPriceHistory] = useState<
     Array<{ price: number; date: string; type: 'initial' | 'counter' | 'final' }>
   >([])
+  const [contractorInfo, setContractorInfo] = useState<ContractorInfo | null>(null)
+  const [dynamicMessages, setDynamicMessages] = useState<PredefinedMessage[]>([])
+
+  // Fetch contractor information on component mount
+  useEffect(() => {
+    const fetchContractorInfo = async () => {
+      try {
+        const response = await fetch('/api/users/me', {
+          credentials: 'include',
+        })
+
+        if (response.ok) {
+          const userData = await response.json()
+          const contractor: ContractorInfo = {
+            name: `${userData.user.firstName} ${userData.user.lastName}`,
+            rating: userData.user.rating || 4.8,
+            reviewCount: userData.user.reviewCount || 25,
+            completedJobs: userData.user.completedJobs || 150,
+            experience: userData.user.yearsOfExperience || 8,
+            services: userData.user.services || ['Plomería', 'Reparaciones generales'],
+            verified: userData.user.verified || false,
+          }
+
+          setContractorInfo(contractor)
+          setDynamicMessages(generateDynamicMessages(contractor))
+        }
+      } catch (error) {
+        console.error('Error fetching contractor info:', error)
+        // Use default contractor info if fetch fails
+        const defaultContractor: ContractorInfo = {
+          name: 'Contratista Profesional',
+          rating: 4.5,
+          reviewCount: 20,
+          completedJobs: 100,
+          experience: 5,
+          services: ['Servicios generales'],
+          verified: false,
+        }
+        setContractorInfo(defaultContractor)
+        setDynamicMessages(generateDynamicMessages(defaultContractor))
+      }
+    }
+
+    fetchContractorInfo()
+  }, [])
 
   // Cargar cotización existente si la hay
   useEffect(() => {
@@ -251,7 +314,7 @@ export const RequestQuoteDialog: React.FC<RequestQuoteDialogProps> = ({
   // Generar descripción final basada en mensajes seleccionados
   const generateFinalDescription = () => {
     const messages = selectedMessages
-      .map((id) => PREDEFINED_MESSAGES.find((msg) => msg.id === id)?.template)
+      .map((id) => dynamicMessages.find((msg) => msg.id === id)?.template)
       .filter(Boolean)
 
     return messages.join('\n\n')
@@ -263,7 +326,7 @@ export const RequestQuoteDialog: React.FC<RequestQuoteDialogProps> = ({
     let urgencyBonus = 0
 
     selectedMessages.forEach((id) => {
-      const message = PREDEFINED_MESSAGES.find((msg) => msg.id === id)
+      const message = dynamicMessages.find((msg) => msg.id === id)
       if (message?.urgencyBonus) {
         urgencyBonus += message.urgencyBonus
       }
@@ -533,68 +596,81 @@ export const RequestQuoteDialog: React.FC<RequestQuoteDialogProps> = ({
           <TabsContent value="messages" className="space-y-4 mt-4">
             <ScrollArea className="h-96">
               <div className="space-y-4">
-                {Object.entries(
-                  PREDEFINED_MESSAGES.reduce(
-                    (acc, msg) => {
-                      if (!acc[msg.category]) acc[msg.category] = []
-                      acc[msg.category]!.push(msg)
-                      return acc
-                    },
-                    {} as Record<string, PredefinedMessage[]>,
-                  ),
-                ).map(([category, messages]) => (
-                  <Card key={category}>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base capitalize flex items-center gap-2">
-                        {category === 'greeting' && <MessageSquare className="h-4 w-4" />}
-                        {category === 'availability' && <Clock className="h-4 w-4" />}
-                        {category === 'pricing' && <DollarSign className="h-4 w-4" />}
-                        {category === 'materials' && <Wrench className="h-4 w-4" />}
-                        {category === 'timeline' && <Calendar className="h-4 w-4" />}
-                        {category === 'guarantee' && <Shield className="h-4 w-4" />}
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {messages.map((message) => (
-                        <div key={message.id} className="space-y-2">
-                          <div className="flex items-start gap-3">
-                            <Button
-                              variant={
-                                selectedMessages.includes(message.id) ? 'default' : 'outline'
-                              }
-                              size="sm"
-                              onClick={() => handleMessageToggle(message.id)}
-                              className="flex-shrink-0"
-                            >
-                              {selectedMessages.includes(message.id) ? (
-                                <CheckCircle className="h-4 w-4" />
-                              ) : (
-                                <ArrowRight className="h-4 w-4" />
-                              )}
-                            </Button>
-                            <div className="flex-1 space-y-1">
-                              <div className="flex items-center gap-2">
-                                <h4 className="text-sm font-medium">{message.label}</h4>
-                                {message.urgencyBonus && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    <Zap className="h-3 w-3 mr-1" />+{message.urgencyBonus}%
-                                  </Badge>
+                {contractorInfo && dynamicMessages.length > 0 ? (
+                  Object.entries(
+                    dynamicMessages.reduce(
+                      (acc, msg) => {
+                        if (!acc[msg.category]) acc[msg.category] = []
+                        acc[msg.category]!.push(msg)
+                        return acc
+                      },
+                      {} as Record<string, PredefinedMessage[]>,
+                    ),
+                  ).map(([category, messages]) => (
+                    <Card key={category}>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base capitalize flex items-center gap-2">
+                          {category === 'greeting' && <MessageSquare className="h-4 w-4" />}
+                          {category === 'availability' && <Clock className="h-4 w-4" />}
+                          {category === 'pricing' && <DollarSign className="h-4 w-4" />}
+                          {category === 'materials' && <Wrench className="h-4 w-4" />}
+                          {category === 'timeline' && <Calendar className="h-4 w-4" />}
+                          {category === 'guarantee' && <Shield className="h-4 w-4" />}
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {messages.map((message) => (
+                          <div key={message.id} className="space-y-2">
+                            <div className="flex items-start gap-3">
+                              <Button
+                                variant={
+                                  selectedMessages.includes(message.id) ? 'default' : 'outline'
+                                }
+                                size="sm"
+                                onClick={() => handleMessageToggle(message.id)}
+                                className="flex-shrink-0"
+                              >
+                                {selectedMessages.includes(message.id) ? (
+                                  <CheckCircle className="h-4 w-4" />
+                                ) : (
+                                  <ArrowRight className="h-4 w-4" />
+                                )}
+                              </Button>
+                              <div className="flex-1 space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="text-sm font-medium">{message.label}</h4>
+                                  {message.urgencyBonus && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      <Zap className="h-3 w-3 mr-1" />+{message.urgencyBonus}%
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  {message.description}
+                                </p>
+                                {selectedMessages.includes(message.id) && (
+                                  <p className="text-xs text-foreground bg-muted p-2 rounded border-l-2 border-primary">
+                                    {message.template}
+                                  </p>
                                 )}
                               </div>
-                              <p className="text-xs text-muted-foreground">{message.description}</p>
-                              {selectedMessages.includes(message.id) && (
-                                <p className="text-xs text-foreground bg-muted p-2 rounded border-l-2 border-primary">
-                                  {message.template}
-                                </p>
-                              )}
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                ))}
+                        ))}
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="text-center">
+                      <MessageSquare className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        Cargando plantillas de mensajes...
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </ScrollArea>
           </TabsContent>

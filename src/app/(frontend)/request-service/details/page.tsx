@@ -102,21 +102,24 @@ export default function RequestServiceDetailsPage() {
     }
   }, [location, formattedAddress, setFormattedAddress])
 
-  // Verificar autenticación existente
+  // Verificar autenticación existente - pero permitir a los clientes completar el formulario
   useEffect(() => {
     if (isAuthenticated && user && !isLoading) {
-      console.log('🔍 User is already authenticated, redirecting...')
+      console.log('🔍 User is already authenticated:', user.role)
 
-      // Determinar ruta de redirección
-      let redirectPath = '/'
+      // Solo redirigir usuarios que NO son clientes
       if (user.role === 'admin' || user.role === 'superadmin') {
-        redirectPath = '/admin'
+        console.log('🚀 Admin/SuperAdmin detected, redirecting to admin panel')
+        if (typeof window !== 'undefined') {
+          window.location.href = '/admin'
+        }
+      } else if (user.role === 'contractor') {
+        console.log('🚀 Contractor detected, redirecting to contractor dashboard')
+        if (typeof window !== 'undefined') {
+          window.location.href = '/contractor/dashboard'
+        }
       }
-
-      // Usar window.location.href para consistencia con logout
-      if (typeof window !== 'undefined') {
-        window.location.href = redirectPath
-      }
+      // Los clientes (role === 'client') pueden permanecer en esta página para completar/ver solicitudes
     }
   }, [isAuthenticated, user, isLoading])
 

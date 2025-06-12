@@ -131,8 +131,8 @@ export default function ServiceRequestDashboard() {
               ¡Bienvenido/a, {user?.firstName || 'Cliente'}!
             </h2>
             <p className="text-sm text-blue-700">
-              Este es tu dashboard personal donde puedes gestionar tus solicitudes de servicio y
-              recibir cotizaciones en tiempo real.
+              This is your personal dashboard where you can manage your service requests and
+              receive real-time quotes.
             </p>
           </div>
 
@@ -144,7 +144,7 @@ export default function ServiceRequestDashboard() {
 
           {/* Additional client information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white border rounded-lg p-4">
+            <div className="bg-background dark:text-white text-foreground border rounded-lg p-4">
               <h3 className="font-semibold mb-2">Tu solicitud</h3>
               <p className="text-sm text-muted-foreground mb-3">
                 ID de solicitud:{' '}
@@ -158,7 +158,7 @@ export default function ServiceRequestDashboard() {
               </Link>
             </div>
 
-            <div className="bg-white border rounded-lg p-4">
+            <div className="bg-background dark:text-white text-foreground border rounded-lg p-4">
               <h3 className="font-semibold mb-2">Soporte</h3>
               <p className="text-sm text-muted-foreground mb-3">
                 ¿Necesitas ayuda? Contacta nuestro equipo de soporte.

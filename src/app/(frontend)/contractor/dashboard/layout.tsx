@@ -19,6 +19,8 @@ interface ContractorDashboardLayoutProps {
 
 interface MobileMenuContextType {
   openMobileMenu: () => void
+  toggleDesktopSidebar: () => void
+  isDesktopSidebarOpen: boolean
 }
 
 const MobileMenuContext = createContext<MobileMenuContextType | undefined>(undefined)
@@ -34,19 +36,29 @@ export const useMobileMenu = () => {
 export default function ContractorDashboardLayout({ children }: ContractorDashboardLayoutProps) {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true)
 
   const openMobileMenu = () => setIsMobileMenuOpen(true)
   const closeMobileMenu = () => setIsMobileMenuOpen(false)
+  const toggleDesktopSidebar = () => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)
 
   return (
-    <MobileMenuContext.Provider value={{ openMobileMenu }}>
-      <div className="flex min-h-screen bg-background dark:bg-background">
+    <MobileMenuContext.Provider
+      value={{ openMobileMenu, toggleDesktopSidebar, isDesktopSidebarOpen }}
+    >
+      {/* Container that respects the overall app layout */}
+      <div className="flex min-h-full bg-background dark:bg-background relative">
         <ContractorSidebar
           activePath={pathname}
           isMobileMenuOpen={isMobileMenuOpen}
           onMobileMenuClose={closeMobileMenu}
+          isDesktopSidebarOpen={isDesktopSidebarOpen}
+          onDesktopSidebarToggle={toggleDesktopSidebar}
         />
-        <div className="flex-1 flex flex-col">
+        {/* Main content with dynamic left margin based on sidebar state */}
+        <div
+          className={`flex-1 flex flex-col transition-all duration-300 min-h-full ${isDesktopSidebarOpen ? 'md:ml-64' : 'md:ml-0'}`}
+        >
           <main className="flex-1 p-4 md:p-6 overflow-y-auto">{children}</main>
         </div>
       </div>

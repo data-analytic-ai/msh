@@ -21,7 +21,7 @@ import { useMobileMenu } from '../layout'
 
 export default function ExploreRequests() {
   const router = useRouter()
-  const { openMobileMenu } = useMobileMenu()
+  const { openMobileMenu, toggleDesktopSidebar } = useMobileMenu()
   const [user, setUser] = useState<any>(null)
   const [authLoading, setAuthLoading] = useState(true)
 
@@ -129,8 +129,9 @@ export default function ExploreRequests() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-foreground dark:text-white">
-        <div className="flex-1 min-w-0">
+      <div className="space-y-4">
+        {/* Title Section */}
+        <div className="text-foreground dark:text-white">
           <h1 className="text-2xl sm:text-3xl font-bold">Explorar solicitudes</h1>
           <p className="text-muted-foreground">
             Encuentra solicitudes de servicio y presenta tus ofertas
@@ -141,24 +142,38 @@ export default function ExploreRequests() {
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          {/* Mobile Menu Button - Only visible on mobile */}
-          <Button variant="outline" size="icon" onClick={openMobileMenu} className="md:hidden">
-            <Menu className="w-4 h-4" />
-            <span className="sr-only">Abrir menú</span>
-          </Button>
 
-          {/* Refresh Button */}
-          <Button
-            variant="outline"
-            onClick={handleRefresh}
-            disabled={loading}
-            className="flex-shrink-0"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Actualizar</span>
-            <span className="sm:hidden">Actualizar</span>
-          </Button>
+        {/* Controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {/* Mobile Menu Button - Only visible on mobile */}
+            <Button variant="outline" size="icon" onClick={openMobileMenu} className="md:hidden">
+              <Menu className="w-4 h-4" />
+              <span className="sr-only">Abrir menú</span>
+            </Button>
+
+            {/* Desktop Sidebar Toggle Button - Only visible on desktop */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleDesktopSidebar}
+              className="hidden md:flex bg-background dark:bg-background"
+              title="Mostrar/Ocultar menú lateral"
+            >
+              <Menu className="w-4 h-4" />
+              <span className="sr-only">Toggle sidebar</span>
+            </Button>
+
+            <span className="hidden md:inline text-sm text-muted-foreground">Menú lateral</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Refresh Button */}
+            <Button variant="outline" onClick={handleRefresh} disabled={loading}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Actualizar
+            </Button>
+          </div>
         </div>
       </div>
 

@@ -120,7 +120,7 @@ const AVAILABLE_SERVICES = [
 
 export default function ContractorProfile() {
   const router = useRouter()
-  const { openMobileMenu } = useMobileMenu()
+  const { openMobileMenu, toggleDesktopSidebar } = useMobileMenu()
   const [profile, setProfile] = useState<ContractorProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -376,28 +376,48 @@ export default function ContractorProfile() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-        <div className="flex-1 min-w-0">
+      <div className="space-y-4">
+        {/* Title Section */}
+        <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Mi Perfil</h1>
           <p className="text-muted-foreground">Administra tu información personal y de negocio</p>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          {/* Mobile Menu Button - Only visible on mobile */}
-          <Button variant="outline" size="icon" onClick={openMobileMenu} className="md:hidden">
-            <Menu className="w-4 h-4" />
-            <span className="sr-only">Abrir menú</span>
-          </Button>
 
-          {/* Save Button */}
-          <Button onClick={handleSaveProfile} disabled={isSaving} className="flex-1 sm:flex-none">
-            {isSaving ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4 mr-2" />
-            )}
-            <span className="hidden sm:inline">Guardar cambios</span>
-            <span className="sm:hidden">Guardar</span>
-          </Button>
+        {/* Controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {/* Mobile Menu Button - Only visible on mobile */}
+            <Button variant="outline" size="icon" onClick={openMobileMenu} className="md:hidden">
+              <Menu className="w-4 h-4" />
+              <span className="sr-only">Abrir menú</span>
+            </Button>
+
+            {/* Desktop Sidebar Toggle Button - Only visible on desktop */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleDesktopSidebar}
+              className="hidden md:flex bg-background dark:bg-background"
+              title="Mostrar/Ocultar menú lateral"
+            >
+              <Menu className="w-4 h-4" />
+              <span className="sr-only">Toggle sidebar</span>
+            </Button>
+
+            <span className="hidden md:inline text-sm text-muted-foreground">Menú lateral</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Save Button */}
+            <Button onClick={handleSaveProfile} disabled={isSaving}>
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              Guardar cambios
+            </Button>
+          </div>
         </div>
       </div>
 
