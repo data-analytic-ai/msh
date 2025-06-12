@@ -202,22 +202,69 @@ export const QuotesInbox: React.FC<QuotesInboxProps> = ({ requestId, isAuthentic
     setAcceptingQuote(quoteId)
 
     try {
-      // Aquí iría la lógica para aceptar la cotización
-      // Por ahora simularemos la aceptación
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      console.log('🎯 Accepting quote:', quoteId, 'for request:', requestId)
 
-      // Actualizar el estado local
+      // 1. Update the quote status to accepted
+      const updateQuoteResponse = await fetch(`/api/service-requests/${requestId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          quotes: quotes.map((quote) =>
+            quote.id === quoteId ? { ...quote, status: 'accepted' } : quote,
+          ),
+          status: 'assigned', // Mark request as assigned
+          assignedContractor: quotes.find((q) => q.id === quoteId)?.contractor.id,
+        }),
+      })
+
+      if (!updateQuoteResponse.ok) {
+        throw new Error('Failed to accept quote')
+      }
+
+      // 2. Send notification to contractor
+      const acceptedQuote = quotes.find((q) => q.id === quoteId)
+      if (acceptedQuote) {
+        await fetch('/api/notifications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            type: 'quote_accepted',
+            title: '¡Tu cotización fue aceptada!',
+            message: `Tu cotización de ${acceptedQuote.amount.toLocaleString()} para "${quotes[0]?.contractor?.name || 'Servicio'}" ha sido aceptada por el cliente.`,
+            userId: acceptedQuote.contractor.id,
+            priority: 'high',
+            channels: ['in_app', 'web_push', 'email'],
+            data: {
+              requestId: requestId,
+              quoteId: quoteId,
+              amount: acceptedQuote.amount,
+              actionUrl: `/contractor/dashboard`,
+            },
+            actionLabel: 'Ver trabajo',
+          }),
+        })
+      }
+
+      // 3. Update local state
       setQuotes((prev) =>
         prev.map((quote) =>
           quote.id === quoteId ? { ...quote, status: 'accepted' as const } : quote,
         ),
       )
 
+      console.log('✅ Quote accepted successfully and contractor notified')
+
       // Volver a la vista de lista
       handleBackToList()
     } catch (error) {
-      console.error('Error accepting quote:', error)
-      // Aquí podrías mostrar una notificación de error
+      console.error('❌ Error accepting quote:', error)
+      // TODO: Show error toast notification
     } finally {
       setAcceptingQuote(null)
     }

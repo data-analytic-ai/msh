@@ -28,9 +28,18 @@ interface PaymentSummary {
   thisMonthEarnings: number
 }
 
+interface QuoteSummary {
+  requestId: string
+  requestTitle: string
+  amount: number
+  status: string
+  submittedAt: string
+}
+
 interface UseContractorDashboardReturn {
   contractor: ContractorProfile | null
   assignedRequests: ServiceRequest[]
+  sentQuotes: QuoteSummary[]
   completedRequests: ServiceRequest[]
   paymentSummary: PaymentSummary | null
   notifications: number
@@ -40,11 +49,13 @@ interface UseContractorDashboardReturn {
   acceptRequest: (requestId: string) => Promise<void>
   rejectRequest: (requestId: string) => Promise<void>
   updateRequestStatus: (requestId: string, status: string) => Promise<void>
+  refreshSentQuotes: () => Promise<void>
 }
 
 export const useContractorDashboard = (): UseContractorDashboardReturn => {
   const [contractor, setContractor] = useState<ContractorProfile | null>(null)
   const [assignedRequests, setAssignedRequests] = useState<ServiceRequest[]>([])
+  const [sentQuotes, setSentQuotes] = useState<QuoteSummary[]>([])
   const [completedRequests, setCompletedRequests] = useState<ServiceRequest[]>([])
   const [paymentSummary, setPaymentSummary] = useState<PaymentSummary | null>(null)
   const [notifications, setNotifications] = useState(0)
@@ -201,6 +212,48 @@ export const useContractorDashboard = (): UseContractorDashboardReturn => {
     }
   }, [])
 
+  // Fetch sent quotes by contractor (extracting from service requests)
+  const fetchSentQuotes = useCallback(async (contractorId: string) => {
+    try {
+      const url = new URL('/api/service-requests', window.location.origin)
+      const params = new URLSearchParams()
+      // Filter service requests that contain quotes by this contractor
+      const where = {
+        quotes: { $elemMatch: { contractor: contractorId } },
+      }
+      params.append('where', JSON.stringify(where))
+      params.append('depth', '2')
+      params.append('sort', '-createdAt')
+      url.search = params.toString()
+
+      const response = await fetch(url.toString(), {
+        credentials: 'include',
+      })
+      if (!response.ok) {
+        throw new Error('Failed to fetch sent quotes')
+      }
+      const data = await response.json()
+      // Transform service requests into flat list of quotes by this contractor
+      const quotesList: QuoteSummary[] = (data.docs || []).flatMap(
+        (req: ServiceRequest) =>
+          req.quotes
+            ?.filter((q) => q.contractor === contractorId)
+            .map((q) => ({
+              requestId: req.id,
+              requestTitle: req.requestTitle,
+              amount: q.amount,
+              status: q.status,
+              submittedAt: (q as any).submittedAt || req.createdAt,
+            })) || [],
+      )
+      setSentQuotes(quotesList)
+      return quotesList
+    } catch (err) {
+      console.error('Error fetching sent quotes:', err)
+      throw err
+    }
+  }, [])
+
   // Calculate payment summary
   const calculatePaymentSummary = useCallback(
     (assigned: ServiceRequest[], completed: ServiceRequest[]) => {
@@ -248,9 +301,10 @@ export const useContractorDashboard = (): UseContractorDashboardReturn => {
 
     try {
       const contractorData = await fetchContractorProfile()
-      const [assignedData, completedData] = await Promise.all([
+      const [assignedData, completedData, sentData] = await Promise.all([
         fetchAssignedRequests(contractorData.id),
         fetchCompletedRequests(contractorData.id),
+        fetchSentQuotes(contractorData.id),
       ])
 
       calculatePaymentSummary(assignedData, completedData)
@@ -264,6 +318,7 @@ export const useContractorDashboard = (): UseContractorDashboardReturn => {
     fetchAssignedRequests,
     fetchCompletedRequests,
     calculatePaymentSummary,
+    fetchSentQuotes,
   ])
 
   // Accept a service request
@@ -367,6 +422,7 @@ export const useContractorDashboard = (): UseContractorDashboardReturn => {
   return {
     contractor,
     assignedRequests,
+    sentQuotes,
     completedRequests,
     paymentSummary,
     notifications,
@@ -376,5 +432,10 @@ export const useContractorDashboard = (): UseContractorDashboardReturn => {
     acceptRequest,
     rejectRequest,
     updateRequestStatus,
+    refreshSentQuotes: async (): Promise<void> => {
+      if (contractor) {
+        await fetchSentQuotes(contractor.id)
+      }
+    },
   }
 }
