@@ -21,6 +21,7 @@ export interface Config {
     contractors: Contractor;
     leadAccess: LeadAccess;
     leadChats: LeadChat;
+    notifications: Notification;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -42,6 +43,7 @@ export interface Config {
     contractors: ContractorsSelect<false> | ContractorsSelect<true>;
     leadAccess: LeadAccessSelect<false> | LeadAccessSelect<true>;
     leadChats: LeadChatsSelect<false> | LeadChatsSelect<true>;
+    notifications: NotificationsSelect<false> | NotificationsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -1348,6 +1350,84 @@ export interface LeadChat {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notifications".
+ */
+export interface Notification {
+  id: string;
+  /**
+   * Tipo de notificación que determina el comportamiento y canales
+   */
+  type:
+    | 'quote_received'
+    | 'quote_accepted'
+    | 'quote_rejected'
+    | 'job_assigned'
+    | 'job_completed'
+    | 'payment_received'
+    | 'payment_released'
+    | 'system_update'
+    | 'profile_verified';
+  /**
+   * Título principal de la notificación
+   */
+  title: string;
+  /**
+   * Mensaje detallado de la notificación
+   */
+  message: string;
+  /**
+   * Prioridad de la notificación
+   */
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  /**
+   * Canales por los que se enviará la notificación
+   */
+  channels: ('in_app' | 'web_push' | 'email' | 'sms')[];
+  /**
+   * Usuario destinatario de la notificación
+   */
+  userId: string | User;
+  /**
+   * Indica si la notificación ha sido leída
+   */
+  read?: boolean | null;
+  /**
+   * Datos adicionales específicos del tipo de notificación (JSON)
+   */
+  data?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * URL de acción opcional para la notificación
+   */
+  actionUrl?: string | null;
+  /**
+   * Etiqueta del botón de acción opcional
+   */
+  actionLabel?: string | null;
+  /**
+   * Fecha de expiración opcional de la notificación
+   */
+  expiresAt?: string | null;
+  /**
+   * Canales por los que se envió exitosamente la notificación
+   */
+  sentChannels?: ('in_app' | 'web_push' | 'email' | 'sms')[] | null;
+  /**
+   * Log de errores si falló el envío por algún canal
+   */
+  errorLog?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1557,6 +1637,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'leadChats';
         value: string | LeadChat;
+      } | null)
+    | ({
+        relationTo: 'notifications';
+        value: string | Notification;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -2234,6 +2318,28 @@ export interface LeadChatsSelect<T extends boolean = true> {
         includesLabor?: T;
         includesMaterials?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notifications_select".
+ */
+export interface NotificationsSelect<T extends boolean = true> {
+  id?: T;
+  type?: T;
+  title?: T;
+  message?: T;
+  priority?: T;
+  channels?: T;
+  userId?: T;
+  read?: T;
+  data?: T;
+  actionUrl?: T;
+  actionLabel?: T;
+  expiresAt?: T;
+  sentChannels?: T;
+  errorLog?: T;
   updatedAt?: T;
   createdAt?: T;
 }

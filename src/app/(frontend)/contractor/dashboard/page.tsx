@@ -47,13 +47,14 @@ import { useContractorDashboard } from './hooks/useContractorDashboard'
 import { ServiceRequest } from './types/ServiceRequest'
 import { useMobileMenu } from './layout'
 import { submitBid } from './services/bidService'
+import NotificationBell from '@/components/notifications/NotificationBell'
 
 export default function ContractorDashboard() {
   const router = useRouter()
   const { openMobileMenu, toggleDesktopSidebar } = useMobileMenu()
   const {
     contractor,
-    assignedRequests,
+    sentQuotes,
     completedRequests,
     paymentSummary,
     notifications,
@@ -252,15 +253,8 @@ export default function ContractorDashboard() {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Notifications Button */}
-              <Button variant="outline" size="icon" className="relative">
-                <Bell className="w-4 h-4" />
-                {notifications > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                    {notifications}
-                  </Badge>
-                )}
-              </Button>
+              {/* Notifications Bell */}
+              <NotificationBell />
 
               {/* Refresh Button */}
               <Button variant="outline" onClick={refreshData}>
@@ -332,10 +326,10 @@ export default function ContractorDashboard() {
         )}
 
         {/* Main Tabs */}
-        <Tabs defaultValue="jobs" className="space-y-4">
+        <Tabs defaultValue="bids" className="space-y-4">
           <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto sm:h-10">
-            <TabsTrigger value="jobs" className="relative text-xs sm:text-sm py-2.5 sm:py-2">
-              <span className="truncate">Trabajos asignados</span>
+            <TabsTrigger value="bids" className="relative text-xs sm:text-sm py-2.5 sm:py-2">
+              <span className="truncate">Licitaciones enviadas</span>
               {notifications > 0 && (
                 <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center p-0 text-xs">
                   {notifications}
@@ -350,16 +344,14 @@ export default function ContractorDashboard() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Jobs Tab */}
-          <TabsContent value="jobs" className="space-y-4">
-            {assignedRequests.length === 0 ? (
+          {/* Bids Tab - Sent quotes by contractor */}
+          <TabsContent value="bids" className="space-y-4">
+            {sentQuotes.length === 0 ? (
               <Card>
                 <CardContent className="p-6 text-center">
                   <div className="flex flex-col items-center gap-2">
                     <CheckCircle className="h-12 w-12 text-muted-foreground" />
-                    <p className="text-muted-foreground">
-                      No tienes trabajos asignados en este momento
-                    </p>
+                    <p className="text-muted-foreground">No has enviado licitaciones aún</p>
                     <Link href="/contractor/dashboard/explore">
                       <Button variant="outline">Explorar solicitudes</Button>
                     </Link>
@@ -367,151 +359,26 @@ export default function ContractorDashboard() {
                 </CardContent>
               </Card>
             ) : (
-              assignedRequests.map((request) => {
-                const hasAccess = hasLeadAccess(request)
-
-                return (
-                  <Card key={request.id}>
-                    <CardContent className="p-4 sm:p-6">
-                      <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-4">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-lg truncate">{request.requestTitle}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Cliente:{' '}
-                            {hasAccess
-                              ? `${request.customerInfo.firstName} ${request.customerInfo.lastName}`
-                              : `${request.customerInfo.firstName.charAt(0)}*** ${request.customerInfo.lastName.charAt(0)}***`}
-                          </p>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {request.serviceType.join(', ')}
-                          </p>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className="font-bold text-lg">
-                            {formatCurrency(getRequestAmount(request))}
-                          </p>
-                          <Badge className={getStatusBadge(request.status).color}>
-                            {getStatusBadge(request.status).text}
-                          </Badge>
-                        </div>
+              sentQuotes.map((quote) => (
+                <Card key={`${quote.requestId}-${quote.submittedAt}`}>
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="font-semibold text-lg truncate">{quote.requestTitle}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(quote.submittedAt).toLocaleDateString()}
+                        </p>
                       </div>
-
-                      <div className="space-y-2 mb-4">
-                        <p className="text-sm">{request.description}</p>
+                      <div className="text-right">
+                        <p className="font-bold text-lg">{formatCurrency(quote.amount)}</p>
+                        <Badge className={getStatusBadge(quote.status as any).color}>
+                          {getStatusBadge(quote.status as any).text}
+                        </Badge>
                       </div>
-
-                      <div className="grid grid-cols-1 gap-4 mb-4">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                          <span className="text-sm truncate">
-                            {hasAccess
-                              ? request.location.formattedAddress
-                              : getBlurredAddress(request.location.formattedAddress)}
-                          </span>
-                          {!hasAccess && <Lock className="h-4 w-4 text-orange-500 flex-shrink-0" />}
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                          <span className="text-sm">
-                            {hasAccess
-                              ? request.customerInfo.phone
-                              : getProtectedPhone(request.customerInfo.phone || '')}
-                          </span>
-                          {!hasAccess && <Lock className="h-4 w-4 text-orange-500 flex-shrink-0" />}
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                          <span className="text-sm truncate">
-                            {hasAccess
-                              ? request.customerInfo.email || 'Email no disponible'
-                              : getProtectedEmail(
-                                  request.customerInfo.email || 'email@example.com',
-                                )}
-                          </span>
-                          {!hasAccess && <Lock className="h-4 w-4 text-orange-500 flex-shrink-0" />}
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                          <span className="text-sm">
-                            {request.preferredDateTime
-                              ? `Programado: ${new Date(request.preferredDateTime).toLocaleString()}`
-                              : `Creado: ${new Date(request.createdAt).toLocaleDateString()}`}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Lead Access Warning */}
-                      {!hasAccess && (
-                        <div className="mb-4 p-3 border border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950 rounded-md">
-                          <div className="flex items-start gap-2">
-                            <Lock className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                            <div className="text-sm">
-                              <p className="font-medium text-orange-800 dark:text-orange-300">
-                                Información completa disponible
-                              </p>
-                              <p className="text-orange-600 dark:text-orange-400 text-xs mt-1">
-                                La información completa se mostrará una vez que aceptes el trabajo
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Action Buttons */}
-                      <div className="space-y-2">
-                        {request.status === 'assigned' && (
-                          <div className="flex flex-col sm:flex-row gap-2">
-                            <Button onClick={() => handleAcceptJob(request.id)} className="flex-1">
-                              Aceptar trabajo
-                            </Button>
-                            <Button
-                              variant="outline"
-                              onClick={() => handleRejectJob(request.id)}
-                              className="flex-1"
-                            >
-                              Rechazar
-                            </Button>
-                          </div>
-                        )}
-
-                        {request.status === 'accepted' && (
-                          <Button
-                            className="w-full"
-                            onClick={() => handleStatusUpdate(request.id, 'in-progress')}
-                          >
-                            Marcar como en progreso
-                          </Button>
-                        )}
-
-                        {request.status === 'in-progress' && (
-                          <Button
-                            className="w-full"
-                            onClick={() => handleStatusUpdate(request.id, 'completed')}
-                          >
-                            Marcar como completado
-                          </Button>
-                        )}
-
-                        {request.status === 'completed' && (
-                          <div className="flex flex-col sm:flex-row gap-2">
-                            <Button variant="outline" className="flex-1">
-                              <Eye className="w-4 h-4 mr-2" />
-                              Ver detalles
-                            </Button>
-                            <Button variant="outline" className="flex-1">
-                              <Download className="w-4 h-4 mr-2" />
-                              Descargar recibo
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              })
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
             )}
           </TabsContent>
 

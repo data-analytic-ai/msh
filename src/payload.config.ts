@@ -11,6 +11,7 @@ import Contractors from './collections/Contractors'
 import { LeadAccess } from './collections/LeadAccess'
 import { LeadChats } from './collections/LeadChats'
 import { Media } from './collections/Media'
+import { Notifications } from './collections/Notifications'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { ServiceRequests } from './collections/ServiceRequests'
@@ -88,6 +89,7 @@ export default buildConfig({
     Contractors,
     LeadAccess,
     LeadChats,
+    Notifications,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],

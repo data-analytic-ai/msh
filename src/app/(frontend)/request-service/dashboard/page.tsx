@@ -21,6 +21,7 @@ import useDashboardData from '@/hooks/useDashboardData'
 import DashboardStatsGrid from '@/components/dashboard/DashboardStatsGrid'
 import RecentActivityPanel from '@/components/dashboard/RecentActivityPanel'
 import ServiceRequestsList from '@/components/dashboard/ServiceRequestsList'
+import NotificationBell from '@/components/notifications/NotificationBell'
 
 export default function ClientDashboard() {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth()
@@ -183,6 +184,9 @@ export default function ClientDashboard() {
             </div>
 
             <div className="flex items-center gap-2">
+              {/* Notifications Bell */}
+              <NotificationBell />
+
               <Button
                 variant="outline"
                 size="sm"

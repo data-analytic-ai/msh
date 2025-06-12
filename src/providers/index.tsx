@@ -4,6 +4,7 @@ import { HeaderThemeProvider } from './HeaderTheme'
 import { ThemeProvider } from './Theme'
 import { ServiceRequestStateProvider } from './ServiceRequestStateProvider'
 import { AuthProvider } from './AuthProvider'
+import { NotificationProvider } from '@/contexts/NotificationContext'
 
 export const Providers: React.FC<{
   children: React.ReactNode
@@ -12,7 +13,9 @@ export const Providers: React.FC<{
     <AuthProvider>
       <ThemeProvider>
         <HeaderThemeProvider>
-          <ServiceRequestStateProvider>{children}</ServiceRequestStateProvider>
+          <NotificationProvider>
+            <ServiceRequestStateProvider>{children}</ServiceRequestStateProvider>
+          </NotificationProvider>
         </HeaderThemeProvider>
       </ThemeProvider>
     </AuthProvider>
