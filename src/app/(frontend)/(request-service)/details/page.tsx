@@ -10,7 +10,7 @@ import { ArrowLeft, Info, User, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import MapComponent from '@/components/ui/MapComponent'
 import { ServiceRequestForm } from '@/blocks/Form/ServiceRequestForm'
-import { UserAccountHandler } from './dashboard/components/UserAccountHandler'
+import { UserAccountHandler } from '../dashboard/components/UserAccountHandler'
 
 // Service type name mappings
 const serviceNames: Record<string, string> = {
