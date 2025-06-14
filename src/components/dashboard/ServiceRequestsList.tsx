@@ -212,7 +212,7 @@ export const ServiceRequestsList: React.FC<ServiceRequestsListProps> = ({
             )}
           </div>
 
-          <Link href="/request-service">
+          <Link href="">
             <Button size="sm" className="gap-2">
               <Plus className="h-4 w-4" />
               Nueva Solicitud
@@ -287,7 +287,7 @@ export const ServiceRequestsList: React.FC<ServiceRequestsListProps> = ({
                 : 'Intenta ajustar los filtros de búsqueda'}
             </p>
             {requests.length === 0 && (
-              <Link href="/request-service">
+              <Link href="">
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
                   Crear Primera Solicitud
@@ -371,7 +371,7 @@ export const ServiceRequestsList: React.FC<ServiceRequestsListProps> = ({
                 </CardContent>
 
                 <CardFooter className="pt-0">
-                  <Link href={`/request-service/dashboard/${request.id}`} className="w-full">
+                  <Link href={`/dashboard/${request.id}`} className="w-full">
                     <Button variant="outline" className="w-full gap-2">
                       <Eye className="h-4 w-4" />
                       Ver Detalles
@@ -387,7 +387,7 @@ export const ServiceRequestsList: React.FC<ServiceRequestsListProps> = ({
       {/* Show More Button */}
       {maxItems && requests.length > maxItems && (
         <div className="text-center">
-          <Link href="/request-service/dashboard#requests">
+          <Link href="/dashboard#requests">
             <Button variant="outline">Ver todas las solicitudes ({requests.length})</Button>
           </Link>
         </div>

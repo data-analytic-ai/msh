@@ -24,7 +24,7 @@ export const UrgentHelpCard: React.FC<UrgentHelpCardProps> = ({ links }) => {
           </div>
         ) : (
           <Button asChild className="bg-white dark:bg-secondary text-primary hover:bg-white/90">
-            <Link href="/request-service">Request Service</Link>
+            <Link href="">Request Service</Link>
           </Button>
         )}
       </div>

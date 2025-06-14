@@ -222,7 +222,7 @@ export const UserServiceRequests = () => {
         <p className="text-muted-foreground mb-4">
           Cuando solicites un servicio, aparecerá aquí para que puedas hacer seguimiento.
         </p>
-        <Link href="/request-service">
+        <Link href="">
           <Button>Solicitar un servicio</Button>
         </Link>
       </div>
@@ -273,7 +273,7 @@ export const UserServiceRequests = () => {
           <Button variant="outline" size="icon" onClick={() => refresh()} title="Refresh">
             <Loader2 className={`h-4 w-4 text-white ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
-          <Link href="/request-service/details">
+          <Link href="/details">
             <Button>Nueva Solicitud</Button>
           </Link>
         </div>
@@ -395,13 +395,13 @@ export const UserServiceRequests = () => {
 
               <CardFooter className="flex gap-2">
                 {hasQuotes ? (
-                  <Link href={`/request-service/quotes/${request.id}`} className="flex-1">
+                  <Link href={`/quotes/${request.id}`} className="flex-1">
                     <Button className="w-full">
                       {pendingQuotes.length > 0 ? 'Ver Cotizaciones' : 'Ver Detalles'}
                     </Button>
                   </Link>
                 ) : (
-                  <Link href={`/request-service/details/${request.id}`} className="flex-1">
+                  <Link href={`/details/${request.id}`} className="flex-1">
                     <Button variant="outline" className="w-full">
                       Ver Detalles
                     </Button>

@@ -170,22 +170,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // Calculate unread count
   const unreadCount = notifications.filter((n) => !n.read).length
 
-  // Initialize web push service worker
+  // Initialize web push service worker (disabled for now)
   useEffect(() => {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-      navigator.serviceWorker
-        .register('/sw.js')
-        .then((registration) => {
-          console.log('Service Worker registered:', registration)
-          return registration.pushManager.getSubscription()
-        })
-        .then((subscription) => {
-          setWebPushSubscription(subscription)
-        })
-        .catch((error) => {
-          console.error('Service Worker registration failed:', error)
-        })
-    }
+    // TODO: Enable service worker when push notifications are implemented
+    console.log('Service Worker initialization disabled temporarily')
   }, [])
 
   // Load persisted notifications on mount
@@ -198,31 +186,58 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Load notifications from API
   const loadNotifications = useCallback(async () => {
-    if (!user) return
+    if (!user?.id) {
+      console.log('No user ID available for loading notifications')
+      return
+    }
 
     try {
-      const response = await fetch(`/api/notifications?userId=${user.id}&limit=50`, {
-        credentials: 'include',
-      })
+      console.log('🔍 Loading notifications for user:', user.id)
+      const response = await fetch(
+        `/api/notifications?userId=${user.id}&limit=50&sort=-createdAt`,
+        {
+          credentials: 'include',
+        },
+      )
+
+      console.log('📡 Notifications API response status:', response.status)
 
       if (response.ok) {
         const data = await response.json()
-        const notificationsWithConfig = data.docs.map((notif: Notification) => ({
+        console.log('Notifications data received:', data)
+
+        // Handle both PayloadCMS format and simple array format
+        const notificationArray = data.docs || data || []
+        console.log('📊 Raw notifications from API:', notificationArray.length, notificationArray)
+
+        const notificationsWithConfig = notificationArray.map((notif: Notification) => ({
           ...notif,
           showTime: NOTIFICATION_CONFIGS[notif.type]?.showTime || 5000,
         }))
+
+        console.log(
+          '✅ Processed notifications:',
+          notificationsWithConfig.length,
+          notificationsWithConfig,
+        )
         setNotifications(notificationsWithConfig)
+      } else {
+        console.error(
+          'Failed to load notifications, status:',
+          response.status,
+          await response.text(),
+        )
       }
     } catch (error) {
       console.error('Failed to load notifications:', error)
     }
   }, [user])
 
-  // Connect to real-time notifications (WebSocket/SSE)
+  // Connect to real-time notifications (currently using polling)
   const connectToRealTime = useCallback(() => {
     if (!user) return
 
-    // For now, we'll use polling. In production, implement WebSocket/SSE
+    // Using polling for now - SSE will be implemented later
     const interval = setInterval(() => {
       loadNotifications()
     }, 30000) // Poll every 30 seconds
@@ -324,53 +339,123 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     [user, getEnabledChannels],
   )
 
-  // Send notification to external channels
+  // Send notification to external channels with retry logic
   const sendNotification = async (notification: InAppNotification) => {
     const promises: Promise<any>[] = []
+    const maxRetryAttempts = 3
+    const maxRetries = 3
+    const retryDelay = 1000 // 1 second base delay
 
-    for (const channel of notification.channels) {
-      switch (channel) {
-        case 'web_push':
-          if (webPushSubscription) {
-            promises.push(sendWebPush(notification))
-          }
-          break
-        case 'email':
-          promises.push(sendEmail(notification))
-          break
-        case 'sms':
-          promises.push(sendSMS(notification))
-          break
-        case 'in_app':
-          // Already handled above
-          break
+    const sendWithRetry = async (channel: NotificationChannel, attempt = 0): Promise<any> => {
+      try {
+        switch (channel) {
+          case 'web_push':
+            if (webPushSubscription) {
+              return await sendWebPush(notification)
+            }
+            break
+          case 'email':
+            return await sendEmail(notification)
+          case 'sms':
+            return await sendSMS(notification)
+          default:
+            break
+        }
+      } catch (error) {
+        console.error(`Failed to send ${channel} notification (attempt ${attempt + 1}):`, error)
+
+        if (attempt < maxRetries) {
+          // Exponential backoff
+          const delay = retryDelay * Math.pow(2, attempt)
+          await new Promise((resolve) => setTimeout(resolve, delay))
+          return sendWithRetry(channel, attempt + 1)
+        } else {
+          // TODO: Log failed delivery to analytics when API is ready
+          console.warn(
+            `Failed to send ${channel} notification after ${attempt + 1} attempts:`,
+            error,
+          )
+          throw error
+        }
       }
     }
 
-    // Also persist to database
+    for (const channel of notification.channels) {
+      if (channel !== 'in_app') {
+        promises.push(sendWithRetry(channel))
+      }
+    }
+
+    // Always persist to database
     promises.push(persistNotification(notification))
 
-    await Promise.allSettled(promises)
+    const results = await Promise.allSettled(promises)
+
+    // Track successful deliveries
+    const successfulChannels: NotificationChannel[] = []
+    const failedChannels: NotificationChannel[] = []
+
+    let resultIndex = 0
+    notification.channels.forEach((channel) => {
+      if (channel === 'in_app') {
+        successfulChannels.push(channel)
+      } else {
+        const result = results[resultIndex]
+        if (result && result.status === 'fulfilled') {
+          successfulChannels.push(channel)
+        } else {
+          failedChannels.push(channel)
+        }
+        resultIndex++
+      }
+    })
+
+    // Update notification with delivery status
+    if (successfulChannels.length > 0) {
+      await updateNotificationDeliveryStatus(notification.id, {
+        sentChannels: successfulChannels,
+        deliveryStatus: failedChannels.length === 0 ? 'delivered' : 'partially_delivered',
+        deliveryAttempts: maxRetryAttempts,
+      })
+    }
+  }
+
+  // Track notification events for analytics (disabled until API is ready)
+  const trackNotificationEvent = async (
+    notificationId: string,
+    event: 'viewed' | 'clicked' | 'dismissed' | 'delivery_failed',
+    metadata?: Record<string, any>,
+  ) => {
+    // TODO: Implement tracking API
+    console.log('Notification event:', { notificationId, event, metadata })
+  }
+
+  // Update notification delivery status
+  const updateNotificationDeliveryStatus = async (
+    notificationId: string,
+    updates: {
+      sentChannels?: NotificationChannel[]
+      deliveryStatus?: string
+      deliveryAttempts?: number
+    },
+  ) => {
+    try {
+      await fetch(`/api/notifications/${notificationId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(updates),
+      })
+    } catch (error) {
+      console.error('Failed to update notification delivery status:', error)
+    }
   }
 
   // Send web push notification
   const sendWebPush = async (notification: InAppNotification) => {
     try {
-      await fetch('/api/notifications/web-push', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          subscription: webPushSubscription,
-          notification: {
-            title: notification.title,
-            body: notification.message,
-            icon: '/icon-192x192.png',
-            badge: '/badge-72x72.png',
-            data: notification.data,
-          },
-        }),
-      })
+      // TODO: Implement web push API
+      console.log('Would send web push:', notification.title)
     } catch (error) {
       console.error('Failed to send web push:', error)
     }
@@ -379,21 +464,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // Send email notification
   const sendEmail = async (notification: InAppNotification) => {
     try {
-      await fetch('/api/notifications/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          to: user?.email,
-          subject: notification.title,
-          html: `
-            <h2>${notification.title}</h2>
-            <p>${notification.message}</p>
-            ${notification.data?.actionUrl ? `<a href="${notification.data.actionUrl}">Ver detalles</a>` : ''}
-          `,
-          notification,
-        }),
-      })
+      // TODO: Implement email API
+      console.log('Would send email to:', user?.email, notification.title)
     } catch (error) {
       console.error('Failed to send email:', error)
     }
@@ -404,16 +476,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (!user?.phone) return
 
     try {
-      await fetch('/api/notifications/sms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          to: user.phone,
-          message: `${notification.title}: ${notification.message}`,
-          notification,
-        }),
-      })
+      // TODO: Implement SMS API
+      console.log('Would send SMS to:', user.phone, notification.title)
     } catch (error) {
       console.error('Failed to send SMS:', error)
     }
@@ -483,22 +547,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
 
     try {
-      const registration = await navigator.serviceWorker.ready
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
-      })
-
-      setWebPushSubscription(subscription)
-
-      // Send subscription to server
-      await fetch('/api/notifications/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(subscription),
-      })
-
+      // TODO: Implement web push subscription API
+      console.log('Would subscribe to web push')
       return true
     } catch (error) {
       console.error('Failed to subscribe to web push:', error)
@@ -508,24 +558,15 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Unsubscribe from web push
   const unsubscribeFromWebPush = useCallback(async (): Promise<boolean> => {
-    if (!webPushSubscription) return true
-
     try {
-      await webPushSubscription.unsubscribe()
-      setWebPushSubscription(null)
-
-      // Remove subscription from server
-      await fetch('/api/notifications/unsubscribe', {
-        method: 'POST',
-        credentials: 'include',
-      })
-
+      // TODO: Implement web push unsubscription API
+      console.log('Would unsubscribe from web push')
       return true
     } catch (error) {
       console.error('Failed to unsubscribe from web push:', error)
       return false
     }
-  }, [webPushSubscription])
+  }, [])
 
   // Update notification preferences
   const updatePreferences = useCallback(

@@ -100,7 +100,7 @@ const UrgentFixHero: React.FC<Page['hero']> = ({ form }) => {
       })
 
       // Navegar a la página de detalles
-      router.push('/request-service/details')
+      router.push('/details')
     } else {
       // Mostrar mensaje de error si falta información
       console.error('Falta seleccionar servicio o ubicación')

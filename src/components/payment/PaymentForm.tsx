@@ -90,7 +90,7 @@ function PaymentForm({
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/request-service/dashboard/{requestId}`,
+          return_url: `${window.location.origin}/dashboard/{requestId}`,
         },
         redirect: 'if_required',
       })

@@ -186,11 +186,7 @@ function getAlternativeRouteButton(userRole?: string, router?: any): React.React
       )
     case 'client':
       return (
-        <Button
-          variant="outline"
-          onClick={() => router.push('/request-service/dashboard')}
-          className="w-full"
-        >
+        <Button variant="outline" onClick={() => router.push('/dashboard')} className="w-full">
           Dashboard de Cliente
         </Button>
       )

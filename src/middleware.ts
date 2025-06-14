@@ -10,11 +10,11 @@ import type { NextRequest } from 'next/server'
 
 // Protected routes requiring authentication
 const PROTECTED_ROUTES = [
-  '/request-service/confirmation',
-  '/request-service/dashboard',
-  '/request-service/find-contractor',
-  '/request-service/payment',
-  '/request-service/tracking',
+  '/confirmation',
+  '/dashboard',
+  '/find-contractor',
+  '/payment',
+  '/tracking',
   '/contractor/dashboard',
   '/contractor/profile',
   '/user/profile',
@@ -27,15 +27,15 @@ const ADMIN_ROUTES = ['/admin']
 const CONTRACTOR_ROUTES = ['/contractor/dashboard', '/contractor/profile']
 
 // Client-only routes
-const CLIENT_ROUTES = ['/request-service/dashboard']
+const CLIENT_ROUTES = ['/dashboard']
 
 // Routes that require service request context
 const CONTEXT_REQUIRED_ROUTES = [
-  '/request-service/details',
-  '/request-service/confirmation',
-  '/request-service/find-contractor',
-  '/request-service/payment',
-  '/request-service/tracking',
+  '/details',
+  '/confirmation',
+  '/find-contractor',
+  '/payment',
+  '/tracking',
 ]
 
 /**
@@ -119,7 +119,7 @@ export const config = {
     // Match all routes except static files and API routes that don't need protection
     '/((?!_next/static|_next/image|favicon.ico|public/).*)',
     '/api/:path*',
-    '/request-service/:path*',
+    '/:path*',
     '/contractor/:path*',
     '/admin/:path*',
     '/user/:path*',

@@ -130,7 +130,7 @@ export async function PATCH(request: NextRequest) {
     const serviceRequest = await payload.findByID({
       collection: 'service-requests',
       id: requestId,
-      depth: 1,
+      depth: 2,
     })
 
     if (!serviceRequest) {
@@ -142,6 +142,9 @@ export async function PATCH(request: NextRequest) {
     if (quoteIndex >= quotes.length) {
       return NextResponse.json({ error: 'Quote not found' }, { status: 404 })
     }
+
+    // Get the quote that will be updated for notification purposes
+    const targetQuote = quotes[quoteIndex]
 
     // Update the specific quote
     quotes[quoteIndex] = {
@@ -164,7 +167,7 @@ export async function PATCH(request: NextRequest) {
       updatePayload = {
         ...updatePayload,
         assignedContractor: quotes[quoteIndex].contractor,
-        status: 'in-progress',
+        status: 'assigned', // Change to 'assigned' instead of 'in-progress'
       }
     }
 
@@ -175,6 +178,92 @@ export async function PATCH(request: NextRequest) {
       data: updatePayload,
       depth: 2,
     })
+
+    // 📧 SEND NOTIFICATIONS
+    try {
+      if (status === 'accepted' && targetQuote) {
+        // Get contractor information
+        const contractorId =
+          typeof targetQuote.contractor === 'string'
+            ? targetQuote.contractor
+            : targetQuote.contractor?.id
+
+        if (contractorId) {
+          const contractor = await payload.findByID({
+            collection: 'users',
+            id: contractorId,
+            depth: 1,
+          })
+
+          // Get customer information
+          const customer = serviceRequest.customer
+          const customerName = customer
+            ? typeof customer === 'string'
+              ? 'Cliente' // Fallback if customer is just an ID
+              : `${customer.firstName || ''} ${customer.lastName || ''}`.trim() || 'Cliente'
+            : serviceRequest.customerInfo
+              ? `${serviceRequest.customerInfo.firstName} ${serviceRequest.customerInfo.lastName}`.trim()
+              : 'Cliente'
+
+          // Create notification for the contractor
+          await payload.create({
+            collection: 'notifications',
+            data: {
+              id: `quote-accepted-${requestId}-${contractorId}-${Date.now()}`,
+              type: 'quote_accepted',
+              title: '¡Tu cotización fue aceptada!',
+              message: `${customerName} aceptó tu cotización de $${targetQuote.amount.toLocaleString()} para "${serviceRequest.requestTitle}".`,
+              priority: 'high',
+              channels: ['in_app', 'web_push', 'email'],
+              userId: contractorId,
+              read: false,
+              data: {
+                requestId: requestId,
+                amount: targetQuote.amount,
+                customerName: customerName,
+                actionUrl: `/contractor/dashboard`,
+              },
+              actionLabel: 'Ver trabajo',
+            },
+          })
+
+          console.log(`📧 Quote acceptance notification sent to contractor ${contractorId}`)
+        }
+      } else if (status === 'rejected' && targetQuote) {
+        // Optional: Notify contractor of rejection
+        const contractorId =
+          typeof targetQuote.contractor === 'string'
+            ? targetQuote.contractor
+            : targetQuote.contractor?.id
+
+        if (contractorId) {
+          await payload.create({
+            collection: 'notifications',
+            data: {
+              id: `quote-rejected-${requestId}-${contractorId}-${Date.now()}`,
+              type: 'quote_rejected',
+              title: 'Cotización no seleccionada',
+              message: `Tu cotización de $${targetQuote.amount.toLocaleString()} para "${serviceRequest.requestTitle}" no fue seleccionada.`,
+              priority: 'normal',
+              channels: ['in_app', 'email'],
+              userId: contractorId,
+              read: false,
+              data: {
+                requestId: requestId,
+                amount: targetQuote.amount,
+                actionUrl: `/contractor/dashboard/explore`,
+              },
+              actionLabel: 'Ver más solicitudes',
+            },
+          })
+
+          console.log(`📧 Quote rejection notification sent to contractor ${contractorId}`)
+        }
+      }
+    } catch (notificationError) {
+      console.error('❌ Error sending notification:', notificationError)
+      // Don't fail the quote update if notification fails
+    }
 
     console.log(`✅ Quote status updated for service request ${requestId}`)
     return NextResponse.json(updatedRequest)

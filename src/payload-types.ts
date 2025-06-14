@@ -17,6 +17,7 @@ export interface Config {
     categories: Category;
     users: User;
     'service-requests': ServiceRequest;
+    bids: Bid;
     services: Service;
     contractors: Contractor;
     leadAccess: LeadAccess;
@@ -39,6 +40,7 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'service-requests': ServiceRequestsSelect<false> | ServiceRequestsSelect<true>;
+    bids: BidsSelect<false> | BidsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     contractors: ContractorsSelect<false> | ContractorsSelect<true>;
     leadAccess: LeadAccessSelect<false> | LeadAccessSelect<true>;
@@ -978,7 +980,7 @@ export interface ServiceRequest {
   /**
    * Current status of the service request
    */
-  status: 'pending' | 'assigned' | 'in-progress' | 'completed' | 'cancelled';
+  status: 'pending' | 'receiving-quotes' | 'assigned' | 'in-progress' | 'awaiting-payment' | 'completed' | 'cancelled';
   /**
    * Service location details
    */
@@ -1032,24 +1034,6 @@ export interface ServiceRequest {
       }[]
     | null;
   /**
-   * Service quotes from contractors
-   */
-  quotes?:
-    | {
-        /**
-         * Contractor who provided the quote
-         */
-        contractor?: (string | null) | User;
-        /**
-         * Estimated cost in USD
-         */
-        amount?: number | null;
-        description?: string | null;
-        status?: ('pending' | 'accepted' | 'rejected') | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
    * Internal notes about this request
    */
   notes?:
@@ -1076,6 +1060,97 @@ export interface ServiceRequest {
    * Stripe Payment Intent ID
    */
   paymentIntentId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Contractor bids and proposals for service requests
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bids".
+ */
+export interface Bid {
+  id: string;
+  /**
+   * Auto-generated title for this bid
+   */
+  title: string;
+  /**
+   * Service request this bid is for
+   */
+  serviceRequest: string | ServiceRequest;
+  /**
+   * Contractor who submitted this bid
+   */
+  contractor: string | User;
+  /**
+   * Bid amount in USD
+   */
+  amount: number;
+  /**
+   * Detailed description of the proposed work
+   */
+  description: string;
+  /**
+   * Current status of the bid
+   */
+  status: 'pending' | 'accepted' | 'rejected' | 'withdrawn' | 'expired';
+  /**
+   * Estimated time to complete the work
+   */
+  estimatedDuration?: string | null;
+  /**
+   * Warranty information offered
+   */
+  warranty?: string | null;
+  materials?:
+    | {
+        item: string;
+        cost?: number | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Detailed price breakdown
+   */
+  priceBreakdown?: {
+    labor?: number | null;
+    materials?: number | null;
+    additional?: number | null;
+    notes?: string | null;
+  };
+  /**
+   * When contractor is available to start
+   */
+  availability?: string | null;
+  portfolio?:
+    | {
+        image: string | Media;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * When this bid expires
+   */
+  validUntil?: string | null;
+  /**
+   * Internal notes about this bid
+   */
+  notes?: string | null;
+  /**
+   * When the bid was submitted
+   */
+  submittedAt?: string | null;
+  /**
+   * When the bid was accepted
+   */
+  acceptedAt?: string | null;
+  /**
+   * When the bid was rejected
+   */
+  rejectedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1423,6 +1498,26 @@ export interface Notification {
    * Log de errores si falló el envío por algún canal
    */
   errorLog?: string | null;
+  /**
+   * Fecha y hora cuando fue vista la notificación
+   */
+  viewedAt?: string | null;
+  /**
+   * Fecha y hora cuando se hizo clic en la notificación
+   */
+  clickedAt?: string | null;
+  /**
+   * Fecha y hora cuando fue descartada la notificación
+   */
+  dismissedAt?: string | null;
+  /**
+   * Número de intentos de entrega
+   */
+  deliveryAttempts?: number | null;
+  /**
+   * Estado de entrega de la notificación
+   */
+  deliveryStatus?: ('pending' | 'delivered' | 'failed' | 'retrying') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1621,6 +1716,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'service-requests';
         value: string | ServiceRequest;
+      } | null)
+    | ({
+        relationTo: 'bids';
+        value: string | Bid;
       } | null)
     | ({
         relationTo: 'services';
@@ -2133,15 +2232,6 @@ export interface ServiceRequestsSelect<T extends boolean = true> {
         description?: T;
         id?: T;
       };
-  quotes?:
-    | T
-    | {
-        contractor?: T;
-        amount?: T;
-        description?: T;
-        status?: T;
-        id?: T;
-      };
   notes?:
     | T
     | {
@@ -2154,6 +2244,51 @@ export interface ServiceRequestsSelect<T extends boolean = true> {
   assignedContractor?: T;
   paymentStatus?: T;
   paymentIntentId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bids_select".
+ */
+export interface BidsSelect<T extends boolean = true> {
+  title?: T;
+  serviceRequest?: T;
+  contractor?: T;
+  amount?: T;
+  description?: T;
+  status?: T;
+  estimatedDuration?: T;
+  warranty?: T;
+  materials?:
+    | T
+    | {
+        item?: T;
+        cost?: T;
+        description?: T;
+        id?: T;
+      };
+  priceBreakdown?:
+    | T
+    | {
+        labor?: T;
+        materials?: T;
+        additional?: T;
+        notes?: T;
+      };
+  availability?: T;
+  portfolio?:
+    | T
+    | {
+        image?: T;
+        description?: T;
+        id?: T;
+      };
+  validUntil?: T;
+  notes?: T;
+  submittedAt?: T;
+  acceptedAt?: T;
+  rejectedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2340,6 +2475,11 @@ export interface NotificationsSelect<T extends boolean = true> {
   expiresAt?: T;
   sentChannels?: T;
   errorLog?: T;
+  viewedAt?: T;
+  clickedAt?: T;
+  dismissedAt?: T;
+  deliveryAttempts?: T;
+  deliveryStatus?: T;
   updatedAt?: T;
   createdAt?: T;
 }

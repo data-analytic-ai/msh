@@ -54,33 +54,30 @@ const StatCard: React.FC<StatCardProps> = ({
   href,
   badge,
 }) => {
-  const CardWrapper = href ? Link : 'div'
-  const cardProps = href ? { href } : {}
-
-  return (
-    <CardWrapper {...cardProps}>
-      <Card className={`${href ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
-          <div className="flex items-center gap-2">
-            <Icon className={`h-4 w-4 ${color}`} />
-            {badge && (
-              <Badge variant={badge.variant} className="text-xs">
-                {badge.text}
-              </Badge>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-baseline justify-between">
-            <div className="text-2xl font-bold">{value}</div>
-            {href && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
-        </CardContent>
-      </Card>
-    </CardWrapper>
+  const cardContent = (
+    <Card className={`${href ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <div className="flex items-center gap-2">
+          <Icon className={`h-4 w-4 ${color}`} />
+          {badge && (
+            <Badge variant={badge.variant} className="text-xs">
+              {badge.text}
+            </Badge>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-baseline justify-between">
+          <div className="text-2xl font-bold">{value}</div>
+          {href && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+      </CardContent>
+    </Card>
   )
+
+  return href ? <Link href={href}>{cardContent}</Link> : cardContent
 }
 
 /**
@@ -103,7 +100,7 @@ export const DashboardStatsGrid: React.FC<DashboardStatsGridProps> = ({
       subtitle: `${stats.pendingRequests} pendientes`,
       icon: Wrench,
       color: 'text-blue-500',
-      href: '/request-service/dashboard#requests',
+      href: '/dashboard#requests',
       badge:
         stats.pendingRequests > 0
           ? {
@@ -118,7 +115,7 @@ export const DashboardStatsGrid: React.FC<DashboardStatsGridProps> = ({
       subtitle: 'Trabajos finalizados',
       icon: CheckCircle,
       color: 'text-green-500',
-      href: '/request-service/dashboard#completed',
+      href: '/dashboard#completed',
     },
     {
       title: 'Cotizaciones Recibidas',
@@ -126,7 +123,7 @@ export const DashboardStatsGrid: React.FC<DashboardStatsGridProps> = ({
       subtitle: `${stats.pendingQuotes} por revisar`,
       icon: DollarSign,
       color: 'text-yellow-500',
-      href: '/request-service/dashboard#quotes',
+      href: '/dashboard#quotes',
       badge:
         stats.pendingQuotes > 0
           ? {
@@ -205,7 +202,7 @@ export const DashboardStatsGrid: React.FC<DashboardStatsGridProps> = ({
           {/* Quick Action Card */}
           <Card className="flex items-center justify-center">
             <CardContent className="flex flex-col items-center justify-center py-6">
-              <Link href="/request-service">
+              <Link href="">
                 <Button className="w-full mb-2">
                   <Wrench className="h-4 w-4 mr-2" />
                   Nueva Solicitud

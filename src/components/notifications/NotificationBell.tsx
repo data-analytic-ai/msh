@@ -179,9 +179,51 @@ export const NotificationBell: React.FC = () => {
   } = useNotifications()
 
   const [isOpen, setIsOpen] = useState(false)
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'unread' | 'important'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | NotificationType | null>('all')
+
+  // Filter notifications based on selected filters
+  const filteredNotifications = notifications.filter((notification) => {
+    // Filter by read status
+    if (selectedFilter === 'unread' && notification.read) return false
+    if (
+      selectedFilter === 'important' &&
+      notification.priority !== 'high' &&
+      notification.priority !== 'urgent'
+    )
+      return false
+
+    // Filter by category
+    if (selectedCategory !== 'all' && notification.type !== selectedCategory) return false
+
+    return true
+  })
+
+  // Group notifications by category
+  const groupedNotifications = filteredNotifications.reduce(
+    (groups, notification) => {
+      const key = notification.type
+      if (!groups[key]) {
+        groups[key] = []
+      }
+      groups[key].push(notification)
+      return groups
+    },
+    {} as Record<NotificationType, InAppNotification[]>,
+  )
 
   // Get recent notifications (last 10)
-  const recentNotifications = notifications.slice(0, 10)
+  const recentNotifications = filteredNotifications.slice(0, 10)
+
+  // Calculate category counts
+  const categoryCounts = notifications.reduce(
+    (counts, notification) => {
+      const key = notification.type
+      counts[key] = (counts[key] || 0) + (notification.read ? 0 : 1)
+      return counts
+    },
+    {} as Record<NotificationType, number>,
+  )
 
   const handleMarkAllAsRead = async () => {
     await markAllAsRead()
@@ -189,6 +231,22 @@ export const NotificationBell: React.FC = () => {
 
   const handleClearAll = () => {
     clearAll()
+    setIsOpen(false)
+  }
+
+  const handleNotificationClick = async (notification: InAppNotification) => {
+    if (!notification.read) {
+      await markAsRead(notification.id)
+    }
+
+    // TODO: Track click event when API is ready
+    console.log('Notification clicked:', notification.id)
+
+    // Execute action if available
+    if (notification.action) {
+      notification.action.onClick()
+    }
+
     setIsOpen(false)
   }
 
@@ -205,14 +263,18 @@ export const NotificationBell: React.FC = () => {
 
           {/* Unread count badge */}
           {unreadCount > 0 && (
-            <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
+            <Badge
+              className={`absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs ${
+                unreadCount > 5 ? 'bg-red-500 animate-pulse' : 'bg-blue-500'
+              }`}
+            >
               {unreadCount > 99 ? '99+' : unreadCount}
             </Badge>
           )}
 
           {/* Connection status indicator */}
           <div
-            className={`absolute -bottom-1 -right-1 w-2 h-2 rounded-full ${
+            className={`absolute -bottom-1 -right-1 w-2 h-2 rounded-full transition-colors ${
               isConnected ? 'bg-green-500' : 'bg-red-500'
             }`}
             title={isConnected ? 'Conectado' : 'Desconectado'}
@@ -220,10 +282,10 @@ export const NotificationBell: React.FC = () => {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-80 max-h-96 p-0" sideOffset={5}>
-        {/* Header */}
+      <DropdownMenuContent align="end" className="w-96 max-h-[500px] p-0" sideOffset={5}>
+        {/* Header with filters */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-sm">Notificaciones</h3>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
@@ -250,8 +312,51 @@ export const NotificationBell: React.FC = () => {
             </div>
           </div>
 
+          {/* Filter tabs */}
+          <div className="flex gap-1 mb-2">
+            {(['all', 'unread', 'important'] as const).map((filter) => (
+              <Button
+                key={filter}
+                size="sm"
+                variant={selectedFilter === filter ? 'default' : 'ghost'}
+                className="text-xs h-6 px-2"
+                onClick={() => setSelectedFilter(filter)}
+              >
+                {filter === 'all' && 'Todas'}
+                {filter === 'unread' && `Sin leer (${unreadCount})`}
+                {filter === 'important' && 'Importantes'}
+              </Button>
+            ))}
+          </div>
+
+          {/* Category filter */}
+          <div className="flex flex-wrap gap-1 text-xs">
+            <Button
+              size="sm"
+              variant={selectedCategory === 'all' ? 'secondary' : 'ghost'}
+              className="text-xs h-5 px-2"
+              onClick={() => setSelectedCategory('all')}
+            >
+              Todas
+            </Button>
+            {Object.entries(categoryCounts).map(([category, count]) => {
+              if (count === 0) return null
+              return (
+                <Button
+                  key={category}
+                  size="sm"
+                  variant={selectedCategory === category ? 'secondary' : 'ghost'}
+                  className="text-xs h-5 px-2"
+                  onClick={() => setSelectedCategory(category as NotificationType)}
+                >
+                  {category} ({count})
+                </Button>
+              )
+            })}
+          </div>
+
           {unreadCount > 0 && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-2">
               {unreadCount} notificación{unreadCount !== 1 ? 'es' : ''} sin leer
             </p>
           )}
@@ -262,17 +367,32 @@ export const NotificationBell: React.FC = () => {
           {recentNotifications.length === 0 ? (
             <div className="p-6 text-center">
               <Bell className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">No hay notificaciones</p>
+              <p className="text-sm text-muted-foreground">
+                {selectedFilter === 'all'
+                  ? 'No hay notificaciones'
+                  : selectedFilter === 'unread'
+                    ? 'No hay notificaciones sin leer'
+                    : 'No hay notificaciones importantes'}
+              </p>
             </div>
           ) : (
             <div className="group">
               {recentNotifications.map((notification) => (
-                <NotificationItem
+                <div
                   key={notification.id}
-                  notification={notification}
-                  onMarkAsRead={markAsRead}
-                  onDismiss={dismissNotification}
-                />
+                  className={`p-3 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-all duration-200 ${
+                    !notification.read
+                      ? 'bg-blue-50 dark:bg-blue-950/20 border-l-2 border-l-blue-500'
+                      : ''
+                  }`}
+                  onClick={() => handleNotificationClick(notification)}
+                >
+                  <NotificationItem
+                    notification={notification}
+                    onMarkAsRead={markAsRead}
+                    onDismiss={dismissNotification}
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -291,7 +411,7 @@ export const NotificationBell: React.FC = () => {
                 // router.push('/notifications')
               }}
             >
-              Ver todas las notificaciones
+              Ver todas las notificaciones ({notifications.length})
             </Button>
           </div>
         )}

@@ -63,7 +63,7 @@ export const QuotesNotification: React.FC<QuotesNotificationProps> = ({
                 <p className="text-xs text-green-600 truncate">{descriptionText}</p>
               </div>
               <div className="flex gap-1">
-                <Link href={`/request-service/quotes/${requestId}`}>
+                <Link href={`/quotes/${requestId}`}>
                   <Button size="sm" className="bg-green-600 hover:bg-green-700 h-8 px-2">
                     <ExternalLink className="h-3 w-3" />
                   </Button>
@@ -99,7 +99,7 @@ export const QuotesNotification: React.FC<QuotesNotificationProps> = ({
             <p className="text-sm text-green-600">{descriptionText}</p>
           </div>
           <div className="flex gap-2">
-            <Link href={`/request-service/quotes/${requestId}`}>
+            <Link href={`/quotes/${requestId}`}>
               <Button size="sm" className="bg-green-600 hover:bg-green-700">
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Ver Todas

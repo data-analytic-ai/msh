@@ -64,13 +64,13 @@ export const useServiceRequest = () => {
 
     // Map steps to routes
     const routeMap: Record<string, string> = {
-      service: '/request-service',
-      location: '/request-service/location',
-      details: '/request-service/details',
-      confirmation: '/request-service/confirmation',
-      'find-contractor': '/request-service/find-contractor',
-      payment: '/request-service/payment',
-      tracking: '/request-service/tracking',
+      service: '',
+      location: '/location',
+      details: '/details',
+      confirmation: '/confirmation',
+      'find-contractor': '/find-contractor',
+      payment: '/payment',
+      tracking: '/tracking',
     }
 
     // Navigate to the appropriate route

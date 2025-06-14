@@ -81,7 +81,7 @@ export const useBusinessNotifications = () => {
           requestId: data.requestId,
           contractorName: data.contractorName,
           amount: data.amount,
-          actionUrl: `/request-service/dashboard/${data.requestId}`,
+          actionUrl: `/dashboard/${data.requestId}`,
         },
         actionLabel: 'Ver cotización',
       })
@@ -133,7 +133,7 @@ export const useBusinessNotifications = () => {
         data: {
           requestId: data.requestId,
           contractorName: data.contractorName,
-          actionUrl: `/request-service/dashboard/${data.requestId}`,
+          actionUrl: `/dashboard/${data.requestId}`,
         },
         actionLabel: 'Ver detalles',
       })
@@ -192,8 +192,7 @@ export const useBusinessNotifications = () => {
   // Notify user when profile is verified
   const notifyProfileVerified = useCallback(
     async (data: { userId: string; userType: 'contractor' | 'client' }) => {
-      const dashboardUrl =
-        data.userType === 'contractor' ? '/contractor/dashboard' : '/request-service/dashboard'
+      const dashboardUrl = data.userType === 'contractor' ? '/contractor/dashboard' : '/dashboard'
 
       await notify('profile_verified', {
         title: '¡Perfil verificado!',

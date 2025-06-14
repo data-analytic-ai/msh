@@ -6,7 +6,7 @@ Transformar el flujo actual de búsqueda directa de contratistas a un sistema de
 ## Fase 1: Modificar Flujo de Confirmación (1-2 días)
 
 ### 1.1 Interceptar en página de confirmación
-**Archivo**: `src/app/(frontend)/request-service/confirmation/page.tsx`
+**Archivo**: `src/app/(frontend)/confirmation/page.tsx`
 
 **Cambios**:
 - Eliminar el botón "Find Contractors" 
@@ -15,7 +15,7 @@ Transformar el flujo actual de búsqueda directa de contratistas a un sistema de
 - Implementar timer de 24 horas para activar búsqueda manual opcional
 
 ### 1.2 Crear componente QuotesInbox
-**Nuevo archivo**: `src/app/(frontend)/request-service/confirmation/components/QuotesInbox.tsx`
+**Nuevo archivo**: `src/app/(frontend)/confirmation/components/QuotesInbox.tsx`
 
 ```typescript
 /**

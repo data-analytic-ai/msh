@@ -40,13 +40,13 @@ export const ClientNavigation: React.FC<ClientNavigationProps> = ({
 
   const navigationItems = [
     {
-      href: '/request-service/dashboard',
+      href: '/dashboard',
       icon: Home,
       label: 'Mi Dashboard',
       description: 'Ver todas mis solicitudes',
     },
     {
-      href: '/request-service',
+      href: '',
       icon: Plus,
       label: 'Nueva Solicitud',
       description: 'Solicitar un nuevo servicio',
@@ -60,8 +60,8 @@ export const ClientNavigation: React.FC<ClientNavigationProps> = ({
   ]
 
   const isActive = (href: string) => {
-    if (href === '/request-service/dashboard') {
-      return pathname === href || pathname.startsWith('/request-service/dashboard/')
+    if (href === '/dashboard') {
+      return pathname === href || pathname.startsWith('/dashboard/')
     }
     return pathname === href || pathname.startsWith(href + '/')
   }

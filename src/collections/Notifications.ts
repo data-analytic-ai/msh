@@ -197,6 +197,55 @@ export const Notifications: CollectionConfig = {
         readOnly: true,
       },
     },
+    // Analytics and Metrics
+    {
+      name: 'viewedAt',
+      type: 'date',
+      admin: {
+        description: 'Fecha y hora cuando fue vista la notificación',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'clickedAt',
+      type: 'date',
+      admin: {
+        description: 'Fecha y hora cuando se hizo clic en la notificación',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'dismissedAt',
+      type: 'date',
+      admin: {
+        description: 'Fecha y hora cuando fue descartada la notificación',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'deliveryAttempts',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        description: 'Número de intentos de entrega',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'deliveryStatus',
+      type: 'select',
+      defaultValue: 'pending',
+      options: [
+        { label: 'Pendiente', value: 'pending' },
+        { label: 'Entregada', value: 'delivered' },
+        { label: 'Falló', value: 'failed' },
+        { label: 'Reintentando', value: 'retrying' },
+      ],
+      admin: {
+        description: 'Estado de entrega de la notificación',
+        readOnly: true,
+      },
+    },
   ],
   timestamps: true,
   hooks: {

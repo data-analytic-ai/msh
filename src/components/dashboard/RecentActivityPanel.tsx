@@ -133,7 +133,7 @@ export const RecentActivityPanel: React.FC<RecentActivityPanelProps> = ({
                         {formatTimestamp(activity.timestamp)}
                       </span>
 
-                      <Link href={`/request-service/dashboard/${activity.requestId}`}>
+                      <Link href={`/dashboard/${activity.requestId}`}>
                         <Button
                           variant="ghost"
                           size="sm"

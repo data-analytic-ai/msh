@@ -6,6 +6,7 @@ import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
+import { Bids } from './collections/Bids'
 import { Categories } from './collections/Categories'
 import Contractors from './collections/Contractors'
 import { LeadAccess } from './collections/LeadAccess'
@@ -85,6 +86,7 @@ export default buildConfig({
     Categories,
     Users,
     ServiceRequests,
+    Bids,
     Services,
     Contractors,
     LeadAccess,

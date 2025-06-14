@@ -148,11 +148,13 @@ export const ServiceRequests: CollectionConfig = {
         },
       },
       options: [
-        { label: 'Pending', value: 'pending' },
-        { label: 'Assigned', value: 'assigned' },
-        { label: 'In Progress', value: 'in-progress' },
-        { label: 'Completed', value: 'completed' },
-        { label: 'Cancelled', value: 'cancelled' },
+        { label: 'Pending - Awaiting contractor quotes', value: 'pending' },
+        { label: 'Receiving Quotes - Contractors are bidding', value: 'receiving-quotes' },
+        { label: 'Assigned - Quote accepted, contractor assigned', value: 'assigned' },
+        { label: 'In Progress - Work has started', value: 'in-progress' },
+        { label: 'Awaiting Payment - Work completed, awaiting payment', value: 'awaiting-payment' },
+        { label: 'Completed - Service completed and paid', value: 'completed' },
+        { label: 'Cancelled - Request cancelled', value: 'cancelled' },
       ],
     },
     {
@@ -294,69 +296,8 @@ export const ServiceRequests: CollectionConfig = {
         },
       ],
     },
-    {
-      name: 'quotes',
-      type: 'array',
-      admin: {
-        description: 'Service quotes from contractors',
-        condition: (data) => Boolean(data?.status !== 'pending'),
-      },
-      fields: [
-        {
-          name: 'contractor',
-          type: 'relationship',
-          relationTo: 'users',
-          hasMany: false,
-          admin: {
-            description: 'Contractor who provided the quote',
-          },
-          filterOptions: ({ req }) => {
-            if (req.user) {
-              if (['admin', 'superadmin'].includes(req.user.role as string)) {
-                return {
-                  role: {
-                    equals: 'contractor',
-                  },
-                }
-              }
-              if (req.user.role === 'contractor') {
-                return {
-                  id: {
-                    equals: req.user.id,
-                  },
-                }
-              }
-            }
-            // Return empty object as fallback
-            return {} as any
-          },
-        },
-        {
-          name: 'amount',
-          type: 'number',
-          label: 'Quoted Amount',
-          min: 0,
-          admin: {
-            description: 'Estimated cost in USD',
-          },
-        },
-        {
-          name: 'description',
-          type: 'textarea',
-          label: 'Quote Details',
-        },
-        {
-          name: 'status',
-          type: 'select',
-          defaultValue: 'pending',
-          options: [
-            { label: 'Pending', value: 'pending' },
-            { label: 'Accepted', value: 'accepted' },
-            { label: 'Rejected', value: 'rejected' },
-          ],
-        },
-      ],
-    },
+    // Note: Bids are now managed as a separate collection
+    // Use the /api/bids endpoint to query bids for this service request
     {
       name: 'notes',
       type: 'array',
@@ -462,14 +403,49 @@ export const ServiceRequests: CollectionConfig = {
   ],
   hooks: {
     afterChange: [
-      async ({ req, operation, doc }) => {
+      async ({ req, operation, doc, previousDoc }) => {
         if (operation === 'create') {
           console.log(`New service request created: ${doc.requestId}`)
 
-          // Aquí podrías implementar lógica para:
-          // 1. Enviar notificaciones por email al cliente
-          // 2. Notificar a contratistas cercanos
-          // 3. Actualizar estadísticas o dashboards
+          // Auto-transition to receiving-quotes status
+          if (doc.status === 'pending') {
+            // Update status to receiving-quotes to indicate contractors can now bid
+            const payload = req.payload
+            try {
+              await payload.update({
+                collection: 'service-requests',
+                id: doc.id,
+                data: {
+                  status: 'receiving-quotes',
+                },
+              })
+              console.log(`Status updated to receiving-quotes for request: ${doc.requestId}`)
+            } catch (error) {
+              console.error('Failed to update status to receiving-quotes:', error)
+            }
+          }
+
+          // TODO: Implement contractor notification logic here
+          // 1. Find nearby contractors with matching services
+          // 2. Send notifications about new opportunity
+          // 3. Update analytics/statistics
+        }
+
+        // Handle status transitions
+        if (operation === 'update' && previousDoc && doc.status !== previousDoc.status) {
+          console.log(
+            `Service request ${doc.requestId} status changed from ${previousDoc.status} to ${doc.status}`,
+          )
+
+          // Log significant transitions
+          if (doc.status === 'assigned' && previousDoc.status === 'receiving-quotes') {
+            console.log(`✅ Contractor assigned to request ${doc.requestId}`)
+          }
+
+          if (doc.status === 'completed' && previousDoc.status === 'in-progress') {
+            console.log(`🎉 Service request ${doc.requestId} completed`)
+            // TODO: Trigger completion notifications and payment processing
+          }
         }
       },
     ],

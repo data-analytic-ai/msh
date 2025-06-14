@@ -50,7 +50,7 @@
   },
   "confirmationType": "redirect",
   "redirect": {
-    "url": "/request-service/confirmation"
+    "url": "/confirmation"
   },
   "submitButtonLabel": "Submit Request",
   "fields": [

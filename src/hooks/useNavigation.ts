@@ -68,7 +68,7 @@ export const useNavigation = (): UseNavigationReturn => {
           router[method]('/contractor/dashboard')
           break
         case 'client':
-          router[method]('/request-service/dashboard')
+          router[method]('/dashboard')
           break
         default:
           router[method]('/')
@@ -196,7 +196,7 @@ export const useNavigation = (): UseNavigationReturn => {
       case 'contractor':
         return '/contractor/dashboard'
       case 'client':
-        return '/request-service/dashboard'
+        return '/dashboard'
       default:
         return '/'
     }

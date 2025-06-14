@@ -11,17 +11,13 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useServiceRequestStore } from '@/store/serviceRequestStore'
 
 // Rutas que requieren contexto completo
-const ROUTES_REQUIRING_CONTEXT = [
-  '/request-service/find-contractor',
-  '/request-service/payment',
-  '/request-service/tracking',
-]
+const ROUTES_REQUIRING_CONTEXT = ['/find-contractor', '/payment', '/tracking']
 
 // Rutas que requieren al menos servicios y ubicación
-const ROUTES_REQUIRING_BASIC_CONTEXT = ['/request-service/details']
+const ROUTES_REQUIRING_BASIC_CONTEXT = ['/details']
 
 // Rutas que pueden accederse libremente (no requieren datos del store)
-const FREE_ACCESS_ROUTES = ['/request-service/dashboard', '/request-service/confirmation']
+const FREE_ACCESS_ROUTES = ['/dashboard', '/confirmation']
 
 /**
  * ServiceRequestStateProvider - Ensures service request data is available
